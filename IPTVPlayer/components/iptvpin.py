@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  IPTV pin window
 #
@@ -7,9 +19,11 @@
 #
 # 
 from Screens.Screen import Screen
-from Components.ActionMap import ActionMap
+from Components.ActionMap import ActionMap, NumberActionMap, HelpableActionMap
+from cover import Cover3
 from Components.Label import Label
 from Tools.LoadPixmap import LoadPixmap
+from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 
 from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, GetIconDir
 from cover import Cover3
@@ -22,7 +36,7 @@ from cover import Cover3
 class IPTVPinWidget(Screen):
     PIN_LEN = 4
     skin = """
-        <screen name="IPTVPinWidget" position="center,center" title="E2iPlayer" size="300,260">
+        <screen name="IPTVPinWidget" position="center,center" title="E2iStream" size="300,260">
          <widget name="titel" position="5,5" zPosition="1" size="290,40" font="Regular;24" transparent="1" halign="center" valign="center" backgroundColor="black"/>
          <widget name="cover_0" zPosition="4" position="5,80" size="60,60" transparent="1" alphatest="on" />
          <widget name="cover_1" zPosition="4" position="75,80" size="60,60" transparent="1" alphatest="on" />

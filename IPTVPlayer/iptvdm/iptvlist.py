@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  IPTV download manager List UI
 #
@@ -10,7 +22,7 @@
 # LOCAL import
 ###################################################
 from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printExc, formatBytes, GetIconDir
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, formatBytes, GetIPTVDMImgDir, GetIconDir
 from Plugins.Extensions.IPTVPlayer.components.iptvlist import IPTVListComponentBase
 from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT as _
 ###################################################

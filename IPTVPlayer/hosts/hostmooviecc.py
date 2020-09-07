@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -46,20 +58,20 @@ class MoovieCC(CBaseHostClass):
     
         self.MAIN_CAT_TAB = [{'category':'list_movies',       'title': _('Movies') },
                              {'category':'list_series',       'title': _('Series') },
-                             {'category':'list_main',         'title': 'Legjobbra értékelt',     'tab_id':'now_watched'},
-                             {'category':'list_main',         'title': 'Épp most nézik',         'tab_id':'best_rated' },
+                             {'category':'list_main',         'title': 'Legjobbra Ã©rtÃ©kelt',     'tab_id':'now_watched'},
+                             {'category':'list_main',         'title': 'Ãpp most nÃ©zik',         'tab_id':'best_rated' },
                              {'category':'search',            'title': _('Search'), 'search_item':True,},
                              {'category':'search_history',    'title': _('Search history'),            } 
                             ]
                             
         self.MOVIES_CAT_TAB = [{'category':'movies_cats',     'title': _('Categories'),          'url':self.getFullUrl('/online-filmek/') },
                                {'category':'list_main',       'title': 'Premier filmek',         'tab_id':'prem_movies'},
-                               {'category':'list_main',       'title': 'Népszerű online filmek', 'tab_id':'pop_movies' },
+                               {'category':'list_main',       'title': 'NÃ©pszerÅ± online filmek', 'tab_id':'pop_movies' },
                               ]
         
         self.SERIES_CAT_TAB = [{'category':'series_cats',     'title': _('Categories'),             'url':self.getFullUrl('/online-sorozatok/')},
-                               {'category':'list_main',       'title': 'Népszerű online sorozatok', 'tab_id':'pop_series'},
-                               {'category':'list_main',       'title': 'Új Epizódok',               'tab_id':'new_episodes'},
+                               {'category':'list_main',       'title': 'NÃ©pszerÅ± online sorozatok', 'tab_id':'pop_series'},
+                               {'category':'list_main',       'title': 'Ãj EpizÃ³dok',               'tab_id':'new_episodes'},
                               ]
         
     def getPage(self, baseUrl, addParams = {}, post_data = None):
@@ -87,18 +99,18 @@ class MoovieCC(CBaseHostClass):
         if tabID == 'prem_movies':
             ms = 'Premier filmek'
         elif tabID == 'best_rated':
-            ms = 'Épp most nézik'
+            ms = 'Ãpp most nÃ©zik'
         elif tabID == 'pop_series':
-            ms = 'Népszerű online sorozatok'
+            ms = 'NÃ©pszerÅ± online sorozatok'
         elif tabID == 'new_episodes':
-            ms = 'Új Epizódok'
+            ms = 'Ãj EpizÃ³dok'
             me = '</table>'
             m1 = '<tr'
             m2 = '</tr>'
         elif tabID == 'now_watched':
-            ms = 'Még több jó film »'
+            ms = 'MÃ©g tÃ¶bb jÃ³ film Â»'
         elif tabID == 'pop_movies':
-            ms = 'Még több népszerű film »'
+            ms = 'MÃ©g tÃ¶bb nÃ©pszerÅ± film Â»'
         else: return
         
         sts, data = self.getPage(self.getMainUrl())
@@ -542,8 +554,8 @@ class MoovieCC(CBaseHostClass):
         
         data = self.cm.ph.getDataBeetwenMarkers(data, '<table style="margin-left', '</table>')[1]
         data = self.cm.ph.getAllItemsBeetwenMarkers(data, '<tr', '</tr>')
-        mapDesc = {'Eredeti Cím:': 'alternate_title', 'Év:':'year', 'Játékidő:':'duration', 'IMDb értékelés:':'imdb_rating',
-                   'Kategória:':'category', 'Írta:':'writers', 'Rendezte:':'directors', 'Szereplők:':'actors'} #'Megtekintve:':'views',
+        mapDesc = {'Eredeti CÃ­m:': 'alternate_title', 'Ãv:':'year', 'JÃ¡tÃ©kidÅ:':'duration', 'IMDb Ã©rtÃ©kelÃ©s:':'imdb_rating',
+                   'KategÃ³ria:':'category', 'Ãrta:':'writers', 'Rendezte:':'directors', 'SzereplÅk:':'actors'} #'Megtekintve:':'views',
         for item in data:
             item = self.cm.ph.getAllItemsBeetwenMarkers(item, '<td', '</td>')
             if len(item) != 2: continue

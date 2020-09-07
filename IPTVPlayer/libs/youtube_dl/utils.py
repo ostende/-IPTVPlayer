@@ -1,6 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 
 import re
 import sys
@@ -10,7 +9,7 @@ from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc
 try:
     try:
         import urllib.request as compat_urllib_request
-    except ImportError as e: # Python 2
+    except ImportError: # Python 2
         import urllib2 as compat_urllib_request
 except Exception:
     printDBG("YT import problem 1")
@@ -18,7 +17,7 @@ except Exception:
 try:
     try:
         import urllib.error as compat_urllib_error
-    except ImportError as e: # Python 2
+    except ImportError: # Python 2
         import urllib2 as compat_urllib_error
 except Exception:
     printDBG("YT import problem 2")
@@ -26,7 +25,7 @@ except Exception:
 try:
     try:
         import urllib.parse as compat_urllib_parse
-    except ImportError as e: # Python 2
+    except ImportError: # Python 2
         import urllib as compat_urllib_parse
 except Exception:
     printDBG("YT import problem 3")
@@ -34,7 +33,7 @@ except Exception:
 try:
     try:
         from urllib.parse import urlparse as compat_urllib_parse_urlparse
-    except ImportError as e: # Python 2
+    except ImportError: # Python 2
         from urlparse import urlparse as compat_urllib_parse_urlparse
 except Exception:
     printDBG("YT import problem 4")
@@ -42,7 +41,7 @@ except Exception:
 try:  
     try:
         import http.cookiejar as compat_cookiejar
-    except ImportError as e: # Python 2
+    except ImportError: # Python 2
         import cookielib as compat_cookiejar
 except Exception:
     printDBG("YT import problem 5")
@@ -50,7 +49,7 @@ except Exception:
 try: 
     try:
         import html.entities as compat_html_entities
-    except ImportError as e: # Python 2
+    except ImportError: # Python 2
         import htmlentitydefs as compat_html_entities
 except Exception:
     printDBG("YT import problem 6")
@@ -58,14 +57,14 @@ except Exception:
 try:  
     try:
         import http.client as compat_http_client
-    except ImportError as e: # Python 2
+    except ImportError: # Python 2
         import httplib as compat_http_client
 except Exception:
     printDBG("YT import problem 8")
 
 try:
     from urllib.parse import parse_qs as compat_parse_qs
-except ImportError as e: # Python 2
+except ImportError: # Python 2
     # HACK: The following is the correct parse_qs implementation from cpython 3's stdlib.
     # Python 2's version is apparently totally broken
     def _unquote(string, encoding='utf-8', errors='replace'):

@@ -12,7 +12,7 @@ def getinfo():
 	if hst=='': hst = 'https://w.arblionz.tv'
 	info_['host']= hst
 	info_['name']=name
-	info_['version']='1.1.01 05/07/2020'
+	info_['version']='1.1.02 27/08/2020'
 	info_['dev']='RGYSoft'
 	info_['cat_id']='201'
 	info_['desc']='أفلام و مسلسلات عربية و اجنبية'
@@ -47,7 +47,7 @@ class TSIPHost(TSCBaseHostClass):
 							{'category':hst, 'sub_mode':'music','title': 'اغاني وكليبات',          'mode':'21'},							
 							{'category':hst, 'sub_mode':'other','title': 'برامج تليفزيونية',       'mode':'30','url':self.MAIN_URL+'/category/%D8%A8%D8%B1%D8%A7%D9%85%D8%AC-%D8%AA%D9%84%D9%8A%D9%81%D8%B2%D9%8A%D9%88%D9%86%D9%8A%D8%A9/','page':1},
 							{'category':hst, 'sub_mode':'other','title': 'رياضة و مصارعه',         'mode':'30','url':self.MAIN_URL+'/category/%D8%B9%D8%B1%D9%88%D8%B6-%D8%A7%D9%84%D9%85%D8%B5%D8%A7%D8%B1%D8%B9%D8%A9/','page':1},
-							{'category':hst,'title': tscolor('\c0000????') + 'حسب التصنيف'   , 'mode':'20','count':1,'data':'none','code':self.MAIN_URL+'/getposts?'},						  
+							#{'category':hst,'title': tscolor('\c0000????') + 'حسب التصنيف'   , 'mode':'20','count':1,'data':'none','code':self.MAIN_URL+'/getposts?'},						  
 							{'category':'search'  ,'title':tscolor('\c00????30') + _('Search'),'search_item':True,'page':1,'hst':'tshost'},
 							]		
 		self.listsTab(self.Arablionz_TAB, {'import':cItem['import'],'icon':cItem['icon']})	

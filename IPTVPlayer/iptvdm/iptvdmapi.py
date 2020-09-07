@@ -1,6 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  IPTV download manager API
 #
@@ -11,7 +22,7 @@ from __future__ import print_function
 # LOCAL import
 ###################################################
 from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, eConnectCallback
-from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper, DMItemBase
+from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper,DMItemBase
 from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdownloadercreator import DownloaderCreator
 ###################################################
 
@@ -21,6 +32,7 @@ from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdownloadercreator import Downloade
 from Tools.BoundFunction import boundFunction
 from enigma import eTimer
 from time import sleep
+import datetime
 import os
 ###################################################
 

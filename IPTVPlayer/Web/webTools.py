@@ -1,6 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 
 import os
 import settings
@@ -8,6 +19,7 @@ import time
 import threading
 
 from Plugins.Extensions.IPTVPlayer.tools.iptvtools import GetLogoDir
+from Plugins.Extensions.IPTVPlayer.components.ihost import IHost, CDisplayListItem, RetHost, CUrlItem, ArticleContent, CFavItem
 
 ########################################################
 def formSUBMITvalue( inputHiddenObjects, caption, input_style = '', input_text = '' ):
@@ -107,8 +119,8 @@ def isActiveHostInitiated():
 	try:
 		if len(settings.activeHost.keys()) > 0:
 			status = True
-	except Exception as e:
-		print('EXCEPTION in webTools:isActiveHostInitiated - ', str(e))
+	except Exception, e:
+		print 'EXCEPTION in webTools:isActiveHostInitiated - ', str(e)
 	return status
 ########################################################
 def isCurrentItemSelected():
@@ -116,8 +128,8 @@ def isCurrentItemSelected():
 	try:
 		if len(settings.currItem.keys()) > 0:
 			status = True
-	except Exception as e:
-		print('EXCEPTION in webTools:isCurrentItemSelected - ', str(e))
+	except Exception, e:
+		print 'EXCEPTION in webTools:isCurrentItemSelected - ', str(e)
 	return status
 ########################################################
 def iSactiveHostsHTMLempty():
@@ -142,7 +154,7 @@ def setNewHostListShown(status):
 def isThreadRunning(name):
 	status = False
 	for i in threading.enumerate():
-		#print('isThreadRunning>running threads:' , i.name)
+		#print 'isThreadRunning>running threads:' , i.name
 		if name == i.name:
 			status = True
 	return status
@@ -150,7 +162,7 @@ def isThreadRunning(name):
 def stopRunningThread(name):
 	settings.StopThreads = True
 	for myThread in threading.enumerate():
-		#print('isThreadRunning>running threads:' , i.name)
+		#print 'isThreadRunning>running threads:' , i.name
 		if name == myThread.name:
 			if (myThread.isAlive()):
 				myThread.terminate()

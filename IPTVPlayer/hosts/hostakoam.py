@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Ã¯Â¿Â½ E2iStream Team, aka Codermik.  TSiPlayer is Ã¯Â¿Â½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -33,13 +45,13 @@ def GetConfigList():
 ###################################################
 
 def gettytul():
-    return 'https://ar.akoam.net/'
+    return 'https://web.akoam.net/'     # old 'https://ar.akoam.net/'
 
 class AkoAm(CBaseHostClass):
     
     def __init__(self):
         CBaseHostClass.__init__(self, {'history':'ako.am', 'cookie':'ako.am.cookie'})
-        self.MAIN_URL = 'https://ar.akoam.net/'
+        self.MAIN_URL = 'https://web.akoam.net/'
         
         self.USER_AGENT = self.cm.getDefaultHeader()['User-Agent']
         self.HTTP_HEADER = {'User-Agent': self.USER_AGENT, 'DNT':'1', 'Accept': 'text/html', 'Accept-Encoding':'gzip, deflate', 'Referer':self.getMainUrl(), 'Origin':self.getMainUrl()}
@@ -360,11 +372,11 @@ class AkoAm(CBaseHostClass):
         tmp = self.cleanHtmlStr(self.cm.ph.getDataBeetwenNodes(descData, ('<li', '>', 'imdb'), ('</li', '>'), False)[1])
         if tmp != '': otherInfo['imdb_rating'] = tmp.replace(' ', '')
 
-        descTabMap = {"المدة الزمنية":     "duration",
-                      "سنة الانتاج":        "year",
-                      "محتوى الفيلم":      "genre",
-                      "اللغة":             "language",
-                      "جودة الصورة":       "quality"}
+        descTabMap = {"ÃÂ§ÃÂÃÂÃÂ¯ÃÂ© ÃÂ§ÃÂÃÂ²ÃÂÃÂÃÂÃÂ©":     "duration",
+                      "ÃÂ³ÃÂÃÂ© ÃÂ§ÃÂÃÂ§ÃÂÃÂªÃÂ§ÃÂ¬":        "year",
+                      "ÃÂÃÂ­ÃÂªÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂÃÂ":      "genre",
+                      "ÃÂ§ÃÂÃÂÃÂºÃÂ©":             "language",
+                      "ÃÂ¬ÃÂÃÂ¯ÃÂ© ÃÂ§ÃÂÃÂµÃÂÃÂ±ÃÂ©":       "quality"}
         
         reObj = re.compile('''<i[^>]*?>''', re.I)
         descData = self.cm.ph.getAllItemsBeetwenNodes(descData, ('<li', '>'), ('</li', '>'), False)
@@ -378,10 +390,10 @@ class AkoAm(CBaseHostClass):
                 except Exception: continue
         
         reObj = re.compile('''<[\s\\/]*?br[\s\\/]*?>''', re.I)
-        descTabMap = {"بطولة الفيلم":     "actors",
-                      "ﺇﺧﺮاﺝ":            "director",
-                      "ﺗﺄﻟﻴﻒ":            "writers",
-                      "التصنيف":          "categories",
+        descTabMap = {"ÃÂ¨ÃÂ·ÃÂÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂÃÂÃÂ":     "actors",
+                      "Ã¯ÂºÂÃ¯ÂºÂ§Ã¯ÂºÂ®ÃÂ§Ã¯ÂºÂ":            "director",
+                      "Ã¯ÂºÂÃ¯ÂºÂÃ¯Â»ÂÃ¯Â»Â´Ã¯Â»Â":            "writers",
+                      "ÃÂ§ÃÂÃÂªÃÂµÃÂÃÂÃÂ":          "categories",
                       }
         descData = self.cm.ph.getDataBeetwenNodes(data, ('<div', '>', 'sub_desc'), ('<div', '>', 'clear'), False)[1]
         descData = re.compile('''<span[^>]+?color\:[^>]+?>''').split(descData)

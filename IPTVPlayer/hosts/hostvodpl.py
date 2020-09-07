@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -29,8 +41,8 @@ config.plugins.iptvplayer.proxyOnet = ConfigYesNo(default = False)
 
 def GetConfigList():
     optionList = []
-    optionList.append( getConfigListEntry( "Domyślny format video:", config.plugins.iptvplayer.onetvodDefaultformat ) )
-    optionList.append( getConfigListEntry( "Używaj domyślnego format video:", config.plugins.iptvplayer.onetvodUseDF ) )
+    optionList.append( getConfigListEntry( "DomyÅlny format video:", config.plugins.iptvplayer.onetvodDefaultformat ) )
+    optionList.append( getConfigListEntry( "UÅ¼ywaj domyÅlnego format video:", config.plugins.iptvplayer.onetvodUseDF ) )
     optionList.append(getConfigListEntry( "Korzystaj z proxy?", config.plugins.iptvplayer.proxyOnet))
     return optionList
 ###################################################
@@ -376,8 +388,8 @@ class VODPL(CBaseHostClass):
         icon  = self.getFullIconUrl( self.cm.ph.getSearchGroups(data, '''<img[^>]+?src=['"]([^"^']+?\.jpe?g[^"^']*?)["']''')[0] )
         desc  = self.cleanHtmlStr(self.cm.ph.getDataBeetwenMarkers(data, '<p>', '</p>', False)[1])
         
-        for item in [('Rendező(k):', 'directors'),
-                     ('Színészek:',     'actors'),
+        for item in [('RendezÅ(k):', 'directors'),
+                     ('SzÃ­nÃ©szek:',     'actors'),
                      ('Kategoria:',      'genre')]:
             tmpTab = []
             tmp = self.cm.ph.getDataBeetwenMarkers(data, item[0], '</li>', False)[1].split('<br>')
@@ -386,9 +398,9 @@ class VODPL(CBaseHostClass):
                 if t != '': tmpTab.append(t)
             if len(tmpTab): otherInfo[item[1]] = ', '.join(tmpTab)
         
-        for item in [('Játékidő:',     'duration'),
+        for item in [('JÃ¡tÃ©kidÅ:',     'duration'),
                      ('IMDB Pont:', 'imdb_rating'),
-                     ('Nézettség:',       'views')]:
+                     ('NÃ©zettsÃ©g:',       'views')]:
             tmp = self.cleanHtmlStr(self.cm.ph.getDataBeetwenMarkers(data, item[0], '</li>', False)[1])
             if tmp != '': otherInfo[item[1]] = tmp
         

@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 
 ###################################################
@@ -23,6 +35,7 @@ from Screens.Screen import Screen
 from Components.Label import Label
 from Components.ActionMap import ActionMap
 from Tools.LoadPixmap import LoadPixmap
+from Tools.BoundFunction import boundFunction
 from Components.config import config
 
 import codecs
@@ -142,7 +155,7 @@ class IPTVSubSimpleDownloaderWidget(Screen):
             self["console"].setText(_("Download failed.\nStatus[%s]") % status)
         else:
             self["console"].setText(_('Subtitles downloaded successfully. [%s], conversion to UTF-8.') % self.downloader.getFullFileName())
-            cmd = '/usr/bin/uchardet "%s"' % (self.downloader.getFullFileName())
+            cmd = '%s "%s"' % (config.plugins.iptvplayer.uchardetpath.value, self.downloader.getFullFileName()) 
             printDBG("cmd[%s]" % cmd)
             self.workconsole = iptv_system(cmd, self.convertSubtitles)
     

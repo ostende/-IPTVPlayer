@@ -1,6 +1,4 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 #
 #  IPTV Tools
 #
@@ -19,8 +17,9 @@ from Components.config import config
 from Tools.Directories import resolveFilename, fileExists, SCOPE_PLUGINS, SCOPE_CONFIG
 from enigma import eConsoleAppContainer
 from Components.Language import language
-from time import time
-from urllib2 import urlopen
+from time import sleep as time_sleep, time
+from urllib2 import Request, urlopen, URLError, HTTPError
+import urllib
 import urllib2
 import traceback
 import re
@@ -29,16 +28,21 @@ import os
 import stat
 import codecs
 import datetime
-from boxbranding import getImageArch
 
-SERVER_DOMAINS = {'vline':'http://iptvplayer.vline.pl/', 'gitlab':'http://zadmario.gitlab.io/'}
-SERVER_UPDATE_PATH = {'vline':'download/update2/', 'gitlab':'update2/'}
+#SERVER_DOMAINS = {'vline':'http://iptvplayer.vline.pl/', 'gitlab':'https://gitlab.com/maxbambi/e2iplayer/', 'private':'http://www.e2iplayer.gitlab.io/'}
+#SERVER_UPDATE_PATH = {'vline':'download/update2/', 'gitlab':'raw/master/IPTVPlayer/iptvupdate/', 'private':'update2/'}
+SERVER_DOMAINS = {'vline':'http://9thprince.gitlab.io/', 'gitlab':'http://9thprince.gitlab.io/', 'private':'http://9thprince.gitlab.io/'}
+SERVER_UPDATE_PATH = {'vline':'update2/', 'gitlab':'update2/', 'private':'update2/'}
+
+
 
 def GetServerKey(serverNum=None):
     if serverNum == None:
         serverNum = config.plugins.iptvplayer.preferredupdateserver.value
 
-    if serverNum == '2':
+    if serverNum == '3':
+        serverKey = 'private'
+    elif serverNum == '2':
         serverKey = 'gitlab'
     else:
         serverKey = 'vline'
@@ -53,7 +57,7 @@ def GetUpdateServerUri(file='', serverNum=None):
 
 def GetResourcesServerUri(file='', serverNum=None):
     serverKey = GetServerKey(serverNum)
-    uri = SERVER_DOMAINS[serverKey] + 'resources/' + file
+    uri = 'http://iptvplayer.vline.pl/resources/' + file
     printDBG("GetResourcesServerUri -> %s" % uri)
     return uri
 
@@ -112,7 +116,7 @@ def GetNice(pid=None):
     return nice
     
 def E2PrioFix(cmd, factor=2):
-    if getImageArch() != "sh4":
+    if '/duk' not in cmd and config.plugins.iptvplayer.plarform.value in ('mipsel', 'armv7', 'armv5t'):
         return 'nice -n %d %s' % (GetNice() + factor, cmd)
     else:
         return cmd
@@ -270,7 +274,8 @@ def IsWebInterfaceModuleAvailable(chekInit=False):
     else:
         file = 'initiator'
     if (fileExists(resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/Web/%s.py'  % file)) or
-        fileExists(resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/Web/%s.pyo' % file))):
+        fileExists(resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/Web/%s.pyo' % file)) or
+        fileExists(resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/Web/%s.pyc' % file))):
         return True
     else:
         return False
@@ -305,7 +310,7 @@ def GetPyScriptCmd(name):
     elif fileExists(baseName + '.pyo'):
         baseName += '.pyo'
     if baseName != '':
-        for item in ['python', 'python2.7']:
+        for item in ['python', 'python2.7', 'python2.6']:
             pyPath = Which(item)
             if '' != pyPath:
                 cmd = '%s %s' % (pyPath, baseName)
@@ -316,13 +321,13 @@ def GetJSScriptFile(file):
     return resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/jsscripts/') + file
 
 def GetUchardetPath():
-    return '/usr/bin/uchardet'
+    return config.plugins.iptvplayer.uchardetpath.value
 
 def GetCmdwrapPath():
-    return '/usr/cmdwrapper'
+    return config.plugins.iptvplayer.cmdwrappath.value
     
 def GetDukPath():
-    return '/usr/bin/duk'
+    return config.plugins.iptvplayer.dukpath.value
 
 gE2iPlayerTempCookieDir = None
 def SetTmpCookieDir():
@@ -438,8 +443,9 @@ def GetIPTVDMImgDir(file = ''):
     return resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/icons/') + file
 def GetIconDir(file = ''):
     return resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/icons/') + file
-def GetBinDir(file = ''):
-    return '/usr/bin/' + file
+def GetBinDir(file = '', platform=None):
+    if None == platform: platform = config.plugins.iptvplayer.plarform.value
+    return resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/bin/') + platform + '/' + file
 def GetPluginDir(file = ''):
     return resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/') + file
 def GetExtensionsDir(file = ''):
@@ -633,28 +639,60 @@ def GetHostsFromList(useCache=True):
     return lhosts
         
 def GetHostsFromFolder(useCache=True):
-    global g_cacheHostsFromFolder
-    if useCache and g_cacheHostsFromFolder != None:
-        return g_cacheHostsFromFolder
-    
-    lhosts = []
-    try:
-        fileList = os.listdir( __getHostsPath() )
-        for wholeFileName in fileList:
-            # separate file name and file extension
-            fileName, fileExt = os.path.splitext(wholeFileName)
-            nameLen = len( fileName )
-            if fileExt in ['.pyo', '.py'] and nameLen >  4 and __isHostNameValid(fileName):
-                if fileName[4:] not in lhosts:
-                    lhosts.append( fileName[4:] )
-                    printDBG('getHostsList add host with fileName: "%s"' % fileName[4:])
-        printDBG('getHostsList end')
-        lhosts.sort()
-    except Exception:
-        printDBG('GetHostsList EXCEPTION')
-    
-    g_cacheHostsFromFolder = list(lhosts)
-    return lhosts
+	global g_cacheHostsFromFolder
+	if useCache and g_cacheHostsFromFolder != None:
+		return g_cacheHostsFromFolder
+
+	lhosts = []
+	try:
+		fileList = os.listdir( __getHostsPath() )
+		for wholeFileName in fileList:
+			# separate file name and file extension
+			fileName, fileExt = os.path.splitext(wholeFileName)
+			nameLen = len( fileName )
+			if fileExt in ['.pyo', '.pyc', '.py'] and nameLen >  4 and __isHostNameValid(fileName):
+				if fileName[4:] not in lhosts:
+					lhosts.append( fileName[4:] )
+					printDBG('getHostsList add host with fileName: "%s"' % fileName[4:])
+		printDBG('getHostsList end')
+		lhosts.sort()
+	except Exception:	
+		printDBG('GetHostsList EXCEPTION')
+
+	#Add Tsiplayer Hosts 
+	folder='/usr/lib/enigma2/python/Plugins/Extensions/IPTVPlayer/tsiplayer' 
+	if os.path.exists(folder):
+		lst=os.listdir(folder)
+		lst.sort()
+		for (file_) in lst:
+			if (file_.endswith('.py'))and(file_.startswith('host_')):
+				hst_titre=file_.replace('host_' ,'TS_').replace('.py','')    
+				if hst_titre not in lhosts:
+					lhosts.append( hst_titre )
+		#Add Tsmedia Hosts 
+		folder='/usr/lib/enigma2/python/Plugins/Extensions/TSmedia/addons'
+		lst=[]
+		if os.path.exists(folder):
+			lst=os.listdir(folder)
+			for (dir_) in lst:
+				if ('.py' not in dir_)and('youtube' not in dir_)and('programs' not in dir_)and('favorites' not in dir_):
+					folder2=folder+'/'+dir_
+					lst2=[]
+					lst2=os.listdir(folder2)
+					for (dir_2) in lst2:
+						if ('.py' not in dir_2):
+							hst_titre='TSM_'+dir_+'__'+dir_2
+							if hst_titre not in lhosts:
+								lhosts.append( hst_titre )					    
+
+
+		printDBG('getHostsList end')
+		lhosts.sort()
+
+		printDBG('GetHostsList EXCEPTION')
+			
+	g_cacheHostsFromFolder = list(lhosts)
+	return lhosts
 
 def GetHostsList(fromList=True, fromHostFolder=True, useCache=True):
     printDBG('getHostsList begin')
@@ -840,7 +878,7 @@ def mkdirs(newdir, raiseException=False):
             if tail:
                 os.mkdir(newdir)
         return True
-    except Exception as e:
+    except Exception, e:
         printDBG('Exception mkdirs["%s"]' % e)
         if raiseException:
             raise e
@@ -1307,6 +1345,22 @@ def GetVersionNum(ver):
     except Exception:
         printExc('Version[%r]' % ver)
         return 0
+        
+def IsFPUAvailable():
+    try:
+        if None == IsFPUAvailable.available:
+            with open('/proc/cpuinfo', 'r') as f:
+                data = f.read().strip().upper()
+            if ' FPU ' in data:
+                IsFPUAvailable.available = True
+            else:
+                IsFPUAvailable.available = False
+        if IsFPUAvailable.available == False and config.plugins.iptvplayer.plarformfpuabi.value == 'hard_float':
+            return True
+    except Exception:
+        printExc()
+    return IsFPUAvailable.available
+IsFPUAvailable.available = None
 
 def IsSubtitlesParserExtensionCanBeUsed():
     try:

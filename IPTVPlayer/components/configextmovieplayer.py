@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  Konfigurator dla iptv 2013
 #  autorzy: j00zek, samsamsam
@@ -8,7 +20,9 @@
 ###################################################
 # LOCAL import
 ###################################################
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, GetE2VideoAspectChoices, GetE2VideoAspect, GetE2VideoPolicyChoices, GetE2VideoPolicy, GetE2AudioCodecMixChoices, IsExecutable
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, GetHostsList, IsHostEnabled, SaveHostsOrderList, SortHostsList, \
+                                                          GetE2VideoAspectChoices, GetE2VideoAspect, SetE2VideoAspect, GetE2VideoPolicyChoices, \
+                                                          GetE2VideoPolicy, SetE2VideoPolicy, GetE2AudioCodecMixChoices, GetE2AudioCodecMixOption, IsExecutable
 from Plugins.Extensions.IPTVPlayer.components.configbase import ConfigBaseWidget, ConfigIPTVFileSelection, COLORS_DEFINITONS
 from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT as _
 ###################################################
@@ -17,10 +31,10 @@ from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT
 # FOREIGN import
 ###################################################
 import skin
-from enigma import eLabel, getDesktop
+from enigma import gRGB, eLabel, getDesktop
 from Screens.MessageBox import MessageBox
-from Components.config import config, ConfigSelection, ConfigYesNo, Config, ConfigInteger, getConfigListEntry, configfile
-from boxbranding import getImageArch
+from Screens.ChoiceBox import ChoiceBox
+from Components.config import config, ConfigSubsection, ConfigSelection, ConfigDirectory, ConfigYesNo, ConfigOnOff, Config, ConfigInteger, ConfigSubList, ConfigText, getConfigListEntry, configfile
 ###################################################
 config.plugins.iptvplayer.extplayer_summary = ConfigSelection(default = "yes", choices = [('auto', _('Auto')), ('yes', _('Yes')), ('no', _('No'))])
 config.plugins.iptvplayer.use_clear_iframe = ConfigYesNo(default = False)
@@ -29,7 +43,6 @@ config.plugins.iptvplayer.iframe_file = ConfigIPTVFileSelection(fileMatch = "^.*
 config.plugins.iptvplayer.clear_iframe_file = ConfigIPTVFileSelection(fileMatch = "^.*\.mvi$", default = "/usr/share/enigma2/black.mvi")
 
 config.plugins.iptvplayer.remember_last_position = ConfigYesNo(default = False)
-config.plugins.iptvplayer.remember_last_position_time = ConfigInteger(0, (0, 99))
 config.plugins.iptvplayer.fakeExtePlayer3 = ConfigSelection(default = "fake", choices = [("fake", " ")])
 config.plugins.iptvplayer.rambuffer_sizemb_network_proto = ConfigInteger(0, (0, 999))
 config.plugins.iptvplayer.rambuffer_sizemb_files = ConfigInteger(0, (0, 999))
@@ -294,23 +307,23 @@ class ConfigExtMoviePlayer(ConfigBaseWidget, ConfigExtMoviePlayerBase):
         list = []
         
         list.append(getConfigListEntry(_("Remember last watched position"), config.plugins.iptvplayer.remember_last_position))
-        if config.plugins.iptvplayer.remember_last_position.value:
-            list.append(getConfigListEntry("    " + _("Skip video shorter than [min]"), config.plugins.iptvplayer.remember_last_position_time))
         if getDesktop(0).size().width() >= 800:
             list.append(getConfigListEntry(_("Info bar clock format"), config.plugins.iptvplayer.extplayer_infobanner_clockformat))
         list.append(getConfigListEntry(_("Create LCD/VFD summary screen"), config.plugins.iptvplayer.extplayer_summary))
-        list.append(getConfigListEntry(_("----------------- External exteplayer3 options -----------------"), config.plugins.iptvplayer.fakeExtePlayer3))
-        list.append(getConfigListEntry("    " + _("RAM buffer size [MB] for network protocols"), config.plugins.iptvplayer.rambuffer_sizemb_network_proto))
-        list.append(getConfigListEntry("    " + _("RAM buffer size [MB] for local files"), config.plugins.iptvplayer.rambuffer_sizemb_files))
-        list.append(getConfigListEntry("    " + _("Use software decoder for the %s") % 'AAC', config.plugins.iptvplayer.aac_software_decode))
-        list.append(getConfigListEntry("    " + _("Use software decoder for the %s") % 'AC3', config.plugins.iptvplayer.ac3_software_decode))
-        list.append(getConfigListEntry("    " + _("Use software decoder for the %s") % 'EAC3', config.plugins.iptvplayer.eac3_software_decode))
-        list.append(getConfigListEntry("    " + _("Use software decoder for the %s") % 'DTS', config.plugins.iptvplayer.dts_software_decode))
-        list.append(getConfigListEntry("    " + _("Use software decoder for the %s") % 'WMA', config.plugins.iptvplayer.wma_software_decode))
-        list.append(getConfigListEntry("    " + _("Use software decoder for the %s") % 'MP3', config.plugins.iptvplayer.mp3_software_decode))
-        if getImageArch() != "sh4":
-            list.append(getConfigListEntry("    " + _("Software decoding as"), config.plugins.iptvplayer.software_decode_as))
-        list.append(getConfigListEntry("    " + _("Stereo downmix mode for software decoder"), config.plugins.iptvplayer.stereo_software_decode))
+        if 1:#IsExecutable(config.plugins.iptvplayer.exteplayer3path.value):
+            list.append(getConfigListEntry(_("----------------- External exteplayer3 options -----------------"), config.plugins.iptvplayer.fakeExtePlayer3))
+            list.append(getConfigListEntry("    " + _("RAM buffer size [MB] for network protocols"), config.plugins.iptvplayer.rambuffer_sizemb_network_proto))
+            list.append(getConfigListEntry("    " + _("RAM buffer size [MB] for local files"), config.plugins.iptvplayer.rambuffer_sizemb_files))
+            list.append(getConfigListEntry("    " + _("Use software decoder for the %s") % 'AAC', config.plugins.iptvplayer.aac_software_decode))
+            list.append(getConfigListEntry("    " + _("Use software decoder for the %s") % 'AC3', config.plugins.iptvplayer.ac3_software_decode))
+            list.append(getConfigListEntry("    " + _("Use software decoder for the %s") % 'EAC3', config.plugins.iptvplayer.eac3_software_decode))
+            if config.plugins.iptvplayer.plarform.value in ['sh4', 'mipsel', 'armv7', 'armv5t', 'i686']:
+                list.append(getConfigListEntry("    " + _("Use software decoder for the %s") % 'DTS', config.plugins.iptvplayer.dts_software_decode))
+                list.append(getConfigListEntry("    " + _("Use software decoder for the %s") % 'WMA', config.plugins.iptvplayer.wma_software_decode))
+                list.append(getConfigListEntry("    " + _("Use software decoder for the %s") % 'MP3', config.plugins.iptvplayer.mp3_software_decode))
+                if config.plugins.iptvplayer.plarform.value != 'sh4':
+                    list.append(getConfigListEntry("    " + _("Software decoding as"), config.plugins.iptvplayer.software_decode_as))
+                list.append(getConfigListEntry("    " + _("Stereo downmix mode for software decoder"), config.plugins.iptvplayer.stereo_software_decode))
         if self.ac3_mix_avaliable:
             list.append(getConfigListEntry(_("AC3 downmix mode"), config.plugins.iptvplayer.ac3_mix))
         if self.aac_mix_avaliable:
@@ -360,7 +373,7 @@ class ConfigExtMoviePlayer(ConfigBaseWidget, ConfigExtMoviePlayerBase):
         list.append(getConfigListEntry(_("Show iframe during audio playback"), config.plugins.iptvplayer.show_iframe))
         if config.plugins.iptvplayer.show_iframe.value:
             list.append(getConfigListEntry("    " + _("Radio iframe file"), config.plugins.iptvplayer.iframe_file))
-        if getImageArch() != "sh4" and (config.plugins.iptvplayer.show_iframe.value or config.plugins.iptvplayer.use_clear_iframe.value):
+        if 'sh4' != config.plugins.iptvplayer.plarform.value and (config.plugins.iptvplayer.show_iframe.value or config.plugins.iptvplayer.use_clear_iframe.value):
             list.append(getConfigListEntry("    " + _("Black iframe file"), config.plugins.iptvplayer.clear_iframe_file))
         self.list = list
         ConfigBaseWidget.runSetup(self)

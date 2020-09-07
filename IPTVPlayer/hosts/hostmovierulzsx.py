@@ -1,5 +1,18 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -250,20 +263,20 @@ class MovieRulzSX(CBaseHostClass):
         title = self.cleanHtmlStr(self.cm.ph.getDataBeetwenMarkers(data, '<h1', '</h1>')[1])
         icon  = self.getFullIconUrl(self.cm.ph.getSearchGroups(data, '''\ssrc=['"]([^'^"]+?)['"]''')[0])
         
-        keysMap = {'دولة المسلسل':   'country',
-                   'حالة المسلسل':   'status',
-                   'اللغة':          'language',
-                   'توقيت الحلقات':  'duration',
-                   'الموسم':         'seasons',
-                   'الحلقات':        'episodes',
+        keysMap = {'Ø¯ÙÙØ© Ø§ÙÙØ³ÙØ³Ù':   'country',
+                   'Ø­Ø§ÙØ© Ø§ÙÙØ³ÙØ³Ù':   'status',
+                   'Ø§ÙÙØºØ©':          'language',
+                   'ØªÙÙÙØª Ø§ÙØ­ÙÙØ§Øª':  'duration',
+                   'Ø§ÙÙÙØ³Ù':         'seasons',
+                   'Ø§ÙØ­ÙÙØ§Øª':        'episodes',
         
-                   'تصنيف الفيلم':   'genres',
-                   'مستوى المشاهدة': 'age_limit',
-                   'سنة الإنتاج':     'year',
-                   'مدة الفيلم':     'duration',
-                   'تقييم IMDB':     'imdb_rating',
-                   'بطولة':          'actors',
-                   'جودة الفيلم':    'quality'}
+                   'ØªØµÙÙÙ Ø§ÙÙÙÙÙ':   'genres',
+                   'ÙØ³ØªÙÙ Ø§ÙÙØ´Ø§ÙØ¯Ø©': 'age_limit',
+                   'Ø³ÙØ© Ø§ÙØ¥ÙØªØ§Ø¬':     'year',
+                   'ÙØ¯Ø© Ø§ÙÙÙÙÙ':     'duration',
+                   'ØªÙÙÙÙ IMDB':     'imdb_rating',
+                   'Ø¨Ø·ÙÙØ©':          'actors',
+                   'Ø¬ÙØ¯Ø© Ø§ÙÙÙÙÙ':    'quality'}
         data = self.cm.ph.getAllItemsBeetwenNodes(data, ('<i', '>', 'fa-'), ('</span', '>'))
         printDBG(data)
         for item in data:

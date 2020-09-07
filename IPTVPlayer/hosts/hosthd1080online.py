@@ -1,5 +1,18 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -195,7 +208,7 @@ class HD1080Online(CBaseHostClass):
             self.addDir(MergeDicts(cItem, {'good_for_fav':False, 'title':_('Next page'), 'page':page + 1}))
 
     def listSearchResult(self, cItem, searchPattern, searchType):
-        #searchPattern = 'Человек'
+        #searchPattern = 'Ð§ÐµÐ»Ð¾Ð²ÐµÐº'
         sts, data = self.getPage(self.getMainUrl())
         if not sts: return
         self.setMainUrl(self.cm.meta['url'])

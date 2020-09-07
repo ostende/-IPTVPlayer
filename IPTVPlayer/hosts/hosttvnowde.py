@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -156,7 +168,7 @@ class TVNowDE(CBaseHostClass):
     def listCats(self, cItem, nextCategory):
         printDBG("TVNowDE.listCats")
         
-        genres = ["Tägliche Serien","Action","Crime","Ratgeber","Comedy","Show","Docutainment","Drama","Tiere","News","Mags","Romantik","Horror","Familie","Kochen","Auto","Sport","Reportage und Dokumentationen","Sitcom","Mystery","Lifestyle","Musik","Spielfilm","Anime"] 
+        genres = ["TÃ¤gliche Serien","Action","Crime","Ratgeber","Comedy","Show","Docutainment","Drama","Tiere","News","Mags","Romantik","Horror","Familie","Kochen","Auto","Sport","Reportage und Dokumentationen","Sitcom","Mystery","Lifestyle","Musik","Spielfilm","Anime"] 
         #["Soap", "Action", "Crime", "Ratgeber", "Comedy", "Show", "Docutainment", "Drama", "Tiere", "News", "Mags", "Romantik", "Horror", "Familie", "Kochen", "Auto", "Sport", "Reportage und Dokumentationen", "Sitcom", "Mystery", "Lifestyle", "Musik", "Spielfilm", "Anime"]
         for item in genres:
             params = dict(cItem)

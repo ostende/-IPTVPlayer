@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -23,7 +35,7 @@ config.plugins.iptvplayer.TVN24httpType = ConfigSelection(default = "http://", c
    
 def GetConfigList():
     optionList = []
-    optionList.append(getConfigListEntry("Typ połączenia:", config.plugins.iptvplayer.TVN24httpType))
+    optionList.append(getConfigListEntry("Typ poÅÄczenia:", config.plugins.iptvplayer.TVN24httpType))
     return optionList
 ###################################################
 
@@ -71,7 +83,7 @@ class Tvn24(CBaseHostClass):
         VIDEO_PLAYLIST = Tvn24.MAIN_URL + '/video/playlists/' + Tvn24.API_KEY
         MAIN_CATEGORIES = [
             {'name': 'category', 'title': 'Najnowsze',     'category': 'end_cat',      'url': Tvn24.MAIN_URL + '/articles/newest/' + Tvn24.API_KEY + '/20' },
-            {'name': 'category', 'title': 'Najważniejsze', 'category': 'end_cat',      'url': Tvn24.MAIN_URL + '/articles/important/' + Tvn24.API_KEY },
+            {'name': 'category', 'title': 'NajwaÅ¼niejsze', 'category': 'end_cat',      'url': Tvn24.MAIN_URL + '/articles/important/' + Tvn24.API_KEY },
             {'name': 'category', 'title': 'Informacje',    'category': 'playlist',     'url': VIDEO_PLAYLIST + '/1'},
             {'name': 'category', 'title': 'Magazyny',      'category': 'magazines',    'url': Tvn24.MAIN_URL + '/magazines/' + Tvn24.API_KEY + '/', 'page':'1' },
             {'name': 'category', 'title': 'Kategorie',     'category': 'categories',   'url': Tvn24.MAIN_URL + '/categories/' + Tvn24.API_KEY },
@@ -168,7 +180,7 @@ class Tvn24(CBaseHostClass):
                     params = {'name': 'category', 'category': currCat, 'parent_cat': category, 'title': title, 'url':url, 'icon':icon, 'plot':plot, 'page':'1', 'sub_categiories':subCategiories}
                     self.addDir(params)
             if None != nextPage:
-                params = {'name': 'category', 'title': 'Następna strona', 'category': category, 'url': baseUrl, 'page':nextPage}
+                params = {'name': 'category', 'title': 'NastÄpna strona', 'category': category, 'url': baseUrl, 'page':nextPage}
                 self.addDir(params)
         except Exception:
             printExc()
@@ -221,7 +233,7 @@ class Tvn24(CBaseHostClass):
                         self.addArticle(params)
                     
             if None != nextPage:
-                params = {'name': 'category', 'title': 'Następna strona', 'category': 'end_cat', 'parent_cat':parent_cat, 'url': baseUrl, 'page':nextPage}
+                params = {'name': 'category', 'title': 'NastÄpna strona', 'category': 'end_cat', 'parent_cat':parent_cat, 'url': baseUrl, 'page':nextPage}
                 self.addDir(params)
         except Exception:
             printExc()

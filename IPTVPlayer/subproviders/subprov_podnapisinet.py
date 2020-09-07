@@ -1,23 +1,44 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###################################################
 # LOCAL import
 ###################################################
-from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT as _
+from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT as _, SetIPTVPlayerLastHostError
+from Plugins.Extensions.IPTVPlayer.components.ihost import CDisplayListItem, RetHost
 from Plugins.Extensions.IPTVPlayer.components.isubprovider import CSubProviderBase, CBaseSubProviderClass
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, GetDefaultLang, RemoveDisallowedFilenameChars, GetSubtitlesDir, rm
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, GetDefaultLang, GetCookieDir, byteify, \
+                                                          RemoveDisallowedFilenameChars, GetSubtitlesDir, GetTmpDir, rm, \
+                                                          MapUcharEncoding, GetPolishSubEncoding, rmtree, mkdirs
+from Plugins.Extensions.IPTVPlayer.tools.iptvtypes import strwithmeta
 ###################################################
 
 ###################################################
 # FOREIGN import
 ###################################################
+from datetime import timedelta
+import time
 import re
 import urllib
-try:    from urlparse import urlsplit
+import unicodedata
+import base64
+try:    from urlparse import urlsplit, urlunsplit
 except Exception: printExc()
+from os import listdir as os_listdir, path as os_path
+try:    import json
+except Exception: import simplejson as json
 try:
+    try: from cStringIO import StringIO
+    except Exception: from StringIO import StringIO 
     import gzip
 except Exception: pass
+from Components.config import config, ConfigSelection, ConfigYesNo, ConfigText, getConfigListEntry
+###################################################
+
+
+###################################################
+# E2 GUI COMMPONENTS 
+###################################################
+from Plugins.Extensions.IPTVPlayer.components.asynccall import MainSessionWrapper
+from Screens.MessageBox import MessageBox
 ###################################################
 
 ###################################################
@@ -59,6 +80,7 @@ class PodnapisiNetProvider(CBaseSubProviderClass):
                 printDBG('my_session [%s], phpbb3_session[%s]' % (checkSession, session))
                 if checkSession != session:
                     sts, data = self.cm.getPage(url, params, post_data)
+        
         return sts, data
         
     def fillCacheFilters(self):
@@ -144,11 +166,11 @@ class PodnapisiNetProvider(CBaseSubProviderClass):
         for key in ['movie_type', 'episode_type', 'fps', 'flags']:
             if cItem.get(key, '') != '':
                 baseUrl += '&' + key + '=' + cItem[key]
-        
         url = self.getFullUrl(baseUrl)
-        sts, data = self.cm.getPage(url)
-        if not sts: return
-        
+        sts, data = self.getPage(url)
+        if not sts: 
+            return
+
         tmp = self.cm.ph.getDataBeetwenMarkers(data, '<thead', '</thead>')[1]
         tmp = self.cm.ph.getAllItemsBeetwenMarkers(tmp, '<th', '</th>')
         rawDesc = []
@@ -276,3 +298,4 @@ class IPTVSubProvider(CSubProviderBase):
 
     def __init__(self, params={}):
         CSubProviderBase.__init__(self, PodnapisiNetProvider(params))
+    

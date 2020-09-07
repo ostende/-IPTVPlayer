@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 
 ###################################################
 # LOCAL import
@@ -27,9 +39,9 @@ config.plugins.iptvplayer.tvgrypl_date_of_birth   = ConfigText(default = "2017-0
 
 def GetConfigList():
     optionList = []
-    optionList.append(getConfigListEntry("Domyślna jakość wideo:", config.plugins.iptvplayer.tvgrypl_default_quality))
-    optionList.append(getConfigListEntry("Używaj domyślnej jakości wideo:", config.plugins.iptvplayer.tvgrypl_use_dq))
-    optionList.append(getConfigListEntry("Wprowadź datę urodzenia [RRRRR-MM-DD]:", config.plugins.iptvplayer.tvgrypl_date_of_birth))
+    optionList.append(getConfigListEntry("DomyÅlna jakoÅÄ wideo:", config.plugins.iptvplayer.tvgrypl_default_quality))
+    optionList.append(getConfigListEntry("UÅ¼ywaj domyÅlnej jakoÅci wideo:", config.plugins.iptvplayer.tvgrypl_use_dq))
+    optionList.append(getConfigListEntry("WprowadÅº datÄ urodzenia [RRRRR-MM-DD]:", config.plugins.iptvplayer.tvgrypl_date_of_birth))
     return optionList
 ###################################################
 
@@ -50,10 +62,10 @@ class TvGryPL(CBaseHostClass):
         self.DEFAULT_ICON_URL = 'http://www.gry-online.pl/apple-touch-icon-120x120.png'
         self.MAIN_URL = 'https://tvgry.pl/'
         self.SEARCH_URL = self.getFullUrl('wyszukiwanie.asp')
-        self.MAIN_CAT_TAB = [{'category':'list_tabs',          'title':'Materiały',            'url': self.getFullUrl('/wideo-tvgry.asp')},
+        self.MAIN_CAT_TAB = [{'category':'list_tabs',          'title':'MateriaÅy',            'url': self.getFullUrl('/wideo-tvgry.asp')},
                              {'category':'list_items',         'title':'Tematy',               'url': self.getFullUrl('/tematy.asp')},
                              {'category':'list_tabs',          'title':'Zwiastuny gier',       'url': self.getFullUrl('/trailery-z-gier.asp')},
-                             {'category':'list_tabs',          'title':'Zwiastuny filmów',     'url': self.getFullUrl('/trailery-filmowe.asp')},
+                             {'category':'list_tabs',          'title':'Zwiastuny filmÃ³w',     'url': self.getFullUrl('/trailery-filmowe.asp')},
                              {'category':'search',         'title':_('Search'), 'search_item':True},
                              {'category':'search_history', 'title':_('Search history')} ]
     
@@ -164,9 +176,9 @@ class TvGryPL(CBaseHostClass):
                 if not sts: return urlTab
                 
                 if ageMarker in data:
-                    SetIPTVPlayerLastHostError("Twój wiek nie został poprawnie zweryfikowany przez serwis http://tvgry.pl/.\nSprawdź ustawioną datę urodzenia w konfiguracji hosta.")
+                    SetIPTVPlayerLastHostError("TwÃ³j wiek nie zostaÅ poprawnie zweryfikowany przez serwis http://tvgry.pl/.\nSprawdÅº ustawionÄ datÄ urodzenia w konfiguracji hosta.")
             else:
-                SetIPTVPlayerLastHostError("Wprowadź datę urodzenia w konfiguracji hosta - wymagane przez serwis http://tvgry.pl/.")
+                SetIPTVPlayerLastHostError("WprowadÅº datÄ urodzenia w konfiguracji hosta - wymagane przez serwis http://tvgry.pl/.")
                 
         
         url = self.cm.ph.getSearchGroups(data, '''<iframe[^>]+?src=['"]([^"^']+?)['"]''', 1, True)[0]

@@ -151,8 +151,12 @@ class TSIPHost(TSCBaseHostClass):
 						titre = '|Server 01| FaselHD'
 						local = 'local'
 					elif 'سيرفر #07' in titre: titre = '|Server 07| Vidfast.Co'	
-					if url.startswith('http'):
-						urlTab.append({'name':titre, 'url':'hst#tshost#'+url, 'need_resolve':1,'type':local})	
+					
+					if 'moshahda.online' in url:
+						urlTab.append({'name':'|Local| Moshahda', 'url':url, 'need_resolve':1,'type':'local'})	
+					else:
+						if url.startswith('http'):
+							urlTab.append({'name':titre, 'url':'hst#tshost#'+url, 'need_resolve':1,'type':local})	
 		return urlTab
 		 
 	def getVideos(self,videoUrl):

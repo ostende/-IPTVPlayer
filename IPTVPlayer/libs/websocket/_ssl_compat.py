@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 """
 websocket - WebSocket client library for Python
 
@@ -39,7 +37,7 @@ try:
     __all__.append("HAVE_CONTEXT_CHECK_HOSTNAME")
 
     HAVE_SSL = True
-except ImportError as e:
+except ImportError:
     # dummy class of SSLError for ssl none-support environment.
     class SSLError(Exception):
         pass

@@ -1,5 +1,19 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
+# Info:  Parsing rewritten 17/08/2019 CM
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -23,15 +37,17 @@ class LibreStream(CBaseHostClass):
     MAIN_URL   = 'http://ls-streaming.com/'
     SEARCH_URL = MAIN_URL + 'index.php?q='
     DEFAULT_ICON_URL = 'http://thumbnail.easycounter.com/thumbnails/300x180/l/libre-stream.org.png'
+
+    HOST_VER = '2.0 (17/08/2019)'
     
     MAIN_CAT_TAB = [
-                    {'category':'cats',    'cache_key':'movie_cats',   'title': _('Movie'),         'url':MAIN_URL+'films/', 'icon':DEFAULT_ICON_URL },
-                    {'category':'cats',    'cache_key':'year_cats',   'title': _('Year'), 'url':MAIN_URL+'films/', 'icon':DEFAULT_ICON_URL },
-                    {'category':'cats',    'cache_key':'series_cats',  'title': _('Series TV'),     'url':MAIN_URL,          'icon':DEFAULT_ICON_URL },
-                    {'category':'cats',    'cache_key':'qualities',    'title': _('Quality'),       'url':MAIN_URL+'films/', 'icon':DEFAULT_ICON_URL },
-                    {'category':'cats',    'cache_key':'platforms',    'title': _('Platform'),      'url':MAIN_URL+'films/', 'icon':DEFAULT_ICON_URL },
-                    {'category':'search',                              'title': _('Search'),                                 'icon':DEFAULT_ICON_URL, 'search_item':True},
-                    {'category':'search_history',                      'title': _('Search history'),                         'icon':DEFAULT_ICON_URL } 
+                    {'category':'cats',    'cache_key':'movie_cats',   'title': _('Movie'), 'desc': '\c00????00Version: \c00??????'+HOST_VER+'\\n\c00????00Developer: \c00??????Codermik\\n', 'url':MAIN_URL+'films/', 'icon':DEFAULT_ICON_URL },
+                    {'category':'cats',    'cache_key':'year_cats',   'title': _('Year'), 'desc': '\c00????00Version: \c00??????'+HOST_VER+'\\n\c00????00Developer: \c00??????Codermik\\n', 'url':MAIN_URL+'films/', 'icon':DEFAULT_ICON_URL },
+                    {'category':'cats',    'cache_key':'series_cats',  'title': _('Series TV'), 'desc': '\c00????00Version: \c00??????'+HOST_VER+'\\n\c00????00Developer: \c00??????Codermik\\n', 'url':MAIN_URL,          'icon':DEFAULT_ICON_URL },
+                    {'category':'cats',    'cache_key':'qualities',    'title': _('Quality'), 'desc': '\c00????00Version: \c00??????'+HOST_VER+'\\n\c00????00Developer: \c00??????Codermik\\n', 'url':MAIN_URL+'films/', 'icon':DEFAULT_ICON_URL },
+                    {'category':'cats',    'cache_key':'platforms',    'title': _('Platform'), 'desc': '\c00????00Version: \c00??????'+HOST_VER+'\\n\c00????00Developer: \c00??????Codermik\\n', 'url':MAIN_URL+'films/', 'icon':DEFAULT_ICON_URL },
+                    {'category':'search',                              'title': _('Search'), 'desc': '\c00????00Version: \c00??????'+HOST_VER+'\\n\c00????00Developer: \c00??????Codermik\\n','icon':DEFAULT_ICON_URL, 'search_item':True},
+                    {'category':'search_history',                      'title': _('Search history'), 'desc': '\c00????00Version: \c00??????'+HOST_VER+'\\n\c00????00Developer: \c00??????Codermik\\n','icon':DEFAULT_ICON_URL } 
                    ]
  
     def __init__(self):
@@ -78,11 +94,19 @@ class LibreStream(CBaseHostClass):
             params = {'title':item[2], 'post_data':post_data}
             self.sortCache.append(params)
             
-        # fill movie year
+        # fill movie year 
         tmpData = self.cm.ph.getDataBeetwenMarkers(data, '<form name="choix_annee" method="get">', '</select>', False)[1]
-        tmpData = re.compile('<option value="(http[^"]+?)">([^<]+?)</option>').findall(tmpData)
+        tmpData = re.compile('<option value="(/[^"]+?)">([^<]+?)</option>').findall(tmpData)
         for item in tmpData:
-            params = {'title':item[1], 'url':item[0]}
+            # site no longer has the full url therefore we need to trim off the / and
+            # add it manually to correct parsing of the year filtering.  Furthermore, 
+            # before release the site year filtering was producing an error therefore
+            # once they fix their end it should spring back into action.  CM
+            tmpurl = item[0]
+            tmpurl = tmpurl[1 : : ] # remove the / from the url.
+            tmpurl = self.MAIN_URL + tmpurl
+            params = {'title':item[1], 'url':tmpurl}
+            printDBG('Url >>>>>>>>>>>>>> %s' %tmpurl)
             self.catCache['year_cats'].append(params)
             
         # fill movie cats
@@ -138,7 +162,7 @@ class LibreStream(CBaseHostClass):
 
     
     def listEpisodes(self, cItem):
-        printDBG("LibreStream.listEpisodes")
+        printDBG("listEpisodes >>>>>>>>>>>>>>>>>>>>>>>> %s" %cItem)
         sts, data = self.cm.getPage(cItem['url'])
         if not sts: return
         
@@ -148,29 +172,27 @@ class LibreStream(CBaseHostClass):
         
         for item in episodes:
             params = dict(cItem)
+            printDBG("Title >>>>>>>>>>>>>>>>>>>>>>>> %s" %'s{0}e{1} {2}'.format(id, item['id'], item['episode_title']))
+            printDBG("Url >>>>>>>>>>>>>>>>>>>>>>>>>> %s" %item['url'])
             params.update({'title':'s{0}e{1} {2}'.format(id, item['id'], item['episode_title']), 'url':item['url']})
             self.addVideo(params)
         
     def listItems(self, cItem, category):
-        printDBG("LibreStream.listItems")
+        printDBG("LibreStream.listItems >>>>>>>>>>>>>> %s\n" % cItem)
         url = cItem['url']
-        page =cItem.get('page', 1)
-        
+        page =cItem.get('page', 1)        
         post_data = cItem.get('post_data', None)
         sts, data = self.cm.getPage(url, {}, post_data)
-        if not sts: return
-        
+        if not sts: return        
         m1 = '<div class="libre-movie libre-movie-block">'
         data = self.cm.ph.getDataBeetwenMarkers(data, m1, '<footer>', False)[1]
-        data = data.split(m1)
-        
+        data = data.split(m1)       
         nextPageUrl = ''
         if len(data): 
             navMarker = '<div class="navigation">'
             tmp = data[-1].split(navMarker)
             data[-1] = tmp[0]
-            nextPageUrl = self.cm.ph.getSearchGroups(tmp[-1], '<a[^<]+?href="([^"]+?)"[^<]*?>%s</a>' % (page+1))[0]
-            
+            nextPageUrl = self.cm.ph.getSearchGroups(tmp[-1], '<a[^<]+?href="([^"]+?)"[^<]*?>%s</a>' % (page+1))[0]            
         for item in data:
             url   = self.cm.ph.getSearchGroups(item, "location.href='([^']+?)'")[0]
             title = self.cm.ph.getSearchGroups(item, 'alt="([^"]+?)"')[0]            
@@ -179,15 +201,17 @@ class LibreStream(CBaseHostClass):
             title = self.cleanHtmlStr( title )
             if title == '': continue
             icon  = self.cm.ph.getSearchGroups(item, '<img[^>]+?data-src="([^"]+?)"')[0]
-            desc  = self.cleanHtmlStr( item.split('<div class="mcontent">')[-1] ).replace(' ---------------', ': ')
+            desc = self.cleanHtmlStr(self.cm.ph.getAllItemsBeetwenNodes(item,'</span>', ('</div>'),False)[0])
+            printDBG('Title >>>>>>>>>>> %s' % title)
+            printDBG('Description >>>>> %s' % desc)
+            printDBG('Url >>>>>>>>>>>>> %s' % url)
             params = dict(cItem)
             params.update({'title':title, 'icon':self._getFullUrl(icon), 'desc':desc, 'url':self._getFullUrl(url)})
             if '-saison-' not in url and ' Saison ' not in title:
                 self.addVideo(params)
             else:
                 params['category'] = category
-                self.addDir(params)
-        
+                self.addDir(params)        
         if nextPageUrl != '':
             params = dict(cItem)
             params.update({'title':_('Next page'), 'page':cItem.get('page', 1)+1, 'url':self._getFullUrl(nextPageUrl)})
@@ -203,7 +227,7 @@ class LibreStream(CBaseHostClass):
         self.listItems(cItem, 'list_episodes')
         
     def _getLinksFromContent(self, data, title_key='title', baseItem={}):
-        printDBG("LibreStream._getLinksFromContent")
+        printDBG("getLinksFromContent >>>>>>>>>>>>>>>>>>>>>>>> %s" % data)
         linksTab = []
         
         etitleMap = {}
@@ -231,20 +255,25 @@ class LibreStream(CBaseHostClass):
         return linksTab
     
     def getLinksForVideo(self, cItem):
-        printDBG("LibreStream.getLinksForVideo [%s]" % cItem)
+        printDBG('getLinksForVideo >>>>>>>>>>>>>>>>>>>>>>>> %s' % cItem)
         urlTab = []
-        if 'libre-stream.com' in cItem['url'] or self.up.getDomain(self.getMainUrl(), True) in cItem['url']:
+        if 'ls-streaming.org' in cItem['url']:
+            # if url contains ls-streaming then we are a movie.  CM
             sts, data = self.cm.getPage(cItem['url'])
             if not sts: return []
-            urlTab = self._getLinksFromContent(data, 'name', {'need_resolve':1})
+            block = self.cm.ph.getAllItemsBeetwenNodes(data,'<div class="tab-buttons-panel"', ('"clearfix"></div>'))
+            for mirrors in block:
+                mirrorDesc = self.cm.ph.getAllItemsBeetwenNodes(mirrors,'id="', '">',False)[0]
+                mirrorDesc = mirrorDesc.title()
+                videoUrl = self.cm.ph.getAllItemsBeetwenNodes(mirrors,'src=\'', '\'',False)[0]
+                urlTab.append({'name': mirrorDesc, 'url': videoUrl, 'need_resolve': 1})
         else:
             urlTab.append({'name':'Main url', 'url':cItem['url'], 'need_resolve':1})
         return urlTab
         
     def getVideoLinks(self, videoUrl):
-        printDBG("LibreStream.getVideoLinks [%s]" % videoUrl)
-        urlTab = []
-        
+        printDBG("getVideoLinks >>>>>>>>>>>>>>>>>>>>>>>>>>> %s" % videoUrl)
+        urlTab = []        
         if 0 == self.up.checkHostSupport(videoUrl):
             sts, data = self.cm.getPage(videoUrl, {'max_data_size':0})
             if not sts: return []

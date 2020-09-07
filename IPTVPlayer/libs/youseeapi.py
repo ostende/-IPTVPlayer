@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-from __future__ import print_function
 #
 #      Copyright (C) 2013 Tommy Winther
 #      http://tommy.winther.nu
@@ -67,7 +64,7 @@ class YouSeeApi(object):
             u.close()
         except urllib2.HTTPError, error:
             data = error.read()
-        except Exception as ex:
+        except Exception, ex:
             raise YouSeeApiException(ex)
 
         try:

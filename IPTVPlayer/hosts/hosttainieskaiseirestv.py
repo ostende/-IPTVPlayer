@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -206,7 +218,7 @@ class TainieskaiSeiresTv(CBaseHostClass):
             reSeasonObj = re.compile('SEASON\s+?[0-9]+', re.IGNORECASE)
             reEpisodeObj = re.compile('\sE[0-9]+(?:\-E?[0-9]+)?', re.IGNORECASE)
             for idx in range(0, len(seasonsData), 2):
-                sTitle = self.cleanHtmlStr(seasonsData[idx]).replace("Ε", "E")
+                sTitle = self.cleanHtmlStr(seasonsData[idx]).replace("Î", "E")
                 sSubTitle = self.cleanHtmlStr(reSeasonObj.sub('', sTitle))
                 seasonId = self.cleanHtmlStr(self.cm.ph.getSearchGroups(sTitle, 'SEASON\s*?([0-9]+(?:\-[0-9]+)?)', 1, True)[0])
                 printDBG("++ SEASON ID -> \"%s\" \"%s\"" % (seasonId, sSubTitle))
@@ -216,7 +228,7 @@ class TainieskaiSeiresTv(CBaseHostClass):
                 
                 tmp = self.cm.ph.getAllItemsBeetwenMarkers(seasonsData[idx+1], '<a', '</a>')
                 for item in tmp:
-                    eTitle = ' ' + self.cleanHtmlStr(item).replace("Ε", "E")
+                    eTitle = ' ' + self.cleanHtmlStr(item).replace("Î", "E")
                     eSubTitle = self.cleanHtmlStr(reEpisodeObj.sub('', eTitle))
                     episodeId = self.cleanHtmlStr(self.cm.ph.getSearchGroups(eTitle, '\s(E[0-9]+(?:\-E?[0-9]+)?)', 1, True)[0])
                     printDBG("+++++++++++++++++ EPISODE ID \"%s\"-> \"%s\"" % (eTitle, episodeId))
@@ -328,11 +340,11 @@ class TainieskaiSeiresTv(CBaseHostClass):
         if icon == '':  icon = cItem.get('icon', '')
         
         descData = self.cm.ph.getAllItemsBeetwenMarkers(tmp[-1], '<span', '</span>')
-        descTabMap = {"Ετος παραγωγής": "year",
-                      "Βαθμολογία":     "rated",
-                      "Ηθοποιοί":       "actors",
-                      "Κατηγορία":      "genres",
-                      "Σκηνοθεσία":     "director",
+        descTabMap = {"ÎÏÎ¿Ï ÏÎ±ÏÎ±Î³ÏÎ³Î®Ï": "year",
+                      "ÎÎ±Î¸Î¼Î¿Î»Î¿Î³Î¯Î±":     "rated",
+                      "ÎÎ¸Î¿ÏÎ¿Î¹Î¿Î¯":       "actors",
+                      "ÎÎ±ÏÎ·Î³Î¿ÏÎ¯Î±":      "genres",
+                      "Î£ÎºÎ·Î½Î¿Î¸ÎµÏÎ¯Î±":     "director",
                      }
         
         otherInfo = {}

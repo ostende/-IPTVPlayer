@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  IPTV download manager UI
 #
@@ -22,11 +34,11 @@ from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdownloadercreator import Downloade
 ###################################################
 from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
-from enigma import getDesktop, eTimer, eConsoleAppContainer
+from enigma import getDesktop, eTimer, eServiceReference, eConsoleAppContainer
 from Components.config import config
-from Components.ActionMap import ActionMap
+from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.Label import Label
-from Tools.Directories import fileExists
+from Tools.Directories import fileExists, resolveFilename, SCOPE_PLUGINS
 import os
 import time
 
@@ -51,10 +63,11 @@ class IPTVSimpleAudioPlayer():
     def start(self, uri, mode='loop'):
         self.uri = uri
         self.playMode = mode
-
+        
+        gstplayerPath = config.plugins.iptvplayer.gstplayerpath.value
         #'export GST_DEBUG="*:6" &&' + 
-        cmd = '/usr/bin/gstplayer' + ' "%s"' % self.uri
-        if "://" in self.uri:
+        cmd = gstplayerPath  + ' "%s"' % self.uri
+        if "://" in self.uri: 
             cmd += ' "%s" "%s"  "%s"  "%s" ' % (self.gstAdditionalParams['download-buffer-path'], self.gstAdditionalParams['ring-buffer-max-size'], self.gstAdditionalParams['buffer-duration'], self.gstAdditionalParams['buffer-size'])
             tmp = strwithmeta(self.uri)
             url,httpParams = DMHelper.getDownloaderParamFromUrl(tmp)
@@ -209,7 +222,7 @@ class IPTVPicturePlayerWidget(Screen):
         self.refreshCount = 0
         self.refreshing = False
         
-        if len(self.audioUrl):
+        if len(self.audioUrl) and len(config.plugins.iptvplayer.gstplayerpath.value):
             self.audioPlayer = IPTVSimpleAudioPlayer()
         else: self.audioPlayer  = None
        

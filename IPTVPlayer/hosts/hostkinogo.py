@@ -1,5 +1,18 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -138,7 +151,7 @@ class KinogoCC(CBaseHostClass):
                 if t == '': continue
                 if len(descTab) == 0: descTab.append(t)
                 else: descTab.insert(1, t)
-            descTab.append('Дата: %s, %s/5' % (date, rating))
+            descTab.append('ÐÐ°ÑÐ°: %s, %s/5' % (date, rating))
             params = {'good_for_fav':True, 'category':nextCategory, 'url':url, 'title':title, 'desc':'[/br]'.join(descTab[::-1]), 'icon':icon}
             self.addDir(params)
         
@@ -153,7 +166,7 @@ class KinogoCC(CBaseHostClass):
                 self.addDir(params)
     
     def listSearchResult(self, cItem, searchPattern, searchType):
-        #searchPattern = 'Охота на воров'
+        #searchPattern = 'ÐÑÐ¾ÑÐ° Ð½Ð° Ð²Ð¾ÑÐ¾Ð²'
         printDBG("KinogoCC.listSearchResult cItem[%s], searchPattern[%s] searchType[%s]" % (cItem, searchPattern, searchType))
         url = self.getFullUrl('/index.php?do=search')
         sts, data = self.getPage(url)

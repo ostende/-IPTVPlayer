@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 #  Player Selector
@@ -7,16 +6,18 @@
 #
 # 
 from Screens.Screen import Screen
-from Components.ActionMap import ActionMap
+from Components.ActionMap import ActionMap, HelpableActionMap
 from enigma import ePoint, getDesktop
 from Tools.LoadPixmap import LoadPixmap
 from Components.Label import Label
 from Components.config import config
+from Screens.MessageBox import MessageBox
 from Screens.ChoiceBox import ChoiceBox
 
 from Plugins.Extensions.IPTVPlayer.components.cover import Cover3
 from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, GetIPTVPlayerVerstion, GetIconDir, GetAvailableIconSize
 from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT as _
+import os
 
 class PlayerSelectorWidget(Screen):
     LAST_SELECTION = {}
@@ -191,10 +192,50 @@ class PlayerSelectorWidget(Screen):
         self.session.nav.event.append(self.__event)
         self.onClose.append(self.__onClose)
         
-        # load icons
+        # Create TSLedia icons
+        try:
+			import Image
+			for idx in range(0,self.numOfItems):
+				path=GetIconDir('PlayerSelector/' + self.currList[idx][1] + '%i.png' % self.IconsSize)
+				if self.currList[idx][1].startswith('TSM_'):
+					printDBG('path='+path)
+					if not os.path.exists(path):
+						try:
+							if self.IconsSize==135:
+								size_ = 80
+								pos_x = 51
+								pos_y = 6
+							elif self.IconsSize==120:
+								size_ = 69
+								pos_x = 45
+								pos_y = 5							
+							else:
+								size_ = 58
+								pos_x = 38
+								pos_y = 5							
+							
+							background = Image.open("/usr/lib/enigma2/python/Plugins/Extensions/IPTVPlayer/icons/PlayerSelector/tsmedia_back%i.png" % self.IconsSize)
+							section,plugin_id=self.currList[idx][1].replace('TSM_','').split('__',1)
+							icon = '/usr/lib/enigma2/python/Plugins/Extensions/TSmedia/addons/'+section+'/'+plugin_id+'/icon.png'
+							foreground = Image.open(icon)
+							foreground = foreground.convert('RGBA')
+							foreground = foreground.resize((size_,size_), Image.ANTIALIAS)
+							background.paste(foreground, (pos_x, pos_y), foreground)
+							background.save(path)
+						except Exception, e:
+							printDBG('problem convert'+self.currList[idx][1]+' '+str(e))					
+        except Exception:
+            printExc()
+        
+        # Load Icons
         self.pixmapList = []
         for idx in range(0,self.numOfItems):
-            self.pixmapList.append( LoadPixmap(GetIconDir('PlayerSelector/' + self.currList[idx][1] + '%i.png' % self.IconsSize)) )
+            path=GetIconDir('PlayerSelector/' + self.currList[idx][1] + '%i.png' % self.IconsSize)
+            if self.currList[idx][1].startswith('TS_'):
+                if not os.path.exists(path): path=GetIconDir('PlayerSelector/' + 'TS_no' + '%i.png' % self.IconsSize)
+            elif self.currList[idx][1].startswith('TSM_'):
+                if not os.path.exists(path): path=GetIconDir('PlayerSelector/' + 'TSM_no' + '%i.png' % self.IconsSize)
+            self.pixmapList.append( LoadPixmap(path))
 
         self.markerPixmap = LoadPixmap(GetIconDir('PlayerSelector/marker%i.png' % self.MarkerSize))
         self.markerPixmapSel = LoadPixmap(GetIconDir('PlayerSelector/markerSel%i.png' % self.MarkerSize))

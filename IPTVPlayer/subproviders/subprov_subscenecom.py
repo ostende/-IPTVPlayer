@@ -1,21 +1,42 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###################################################
 # LOCAL import
 ###################################################
-from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT as _
+from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT as _, SetIPTVPlayerLastHostError
+from Plugins.Extensions.IPTVPlayer.components.ihost import CDisplayListItem, RetHost
 from Plugins.Extensions.IPTVPlayer.components.isubprovider import CSubProviderBase, CBaseSubProviderClass
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, GetDefaultLang, RemoveDisallowedFilenameChars, GetSubtitlesDir, rm
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, GetDefaultLang, GetCookieDir, byteify, \
+                                                          RemoveDisallowedFilenameChars, GetSubtitlesDir, GetTmpDir, rm, \
+                                                          MapUcharEncoding, GetPolishSubEncoding, rmtree, mkdirs
+from Plugins.Extensions.IPTVPlayer.tools.iptvtypes import strwithmeta
 ###################################################
 
 ###################################################
 # FOREIGN import
 ###################################################
+from datetime import timedelta
+import time
 import re
 import urllib
+import unicodedata
+import base64
+from os import listdir as os_listdir, path as os_path
+try:    import json
+except Exception: import simplejson as json
 try:
+    try: from cStringIO import StringIO
+    except Exception: from StringIO import StringIO 
     import gzip
 except Exception: pass
+from Components.config import config, ConfigSelection, ConfigYesNo, ConfigText, getConfigListEntry
+###################################################
+
+
+###################################################
+# E2 GUI COMMPONENTS 
+###################################################
+from Plugins.Extensions.IPTVPlayer.components.asynccall import MainSessionWrapper
+from Screens.MessageBox import MessageBox
 ###################################################
 
 ###################################################
@@ -32,6 +53,7 @@ def GetLanguageTab():
             ["Arabic",       "ar", "ara"],
             ["Belarusian",   "hy", "arm"],
             ["Bosnian",      "bs", "bos"],
+            ["BosnianLatin", "bs", "bos"],
             ["Bulgarian",    "bg", "bul"],
             ["Brazilian",    "pb", "pob"],
             ["Catalan",      "ca", "cat"],
@@ -41,8 +63,10 @@ def GetLanguageTab():
             ["Danish",       "da", "dan"],
             ["Dutch",        "nl", "dut"],
             ["English",      "en", "eng"],
+            ["Espanol",      "es", "spa"], 
             ["Estonian",     "et", "est"],
             ["Persian",      "fa", "per"],
+            ["Farsi",        "fa", "per"],
             ["Finnish",      "fi", "fin"],
             ["French",       "fr", "fre"],
             ["German",       "de", "ger"],
@@ -72,10 +96,8 @@ def GetLanguageTab():
             ["Thai",         "th", "tha"],
             ["Turkish",      "tr", "tur"],
             ["Ukrainian",    "uk", "ukr"],
-            ["Vietnamese",   "vi", "vie"],
-            ["BosnianLatin", "bs", "bos"],
-            ["Farsi",        "fa", "per"],
-            ["Espanol",      "es", "spa"] ]
+            ["Vietnamese",   "vi", "vie"]
+          ]
     return tab
 
 class SubsceneComProvider(CBaseSubProviderClass): 
@@ -90,8 +112,9 @@ class SubsceneComProvider(CBaseSubProviderClass):
         CBaseSubProviderClass.__init__(self, params)
         
         self.defaultParams = {'header':self.HTTP_HEADER, 'use_cookie': True, 'load_cookie': True, 'save_cookie': True, 'cookiefile': self.COOKIE_FILE}
-        self.SEARCH_TYPE_TAB = [{'title':_('By media title'),  'category':'search_by_title'  },
-                                {'title':_('By release name'), 'category':'search_by_release'}]
+        self.SEARCH_TYPE_TAB = [{'title':_('By media title'),  'category':'search_by_title'  }]
+                                #,
+                                #{'title':_('By release name'), 'category':'search_by_release'}]
         self.cache = {} 
     
     def _getHeader(self, lang):
@@ -122,11 +145,10 @@ class SubsceneComProvider(CBaseSubProviderClass):
             langId = self.cm.ph.getSearchGroups(item, 'value="([0-9]+?)"')[0]
             if '' == langId: continue
             title = self.cleanHtmlStr(item)
-            params = {'title':title, 'lang_id':langId}
             if _isDefaultLanguage(title):
-                defaultLanguages.append(params)
+                defaultLanguages.append({'title':_(title), 'lang_id':langId})
             else:
-                list.append(params)
+                list.append({'title':_(title), 'lang_id':langId})
         defaultLanguages.extend(list)
         return defaultLanguages
         
@@ -148,13 +170,20 @@ class SubsceneComProvider(CBaseSubProviderClass):
     def searchByTitle(self, cItem, nextCategory):
         printDBG("SubsceneComProvider.searchByTitle")
         self.cache = {}
-        url = self.getFullUrl('/subtitles/title?q={0}&r=true'.format(urllib.quote_plus(self.params['confirmed_title'])))
+        
+        url = self.getFullUrl('/subtitles/searchbytitle')
+
+        #urllib.quote_plus()
         
         header = self._getHeader(cItem['lang_id'])
-        sts, data = self.cm.getPage(url, {'header':header})
+        sts, data = self.cm.getPage(url, {'header':header}, {'query': self.params['confirmed_title'], 'l': ''})
         if not sts: return
         
-        data = self.cm.ph.getDataBeetwenMarkers(data, '<div class="search-result">', '<div class="alternativeSearch">', False)[1]
+        if 'alternativeSearch' in data:
+            data = self.cm.ph.getDataBeetwenMarkers(data, '<div class="search-result">', '<div class="alternativeSearch">', False)[1]
+        else:
+            data = self.cm.ph.getDataBeetwenMarkers(data, '<div class="search-result">', '<footer>', False)[1]
+            
         data = self.cm.ph.getAllItemsBeetwenMarkers(data, '<h2', '</ul>')
         for groupItem in data:
             groupTitle = self.cleanHtmlStr( self.cm.ph.getDataBeetwenMarkers(groupItem, '<h2', '</h2>', True)[1] )
@@ -341,3 +370,4 @@ class IPTVSubProvider(CSubProviderBase):
 
     def __init__(self, params={}):
         CSubProviderBase.__init__(self, SubsceneComProvider(params))
+    

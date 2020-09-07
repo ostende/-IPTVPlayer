@@ -23,7 +23,7 @@ def getinfo():
 	if hst=='': hst = 'https://moviflex.se'
 	info_['host']= hst
 	info_['name']=name
-	info_['version']='1.2.01 05/07/2020'
+	info_['version']='1.2.02 22/07/2020'
 	info_['dev']='RGYSoft'
 	info_['cat_id']='201'
 	info_['desc']='أفلام و مسلسلات اجنبية'
@@ -182,6 +182,7 @@ class TSIPHost(TSCBaseHostClass):
 			Tab_els = re.findall('play-box-iframe.*?data-src="(.*?)".*?></iframe>', data, re.S)
 			for url in Tab_els:
 				try:
+					if url.startswith('/'): url = 'http:'+url
 					if '//moviflex.net' in url:
 						sts, data = self.getPage(url,self.defaultParams)
 						url_els = re.findall('<source src="(.*?)"', data, re.S)
@@ -219,8 +220,9 @@ class TSIPHost(TSCBaseHostClass):
 
 					else:	
 						if len(url)>4:
-							url11 = url.split('https://')
-							url='https://' + url11[-1]
+							#url11 = url.split('https://')
+							#url='https://' + url11[-1]
+							
 							urlTab.append({'name':gethostname(url), 'url':url, 'need_resolve':1})
 				except:
 					a=''						

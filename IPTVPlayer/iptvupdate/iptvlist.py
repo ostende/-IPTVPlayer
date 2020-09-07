@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  IPTV download manager List UI
 #
@@ -9,14 +21,15 @@
 ###################################################
 # LOCAL import
 ###################################################
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printExc
+from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, formatBytes
 from Plugins.Extensions.IPTVPlayer.components.iptvlist import IPTVListComponentBase
 ###################################################
 
 ###################################################
 # FOREIGN import
 ###################################################
-from enigma import eListboxPythonMultiContent, eListbox, gFont, RT_HALIGN_LEFT, RT_VALIGN_CENTER
+from enigma import eListboxPythonMultiContent, eListbox, gFont, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_CENTER
 from Tools.LoadPixmap import LoadPixmap
 import skin
 ###################################################
@@ -59,7 +72,7 @@ class IPTVUpdateList(IPTVListComponentBase):
         height = self.l.getItemSize().height()
         res = [ None ]
         
-        res.append((eListboxPythonMultiContent.TYPE_TEXT, 70, 0,                width-70, self.fonts[1][2], 1, RT_HALIGN_LEFT|RT_VALIGN_CENTER, item.get('title', '')))
+        res.append((eListboxPythonMultiContent.TYPE_TEXT, 70, 0, width-70, self.fonts[1][2], 1, RT_HALIGN_LEFT|RT_VALIGN_CENTER, item.get('title', '')))
         res.append((eListboxPythonMultiContent.TYPE_TEXT, 70, self.fonts[1][2], width-70, self.fonts[0][2], 0, RT_HALIGN_LEFT|RT_VALIGN_CENTER, item.get('info', '')))
         
         idx = item.get('icon', None)

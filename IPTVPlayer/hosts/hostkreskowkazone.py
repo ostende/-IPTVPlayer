@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -36,7 +48,7 @@ config.plugins.iptvplayer.kreskowkazone_password = ConfigText(default = "", fixe
 def GetConfigList():
     optionList = []
     optionList.append(getConfigListEntry("Login:", config.plugins.iptvplayer.kreskowkazone_login))
-    optionList.append(getConfigListEntry("Hasło:", config.plugins.iptvplayer.kreskowkazone_password))
+    optionList.append(getConfigListEntry("HasÅo:", config.plugins.iptvplayer.kreskowkazone_password))
     return optionList
 ###################################################
 
@@ -56,21 +68,21 @@ class KreskowkaZonePL(CBaseHostClass):
         self.MAIN_URL = 'https://www.kreskowkazone.pl/'
         self.DEFAULT_ICON_URL = self.MAIN_URL + 'images/sprites.png'
         
-        self.MAIN_TAB = [{'category':'main',              'title': 'Główna',       'url':self.MAIN_URL,                   'icon':self.DEFAULT_ICON_URL},
-                         {'category':'cartoons',          'title': 'Kreskówki',    'url':self.MAIN_URL,                   'icon':self.DEFAULT_ICON_URL},
+        self.MAIN_TAB = [{'category':'main',              'title': 'GÅÃ³wna',       'url':self.MAIN_URL,                   'icon':self.DEFAULT_ICON_URL},
+                         {'category':'cartoons',          'title': 'KreskÃ³wki',    'url':self.MAIN_URL,                   'icon':self.DEFAULT_ICON_URL},
                          {'category':'list_items',        'title': 'Seriale',      'url':self.MAIN_URL+'seriale',         'icon':self.DEFAULT_ICON_URL},
                          {'category':'rank',              'title': 'Ranking',      'url':self.MAIN_URL+'ranking_anime',   'icon':self.DEFAULT_ICON_URL},
                          {'category':'search',            'title': _('Search'), 'search_item':True,         'icon':self.DEFAULT_ICON_URL},
                          {'category':'search_history',    'title': _('Search history'),                     'icon':self.DEFAULT_ICON_URL}]
                              
-        self.CARTOONS_CAT_TAB = [{'category':'list_abc',    'title': 'Lista kreskówek',       'url':self.MAIN_URL+'lista_kreskowek-0'},
-                                 {'category':'list_abc',    'title': 'Lista filmów',          'url':self.MAIN_URL+'lista_filmow-0'},
-                                 {'category':'list_items',  'title': 'Wychodzące kreskówki',  'url':self.MAIN_URL+'wychodzace'},
-                                 {'category':'list_items',  'title': 'Wychodzące seriale',    'url':self.MAIN_URL+'wychodzace-seriale'},
-                                 {'category':'list_items',  'title': 'Nadchodzące',           'url':self.MAIN_URL+'nadchodzace'}]
+        self.CARTOONS_CAT_TAB = [{'category':'list_abc',    'title': 'Lista kreskÃ³wek',       'url':self.MAIN_URL+'lista_kreskowek-0'},
+                                 {'category':'list_abc',    'title': 'Lista filmÃ³w',          'url':self.MAIN_URL+'lista_filmow-0'},
+                                 {'category':'list_items',  'title': 'WychodzÄce kreskÃ³wki',  'url':self.MAIN_URL+'wychodzace'},
+                                 {'category':'list_items',  'title': 'WychodzÄce seriale',    'url':self.MAIN_URL+'wychodzace-seriale'},
+                                 {'category':'list_items',  'title': 'NadchodzÄce',           'url':self.MAIN_URL+'nadchodzace'}]
                                  
         self.MAIN_CAT_TAB = [{'category':'list_items',                            'title': 'Najnowsze seriale',       'url':self.MAIN_URL},
-                             {'category':'list_items',    'm1':'Najnowsze serie', 'title': 'Lista filmów',            'url':self.MAIN_URL}]
+                             {'category':'list_items',    'm1':'Najnowsze serie', 'title': 'Lista filmÃ³w',            'url':self.MAIN_URL}]
 
         self.login    = ''
         self.password = ''
@@ -270,7 +282,7 @@ class KreskowkaZonePL(CBaseHostClass):
         if not sts: return False, connFailed 
         
         md5Password = md5(password).hexdigest()
-        post_data = {"vb_login_username":login, "vb_login_password_hint":"Hasło", "vb_login_password":"", "do":"login", "s":"", "securitytoken":"guest", "cookieuser":"1", "vb_login_md5password":md5Password, "vb_login_md5password_utf8":md5Password}
+        post_data = {"vb_login_username":login, "vb_login_password_hint":"HasÅo", "vb_login_password":"", "do":"login", "s":"", "securitytoken":"guest", "cookieuser":"1", "vb_login_md5password":md5Password, "vb_login_md5password_utf8":md5Password}
         params = dict(self.defaultParams)
         params.update({'header':self.AJAX_HEADER}) #, 'raw_post_data':True
         
@@ -296,11 +308,11 @@ class KreskowkaZonePL(CBaseHostClass):
            '' != config.plugins.iptvplayer.kreskowkazone_password.value.strip():
             loggedIn, msg = self.tryTologin(config.plugins.iptvplayer.kreskowkazone_login.value, config.plugins.iptvplayer.kreskowkazone_password.value)
             if not loggedIn:
-                self.sessionEx.open(MessageBox, 'Problem z zalogowaniem użytkownika "%s".' % config.plugins.iptvplayer.kreskowkazone_login.value, type = MessageBox.TYPE_INFO, timeout = 10 )
+                self.sessionEx.open(MessageBox, 'Problem z zalogowaniem uÅ¼ytkownika "%s".' % config.plugins.iptvplayer.kreskowkazone_login.value, type = MessageBox.TYPE_INFO, timeout = 10 )
             else:
                 self.login    = config.plugins.iptvplayer.kreskowkazone_login.value
                 self.password = config.plugins.iptvplayer.kreskowkazone_password.value
-                #self.sessionEx.open(MessageBox, 'Zostałeś poprawnie \nzalogowany.\n' + msg, type = MessageBox.TYPE_INFO, timeout = 10 )
+                #self.sessionEx.open(MessageBox, 'ZostaÅeÅ poprawnie \nzalogowany.\n' + msg, type = MessageBox.TYPE_INFO, timeout = 10 )
         
         CBaseHostClass.handleService(self, index, refresh, searchPattern, searchType)
 

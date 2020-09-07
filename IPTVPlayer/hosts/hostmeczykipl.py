@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -132,12 +144,7 @@ class MeczykiPL(CBaseHostClass):
         for idx in range(len(tmp)):
             url = self.getFullUrl(tmp[idx])
             if not self.cm.isValidUrl(url): continue
-            if 'playwire.com' not in url and  self.up.checkHostSupport(url) != 1:
-                video_id  = ph.search(url, r'''https?://.*([a-zA-Z0-9]{10})''')[0]
-                if video_id != '':
-                    url = 'https://viuclips.net/&force_parserVIUCLIPS[%s]' % url
-                else:
-                    continue
+            if 'playwire.com' not in url and  self.up.checkHostSupport(url) != 1: continue
             title = cItem['title']
             desc = ''
             if len(titles) > idx: 

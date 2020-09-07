@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###################################################
 # LOCAL import
@@ -202,14 +201,22 @@ class DardarkomCom(CBaseHostClass):
             self.addVideo(params)
         else:
             if 'insidelinks' not in data:
-                tmp = self.cm.ph.getDataBeetwenNodes(data, ('<div', '>', 'aboveposbut'), ('</div', '>'), False)[1]
-                sUrl = self.getFullUrl(self.cm.ph.getSearchGroups(tmp, '''<a[^>]+?href=['"]([^"^']+?)['"]''')[0])
+                sUrl = ''
+             #   tmp = self.cm.ph.getDataBeetwenNodes(data, ('<div', '>', 'aboveposbut'), ('</div', '>'), False)[1]
+             #   sUrl = self.getFullUrl(self.cm.ph.getSearchGroups(tmp, '''<a[^>]+?href=['"]([^"^']+?)['"]''')[0])
+                data2 = re.findall('class="fmain aboveposbut".*?href="(.*?)"',data, re.S)
+                printDBG('data='+data)
+                if data2:
+                   sUrl = data2[0]
+                   printDBG('sUrl='+sUrl)
                 if sUrl != '':
                     sts, tmp = self.cm.getPage(sUrl)
                     if sts: data = tmp
-            
+            printDBG('data2='+data)
             tmp = self.cm.ph.getDataBeetwenNodes(data, ('<div', '>', 'insidelinks'), ('</ul', '>'), False)[1]
-            tmp = self.cm.ph.getAllItemsBeetwenMarkers(tmp, '<li', '</li>')
+            tmp = self.cm.ph.getAllItemsBeetwenMarkers(tmp, '<a', '</a>')
+			#data3 = re.findall('class="fmain aboveposbut".*?href="(.*?)"',data, re.S)
+			
             for item in tmp:
                 title = self.cleanHtmlStr(item)
                 url   = self.getFullUrl(self.cm.ph.getSearchGroups(item, '''<a[^>]+?href=['"](https?://[^"^']+?)['"]''')[0])
@@ -257,7 +264,7 @@ class DardarkomCom(CBaseHostClass):
             #if 'VIP' in tabName.upper():
             #    # vip links are not supported
             #    continue
-            #elif 'باقي المشغلات' in tabName:
+            #elif 'ÃÂ¨ÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂ´ÃÂºÃÂÃÂ§ÃÂª' in tabName:
             #    # download links not supported
             #    continue
             #else:

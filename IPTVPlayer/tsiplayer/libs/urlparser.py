@@ -270,6 +270,9 @@ class urlparser:
 						'okanime.com'     : self.pp.parserUNI01, 
 						'filesload.xyz'   : self.pp.parserUNI01,
 						'mightyupload.com': self.pp.parserUNI01,
+						'vidlo.us'        : self.pp.parserUNI01,
+						'aparat.cam'      : self.pp.parserUNI01,
+						'vid4up.com'      : self.pp.parserZIMABDKO,						
 						'gofile.io'       : self.pp.parserGOFILE,
 						'okstream.cc'     : self.pp.parserOKSTREAM,
 						'saruch.co'       : self.pp.parserSARUCH,
@@ -2701,7 +2704,6 @@ class pageParser(CaptchaHelper):
 					videoTab.append({'name':'[MP4]', 'url':link})
 		return videoTab
 
-		
 	def parserZIMABDKO(self, baseUrl):
 		videoTab = []
 		UA = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/66.0'

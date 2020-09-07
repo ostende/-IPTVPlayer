@@ -1,6 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  IPTV download manager API
 #
@@ -10,7 +21,7 @@ from __future__ import print_function
 ###################################################
 # LOCAL import
 ###################################################
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, iptv_system, eConnectCallback, E2PrioFix, rm
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, iptv_system, eConnectCallback, E2PrioFix, rm
 from Plugins.Extensions.IPTVPlayer.tools.iptvtypes import enum
 from Plugins.Extensions.IPTVPlayer.iptvdm.basedownloader import BaseDownloader
 from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper
@@ -22,7 +33,9 @@ from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper
 from Tools.Directories import fileExists
 from Tools.BoundFunction import boundFunction
 from enigma import eConsoleAppContainer
+from time import sleep
 import re
+import datetime
 ###################################################
 
 ###################################################
@@ -221,7 +234,7 @@ class WgetDownloader(BaseDownloader):
             return
 
         if self.WGET_STS.DOWNLOADING == self.wgetStatus:
-            print(self.outData)
+            print self.outData
             dataLen = len(self.outData)
             for idx in range(dataLen):
                 if idx+1 < dataLen:

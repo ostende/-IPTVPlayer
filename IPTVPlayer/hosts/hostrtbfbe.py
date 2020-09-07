@@ -1,5 +1,19 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -91,9 +105,9 @@ class RTBFBE(CBaseHostClass):
         
         CAT_TAB = [{'category':'sections',       'title': _('Main'),       'url':self.getFullUrl('/auvio/')},
                    {'category':'live_categories','title': 'En Direct',     'url':self.getFullUrl('/auvio/direct')},
-                   {'category':'channels',       'title': 'Chaînes',       'url':self.getFullUrl('/news/api/menu?site=media')},
-                   {'category':'sections',       'title': 'Émissions',     'url':self.getFullUrl('/auvio/emissions')},
-                   {'category':'categories',     'title': 'Catégories',    'url':self.getFullUrl('/news/api/menu?site=media')},
+                   {'category':'channels',       'title': 'ChaÃ®nes',       'url':self.getFullUrl('/news/api/menu?site=media')},
+                   {'category':'sections',       'title': 'Ãmissions',     'url':self.getFullUrl('/auvio/emissions')},
+                   {'category':'categories',     'title': 'CatÃ©gories',    'url':self.getFullUrl('/news/api/menu?site=media')},
                    {'category':'search',         'title': _('Search'),          'search_item':True}, 
                    {'category':'search_history', 'title': _('Search history')},]
         

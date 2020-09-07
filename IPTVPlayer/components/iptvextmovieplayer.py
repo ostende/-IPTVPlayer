@@ -1,6 +1,17 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
-from __future__ import print_function
+﻿# -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  IPTVExtMoviePlayer
 #
@@ -14,7 +25,7 @@ from __future__ import print_function
 from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper
 from Plugins.Extensions.IPTVPlayer.tools.iptvtypes import strwithmeta
 from Plugins.Extensions.IPTVPlayer.components.cover import Cover3
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, GetIPTVDMImgDir, GetSubtitlesDir, eConnectCallback, \
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, GetIPTVDMImgDir, GetBinDir, GetSubtitlesDir, eConnectCallback, \
                                                           GetE2VideoAspectChoices, GetE2VideoAspect, SetE2VideoAspect, GetE2VideoPolicyChoices, \
                                                           GetE2VideoPolicy, SetE2VideoPolicy, GetDefaultLang, GetPolishSubEncoding, E2PrioFix, iptv_system, \
                                                           GetE2AudioCodecMixOption, SetE2AudioCodecMixOption, CreateTmpFile, GetTmpDir, IsExecutable, MapUcharEncoding, \
@@ -34,10 +45,12 @@ from Plugins.Extensions.IPTVPlayer.libs.urlparser import urlparser
 ###################################################
 # FOREIGN import
 ###################################################
-from enigma import eConsoleAppContainer, getDesktop, eTimer, eLabel, gFont, ePoint, eSize, gRGB
+from enigma import eServiceReference, eConsoleAppContainer, getDesktop, eTimer, eLabel, gFont, ePoint, eSize, gRGB
 from Screens.Screen import Screen
 from Screens.ChoiceBox import ChoiceBox
+from Components.AVSwitch import AVSwitch
 from Components.ActionMap import ActionMap
+from Components.config import config
 from Components.Label import Label
 from Components.ProgressBar import ProgressBar
 
@@ -46,7 +59,7 @@ from Screens.MessageBox import MessageBox
 from Tools.LoadPixmap import LoadPixmap
 from Tools.BoundFunction import boundFunction
 from Tools.Directories import fileExists
-from skin import parseColor
+from skin import parseColor, parseFont
 
 from datetime import timedelta
 try:
@@ -55,7 +68,7 @@ try:
     except Exception: import simplejson as json
 except Exception:
     printExc()
-from os import path as os_path
+from os import chmod as os_chmod, path as os_path
 import re
 import time
 import socket
@@ -868,7 +881,7 @@ class IPTVExtMoviePlayer(Screen):
         printDBG("openSubtitlesFromFileCallback filePath[%s]" % filePath)
         if None != filePath:
             self.subHandler['handler'].removeCacheFile(filePath)
-            cmd = '/usr/bin/uchardet "%s"' % (filePath)
+            cmd = '%s "%s"' % (config.plugins.iptvplayer.uchardetpath.value, filePath) 
             self.workconsole = iptv_system(cmd, boundFunction(self.enableSubtitlesFromFile, filePath))
         
     def enableSubtitlesFromFile(self, filePath, code=127, encoding=""):
@@ -992,8 +1005,8 @@ class IPTVExtMoviePlayer(Screen):
         if None == self.metaHandler.getSubtitleTrack() and 'handler' == self.subHandler['handler_type']: return
         
         # marker is used for optimization 
-        # we remember some kind of fingerprint(for last subtitles )
-        # subtitles handler first check this fingerprint()
+        # we remember some kind of fingerprint for last subtitles 
+        # subtitles handler first check this fingerprint 
         # if the previous one is the same as current and it will return None instead 
         # of subtitles text
         prevMarker = self.subHandler['marker']
@@ -1284,13 +1297,13 @@ class IPTVExtMoviePlayer(Screen):
         
     def saveLastPlaybackTime(self):
         lastPosition = self.playback.get('ConfirmedCTime', 0)
-        if config.plugins.iptvplayer.remember_last_position.value and lastPosition > 0 and self.playback['Length'] > (config.plugins.iptvplayer.remember_last_position_time.value * 60):
-                self.metaHandler.setLastPosition( lastPosition )
-
+        if config.plugins.iptvplayer.remember_last_position.value and lastPosition > 0:
+            self.metaHandler.setLastPosition( lastPosition )
+    
     def loadLastPlaybackTime(self):
         if config.plugins.iptvplayer.remember_last_position.value and self.lastPosition < 1:
             self.lastPosition = self.metaHandler.getLastPosition()
-
+    
     # handling of RCU keys
     def key_stop(self, requestedByUser="key_stop"):
         self['pleaseWait'].setText(_("Closing. Please wait..."))
@@ -1857,8 +1870,9 @@ class IPTVExtMoviePlayer(Screen):
                 msg = _("Link is not supported by the gstplayer. Please use the extelayer3 if available.")
                 self.showMessage(msg, MessageBox.TYPE_ERROR)
             
+            gstplayerPath = config.plugins.iptvplayer.gstplayerpath.value
             #'export GST_DEBUG="*:6" &&' + 
-            cmd = '/usr/bin/gstplayer'  + ' "%s"' % self.fileSRC
+            cmd = gstplayerPath  + ' "%s"' % self.fileSRC
             
             # active audio track 
             audioTrackIdx = self.metaHandler.getAudioTrackIdx()
@@ -1889,7 +1903,8 @@ class IPTVExtMoviePlayer(Screen):
                         else: cmd += (' "proxy=%s" ' % tmp)
             cmd += " > /dev/null"
         else:
-            cmd = '/usr/bin/exteplayer3'
+            exteplayer3path = config.plugins.iptvplayer.exteplayer3path.value
+            cmd = exteplayer3path
             tmpUri = strwithmeta(self.fileSRC)
             
             audioUri = ''
@@ -1937,20 +1952,21 @@ class IPTVExtMoviePlayer(Screen):
             if config.plugins.iptvplayer.dts_software_decode.value:
                 cmd += ' -d '
                 
-            if config.plugins.iptvplayer.wma_software_decode.value:
-                cmd += ' -w '
-            if config.plugins.iptvplayer.mp3_software_decode.value:
-                cmd += ' -m '
-            if config.plugins.iptvplayer.eac3_software_decode.value:
-                cmd += ' -e '
-            if config.plugins.iptvplayer.ac3_software_decode.value:
-                cmd += ' -3 '
+            if config.plugins.iptvplayer.plarform.value in ('sh4', 'mipsel', 'armv7', 'armv5t'):
+                if config.plugins.iptvplayer.wma_software_decode.value:
+                    cmd += ' -w '
+                if config.plugins.iptvplayer.mp3_software_decode.value:
+                    cmd += ' -m '
+                if config.plugins.iptvplayer.eac3_software_decode.value:
+                    cmd += ' -e '
+                if config.plugins.iptvplayer.ac3_software_decode.value:
+                    cmd += ' -3 '
             if 'lpcm' == config.plugins.iptvplayer.software_decode_as.value: 
                 cmd += ' -l '
             
             if config.plugins.iptvplayer.aac_software_decode.value:
                 cmd += ' -a 3 -p 10'
-            else:
+            elif config.plugins.iptvplayer.plarform.value in ('sh4', 'mipsel', 'armv7', 'armv5t'):
                 cmd += ' -p 2'
                 if None != self.downloader:
                     cmd += ' -o 1 '
@@ -1960,10 +1976,11 @@ class IPTVExtMoviePlayer(Screen):
             if audioTrackIdx >= 0:
                 cmd += ' -t %d ' % audioTrackIdx
                 
-            subtitleTrackIdx = self.metaHandler.getEmbeddedSubtileTrackIdx()
-            printDBG(">>>>>>>>>>>>>>>>>>>>>>>> subtitleTrackIdx[%d]" % subtitleTrackIdx)
-            if subtitleTrackIdx >= 0:
-                cmd += ' -9 %d ' % subtitleTrackIdx
+            if config.plugins.iptvplayer.plarform.value in ('sh4', 'mipsel', 'armv7', 'armv5t'):
+                subtitleTrackIdx = self.metaHandler.getEmbeddedSubtileTrackIdx()
+                printDBG(">>>>>>>>>>>>>>>>>>>>>>>> subtitleTrackIdx[%d]" % subtitleTrackIdx)
+                if subtitleTrackIdx >= 0:
+                    cmd += ' -9 %d ' % subtitleTrackIdx
                 
             if audioUri != '':
                 cmd += ' -x "%s" ' % audioUri

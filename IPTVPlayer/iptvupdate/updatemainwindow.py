@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 #  Update iptv main window
@@ -8,18 +7,19 @@
 ###################################################
 # LOCAL import
 ###################################################
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, mkdirs, rmtree, FreeSpace, formatBytes, iptv_system, \
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools          import printDBG, printExc, mkdirs, rmtree, FreeSpace, formatBytes, iptv_system, \
                                                                    GetIPTVDMImgDir, GetIPTVPlayerVerstion, GetShortPythonVersion, GetTmpDir, \
-                                                                   GetHostsList, GetEnabledHostsList, WriteTextFile, GetUpdateServerUri, \
+                                                                   GetHostsList, GetEnabledHostsList, WriteTextFile, IsExecutable, GetUpdateServerUri, \
                                                                    GetIconsHash, SetIconsHash, GetGraphicsHash, SetGraphicsHash, rm, GetPyScriptCmd
-from Plugins.Extensions.IPTVPlayer.tools.iptvtypes import enum
-from Plugins.Extensions.IPTVPlayer.iptvupdate.iptvlist import IPTVUpdateList
+from Plugins.Extensions.IPTVPlayer.tools.iptvtypes          import enum
+from Plugins.Extensions.IPTVPlayer.iptvupdate.iptvlist      import IPTVUpdateList
 from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdownloadercreator import UpdateDownloaderCreator
-from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper
-from Plugins.Extensions.IPTVPlayer.libs.pCommon import CParsingHelper
-from Plugins.Extensions.IPTVPlayer.components.articleview import ArticleView
-from Plugins.Extensions.IPTVPlayer.components.ihost import ArticleContent
-from Plugins.Extensions.IPTVPlayer.libs.pCommon import common
+from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh            import DMHelper
+from Plugins.Extensions.IPTVPlayer.libs.pCommon             import CParsingHelper
+
+from Plugins.Extensions.IPTVPlayer.components.articleview   import ArticleView
+from Plugins.Extensions.IPTVPlayer.components.ihost         import ArticleContent
+from Plugins.Extensions.IPTVPlayer.libs.pCommon             import common
 from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT as _
 ###################################################
 
@@ -370,11 +370,12 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
     
     def getStepsList(self):
         self.list = []
-        if config.plugins.iptvplayer.gitlab_repo.value and config.plugins.iptvplayer.preferredupdateserver.value == '2':
+        if config.plugins.iptvplayer.gitlab_repo.value and config.plugins.iptvplayer.preferredupdateserver.value >= '1':
             self.list.append( self.__getStepDesc(title = _("Add repository last version."),   execFunction = self.stepGetGitlab, ignoreError=True ) )
-        self.list.append( self.__getStepDesc(title = _("Obtaining server list."),          execFunction = self.stepGetServerLists ) )
+        self.list.append( self.__getStepDesc(title = _("Obtaining server list."),          execFunction = self.stepGetServerLists, ignoreError=True ) )
         self.list.append( self.__getStepDesc(title = _("Downloading an update packet."),   execFunction = self.stepGetArchive ) )
         self.list.append( self.__getStepDesc(title = _("Extracting an update packet."),    execFunction = self.stepUnpackArchive ) )
+        self.list.append( self.__getStepDesc(title = _("Copy post installed binaries."),   execFunction = self.stepCopyPostInatalledBinaries, breakable=True, ignoreError=True ) )
         self.list.append( self.__getStepDesc(title = _("Executing user scripts."),         execFunction = self.stepExecuteUserScripts ) )
         self.list.append( self.__getStepDesc(title = _("Checking version."),               execFunction = self.stepCheckFiles ) )
         self.list.append( self.__getStepDesc(title = _("Removing unnecessary files."),     execFunction = self.stepRemoveUnnecessaryFiles, breakable=True, ignoreError=True) )
@@ -406,28 +407,37 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
 
     def stepGetGitlab(self):
         printDBG('UpdateMainAppImpl.stepGetGitlab')
+        if config.plugins.iptvplayer.gitlab_repo.value == '1':
+            nick = 'mosz_nowy'
+        else:
+            nick = '9thprince'
         self.clearTmpData()
         sts, msg = self.createPath(self.tmpDir)
         if not sts:
             self.stepFinished(-1, msg)
             return
-        serverUrl = "https://gitlab.com/{0}/e2iplayer/raw/master/IPTVPlayer/version.py".format(config.plugins.iptvplayer.gitlab_repo.value)
+        serverUrl = "https://gitlab.com/{0}/e2iplayer/raw/master/IPTVPlayer/version.py".format(nick)
         self.downloader = UpdateDownloaderCreator(serverUrl)
         self.downloader.subscribersFor_Finish.append( boundFunction(self.downloadFinished, self.__serversListGitlabFinished, None))
         self.downloader.start(serverUrl, os_path.join(self.tmpDir, 'lastversion.py'))
         
     def stepGetArchive(self):
-        self.downloader = UpdateDownloaderCreator(self.serversList[self.currServIdx]['url'])
-        self.downloader.subscribersFor_Finish.append( boundFunction(self.downloadFinished, self.__archiveDownloadFinished, None))
-        self.sourceArchive = os_path.join(self.tmpDir, 'iptvplayer_archive.tar.gz')
-        url = self.serversList[self.currServIdx]['url']
+        try:
+            self.downloader = UpdateDownloaderCreator(self.serversList[self.currServIdx]['url'])
+            self.downloader.subscribersFor_Finish.append( boundFunction(self.downloadFinished, self.__archiveDownloadFinished, None))
+            self.sourceArchive = os_path.join(self.tmpDir, 'iptvplayer_archive.tar.gz')
+            url = self.serversList[self.currServIdx]['url']
 
-        if self.decKey:
-            from hashlib import sha256
-            url += '&' if '?' in url else '?'
-            url += 'hash=%s' % sha256(self.user).hexdigest()
+            if self.decKey:
+                from hashlib import sha256
+                url += '&' if '?' in url else '?'
+                url += 'hash=%s' % sha256(self.user).hexdigest()
 
-        self.downloader.start(url, self.sourceArchive)
+            self.downloader.start(url, self.sourceArchive)
+        except Exception:
+            printExc()
+            self.stepFinished(-1, 'Error. Choose preferred server.')
+            return
 
     def stepUnpackArchive(self):
         self.destinationArchive  = os_path.join(self.tmpDir , 'iptv_archive')
@@ -579,7 +589,44 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
         cmd = 'mkdir -p "%s" && cp -rf "%s"/* "%s"/' % (newPlayerSelectorDir, oldPlayerSelectorDir, newPlayerSelectorDir)
         printDBG('UpdateMainAppImpl.stepCopyOnlyIcons cmd[%s]' % cmd)
         self.cmd = iptv_system( cmd, self.__copyOldCmdFinished )
+    
+    def stepCopyPostInatalledBinaries(self, init=True, code=0, msg=''):
+        # get users scripts
+        if init:
+            self.copyBinariesCmdList = []
+            if fileExists("%s/libs/iptvsubparser/_subparser.so" % os_path.join(self.ExtensionPath, 'IPTVPlayer')):
+                self.copyBinariesCmdList.append( 'cp -f "%s/libs/iptvsubparser/_subparser.so" "%s/libs/iptvsubparser/_subparser.so"  2>&1 ' % (os_path.join(self.ExtensionPath, 'IPTVPlayer'), os_path.join(self.ExtensionTmpPath, 'IPTVPlayer')) )
 
+            if fileExists("%s/libs/e2icjson/e2icjson.so" % os_path.join(self.ExtensionPath, 'IPTVPlayer')):
+                self.copyBinariesCmdList.append( 'cp -f "%s/libs/e2icjson/e2icjson.so" "%s/libs/e2icjson/e2icjson.so"  2>&1 ' % (os_path.join(self.ExtensionPath, 'IPTVPlayer'), os_path.join(self.ExtensionTmpPath, 'IPTVPlayer')) )
+
+            binPath = "%s/bin/" % (os_path.join(self.ExtensionPath, 'IPTVPlayer'))
+            binariesTab = [('exteplayer3', config.plugins.iptvplayer.exteplayer3path.value), \
+                           ('gstplayer', config.plugins.iptvplayer.gstplayerpath.value), \
+                           ('wget', config.plugins.iptvplayer.wgetpath.value), \
+                           ('hlsdl', config.plugins.iptvplayer.hlsdlpath.value), \
+                           ('cmdwrap', config.plugins.iptvplayer.cmdwrappath.value), \
+                           ('duk', config.plugins.iptvplayer.dukpath.value), \
+                           ('f4mdump', config.plugins.iptvplayer.f4mdumppath.value), \
+                           ('uchardet', config.plugins.iptvplayer.uchardetpath.value)]
+            for binItem in binariesTab:
+                if binPath in binItem[1]:
+                    self.copyBinariesCmdList.append( 'cp -f "%s/%s" "%s/bin/"  2>&1 ' % (binPath, binItem[0], os_path.join(self.ExtensionTmpPath, 'IPTVPlayer')) )
+            
+            if 0 < len(self.copyBinariesCmdList):
+                self.copyBinariesMsg = ''
+            else:
+                self.copyBinariesMsg = _("Nothing to do here.")
+
+        self.copyBinariesMsg += msg
+        if 0 != code:
+            self.stepFinished(-1, _("Problem with copy binary.\n") + self.copyBinariesMsg)
+        elif 0 < len(self.copyBinariesCmdList):
+            cmd = self.copyBinariesCmdList.pop()
+            self.cmd = iptv_system( cmd, self.__copyBinariesCmdFinished )
+        else:
+            self.stepFinished(0, _("Completed.\n") + self.copyBinariesMsg)
+        
     def stepExecuteUserScripts(self, init=True, code=0, msg=''):
         # get users scripts
         if init:
@@ -616,7 +663,7 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
         cmd = ''
         try: 
             url = "http://iptvplayer.vline.pl/check.php?ver=%s&type=%s" % (self.serversList[self.currServIdx]['version'], self.serversList[self.currServIdx]['pyver'])
-            cmd = '/usr/bin/wget "%s" -t 1 -T 10 -O - > /dev/null 2>&1; ' % (url)
+            cmd = '%s "%s" -t 1 -T 10 -O - > /dev/null 2>&1; ' % (config.plugins.iptvplayer.wgetpath.value, url)
         except Exception: 
             printExc()
         
@@ -662,7 +709,12 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
         url            = self.downloader.getUrl()
         filePath       = self.downloader.getFullFileName()
         self.downloader = None
+        serversList = []
         printDBG('UpdateMainAppImpl.__serversListGitlabFinished url[%s], filePath[%s] ' % (url, filePath))
+        if config.plugins.iptvplayer.gitlab_repo.value == '1':
+            nick = 'mosz_nowy'
+        else:
+            nick = '9thprince'
         if DMHelper.STS.DOWNLOADED != status:
             msg = _("Problem with downloading the packet:\n[%s].") % url
             self.stepFinished(-1, msg)
@@ -677,7 +729,7 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
                 except Exception:
                     printExc()
                 if 13 == len(newVerNum):
-                    sourceUrl = "https://gitlab.com/{0}/e2iplayer/-/archive/master/e2iplayer-master.tar.gz".format(config.plugins.iptvplayer.gitlab_repo.value)
+                    sourceUrl = "https://gitlab.com/{0}/e2iplayer/-/archive/master/e2iplayer-master.tar.gz".format(nick)
                     self.gitlabList = {'name':'gitlab.com', 'version':newVerNum, 'url':sourceUrl, 'subdir':'e2iplayer-master/', 'pyver':'X.X', 'packagetype':'sourcecode'}
                     printDBG("__serversListGitlabFinished: [%s]" % str(self.gitlabList))
                 else:
@@ -686,7 +738,10 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
             else:
                 msg = _("File not found:\n[%s].") % filePath
                 self.stepFinished(-1, msg)
-            self.stepFinished(0, _("GitLab version from {0} was downloaded successfully.".format(config.plugins.iptvplayer.gitlab_repo.value)))
+            if config.plugins.iptvplayer.gitlab_repo.value and config.plugins.iptvplayer.preferredupdateserver.value >= '1':
+                serversList.append(self.gitlabList)
+            self.serversList = serversList
+            self.stepFinished(0, _("GitLab version from {0} was downloaded successfully.".format(nick)))
         return
 
     def __serversListDownloadFinished(self, arg, status):
@@ -762,9 +817,6 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
             if config.plugins.iptvplayer.hiddenAllVersionInUpdate.value:
                 self.__addLastVersion(serversList) # get last version from gitlab.com only for developers
 
-            if config.plugins.iptvplayer.gitlab_repo.value and config.plugins.iptvplayer.preferredupdateserver.value == '2':
-                serversList.append(self.gitlabList)
-
             self.serversList = serversList
             self.serverGraphicsHash = serverGraphicsHash
             self.serverIconsHash = serverIconsHash
@@ -831,10 +883,7 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
                     elif config.plugins.iptvplayer.ListaGraficzna.value:
                         list.append( self.__getStepDesc(title = _("Copy icons."),    execFunction = self.stepCopyOnlyIcons ) )
 
-            if config.plugins.iptvplayer.gitlab_repo.value and config.plugins.iptvplayer.preferredupdateserver.value == '2':
-                self.list[4:4] = list
-            else:
-                self.list[3:3] = list
+            self.list[3:3] = list
             if 'enc' in self.serversList[self.currServIdx]:
                 self.list.insert(1, self.__getStepDesc(title = _("Get decryption key."),    execFunction = self.stepGetEncKey ) )
                 self.list.insert(3, self.__getStepDesc(title = _("Decrypt archive."),       execFunction = self.stepDecryptArchive ) )
@@ -969,7 +1018,7 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
                 fileName, fileExt = os_path.splitext(wholeFileName)
                 filePath = os_path.join(pathWithUserScripts, wholeFileName) 
                 if os_path.isfile(filePath):
-                    if fileExt in ['.pyo', '.py']:
+                    if fileExt in ['.pyo', '.pyc', '.py']:
                         interpreterBinName = 'python'
                     elif '.sh' == fileExt:
                         interpreterBinName = 'sh'
@@ -981,7 +1030,16 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
             printExc()
         printDBG('UpdateMainAppImpl.__getScriptsList [%r]' % cmdList)
         return cmdList
-
+        
+    def __copyBinariesCmdFinished(self, status, outData):
+        self.cmd = None
+        if 0 != status:
+            code = -1
+        else:
+            code = 0
+        msg  = '------------\nstatus[%d]\n[%s]\n------------\n' % (status, outData)
+        self.stepCopyPostInatalledBinaries(init=False, code=code, msg=msg)
+     
     def __userCmdFinished(self, status, outData):
         self.cmd = None
         if 0 != status:

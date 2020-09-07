@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  IPTV download manager UI
 #
@@ -11,7 +23,7 @@
 ###################################################
 from Plugins.Extensions.IPTVPlayer.components.cover import SimpleAnimatedCover
 from Plugins.Extensions.IPTVPlayer.tools.iptvtypes import strwithmeta, enum
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, formatBytes, eConnectCallback, ReadUint32, GetIPTVDMImgDir
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, formatBytes, touch, eConnectCallback, ReadUint32, GetIPTVDMImgDir
 from Plugins.Extensions.IPTVPlayer.components.iptvplayer import IPTVStandardMoviePlayer, IPTVMiniMoviePlayer
 from Plugins.Extensions.IPTVPlayer.components.iptvextmovieplayer import IPTVExtMoviePlayer
 from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper
@@ -27,6 +39,7 @@ from Screens.Screen import Screen
 from Screens.MessageBox import MessageBox
 from enigma import getDesktop
 from enigma import eTimer
+from Components.config import config
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 #from Components.Sources.StaticText import StaticText
@@ -78,7 +91,7 @@ class E2iPlayerBufferingWidget(Screen):
     
     printDBG("[E2iPlayerBufferingWidget] desktop size %dx%d" % (sz_w, sz_h) )
     skin = """
-        <screen name="E2iPlayerBufferingWidget"  position="center,center" size="%d,%d" title="E2iPlayer buffering...">
+        <screen name="E2iPlayerBufferingWidget"  position="center,center" size="%d,%d" title="E2iStream buffering...">
          <widget name="percentage" size="%d,%d"   position="%d,%d"  zPosition="5" valign="center" halign="center"  font="Regular;21" backgroundColor="black" transparent="1" /> #foregroundColor="white" shadowColor="black" shadowOffset="-1,-1"
          <widget name="console"    size="%d,%d"   position="%d,%d"  zPosition="5" valign="center" halign="center"  font="Regular;21" backgroundColor="black" transparent="1" />
          <widget name="icon"       size="%d,%d"   position="%d,%d"  zPosition="4" transparent="1" alphatest="blend" />

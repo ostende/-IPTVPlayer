@@ -1,7 +1,18 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 #
-#-*- Coded  by gorr
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
+
 #
 ###################################################
 # LOCAL import
@@ -62,7 +73,7 @@ class Sovdub(CBaseHostClass):
         sts, data = self.getPage(cItem['url'])
         if not sts: return
 
-        canData = self.cm.ph.getDataBeetwenMarkers(data, 'Выбор страны', '</div>', False)[1]
+        canData = self.cm.ph.getDataBeetwenMarkers(data, 'ÐÑÐ±Ð¾Ñ ÑÑÑÐ°Ð½Ñ', '</div>', False)[1]
         canData = re.compile('href="([^"]+?)">([^<]+?)</a>').findall(canData)
         for item in canData:
             params = dict(cItem)
@@ -139,7 +150,7 @@ class Sovdub(CBaseHostClass):
                 self.addArticle(params)
         
     def listSearchResult(self, cItem, searchPattern, searchType):
-        #searchPattern = 'Колонна'
+        #searchPattern = 'ÐÐ¾Ð»Ð¾Ð½Ð½Ð°'
         
         if self.encoding == '':
             sts, data = self.getPage(self.getMainUrl())

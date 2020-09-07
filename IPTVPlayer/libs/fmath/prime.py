@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+# -*- coding: iso-8859-1 -*-
 """ fmath.prime
 
     Start of prime number routines. Rabin-miller test works, more to come later.

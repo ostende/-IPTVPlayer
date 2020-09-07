@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  IPTV download manager UI
 #
@@ -12,7 +24,7 @@
 from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, eConnectCallback, GetIconDir, GetBinDir, E2PrioFix
 from Plugins.Extensions.IPTVPlayer.components.iptvplayer import IPTVStandardMoviePlayer, IPTVMiniMoviePlayer
 from Plugins.Extensions.IPTVPlayer.components.iptvextmovieplayer import IPTVExtMoviePlayer
-from Plugins.Extensions.IPTVPlayer.components.iptvconfigmenu import GetMoviePlayer
+from Plugins.Extensions.IPTVPlayer.components.iptvconfigmenu import ConfigMenu, GetMoviePlayer
 from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT as _
 
 from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper, DMItemBase
@@ -26,11 +38,12 @@ from Screens.Screen import Screen
 from Screens.ChoiceBox import ChoiceBox
 from enigma import getDesktop, eTimer, eConsoleAppContainer
 from Components.config import config
-from Components.ActionMap import ActionMap
+from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.Label import Label
 from Components.Sources.StaticText import StaticText
+from Components.config import config
+
 from os import chmod as os_chmod, path as os_path, remove as os_remove
-from boxbranding import getImageArch
 ###################################################
 
 #########################################################
@@ -314,7 +327,7 @@ class IPTVDMWidget(Screen):
                         additionalParams['show_iframe'] = config.plugins.iptvplayer.show_iframe.value
                         additionalParams['iframe_file_start'] = config.plugins.iptvplayer.iframe_file.value
                         additionalParams['iframe_file_end'] = config.plugins.iptvplayer.clear_iframe_file.value
-                        if getImageArch() == "sh4":
+                        if 'sh4' == config.plugins.iptvplayer.plarform.value:
                             additionalParams['iframe_continue'] = True
                         else:
                             additionalParams['iframe_continue'] = False

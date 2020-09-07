@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -138,7 +150,7 @@ class GamatoTV(CBaseHostClass):
         sts, data = self.getPage(url)
         if not sts: return
         
-        if '›</a>' in data: nextPage = True
+        if 'âº</a>' in data: nextPage = True
         else: nextPage = False
         
         data = self.cm.ph.getDataBeetwenMarkers(data, 'xg_list_groups_main', '</ul></div>')[1]

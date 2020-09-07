@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+# -*- coding: iso-8859-1 -*-
 """ crypto.keyedHash.michael
 
     A reference implementation of the Michael Message Integrety Chek (MIC)

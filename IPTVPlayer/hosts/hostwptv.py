@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -25,8 +37,8 @@ config.plugins.iptvplayer.wpUseDF = ConfigYesNo(default = False)
 
 def GetConfigList():
     optionList = []
-    optionList.append( getConfigListEntry( "Domyślny jakość video:", config.plugins.iptvplayer.wpDefaultformat ) )
-    optionList.append( getConfigListEntry( "Używaj domyślnej jakości video:", config.plugins.iptvplayer.wpUseDF ) )
+    optionList.append( getConfigListEntry( "DomyÅlny jakoÅÄ video:", config.plugins.iptvplayer.wpDefaultformat ) )
+    optionList.append( getConfigListEntry( "UÅ¼ywaj domyÅlnej jakoÅci video:", config.plugins.iptvplayer.wpUseDF ) )
     return optionList
 ###################################################
 
@@ -202,7 +214,7 @@ class WpTV(CBaseHostClass):
         
         data = self.cm.ph.getAllItemsBeetwenMarkers(data, '<section', '</section>')
         for section in data:
-            if 'Zobacz także' in section: continue
+            if 'Zobacz takÅ¼e' in section: continue
             itemsTab = self.getSectionItems(section)
             for item in itemsTab:
                 item.update({'good_for_fav': True, 'desc':item['desc'] + '[/br]' + mainDesc}) #, 'title':item['desc']

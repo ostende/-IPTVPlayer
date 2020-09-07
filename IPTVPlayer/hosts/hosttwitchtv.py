@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###################################################
 # LOCAL import
@@ -227,7 +226,7 @@ class Twitch(CBaseHostClass):
         lang = '"%s"' % cItem['lang'].upper() if 'lang' in cItem else ''
         cursor = ',"cursor":"%s"' % cItem['cursor'] if 'cursor' in cItem else ''
         # post_data updated as per changes to their api.  CM
-        post_data = '[{"operationName":"DirectoryPage_Game","variables":{"name":"%s","options":{"sort":"VIEWER_COUNT","recommendationsContext":{"platform":"web"},"requestID":"a40436b85daf0810","tags":[%s]},"sortTypeIsRecency":false,"limit":30%s},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"c250a5fa4134a24c3d96abff9450391fd621b1c973c47f3d6adda3be6098c850"}}}]' % (cItem['game_name'], lang, cursor)        
+        post_data = '[{"operationName":"DirectoryPage_Game","variables":{"name":"%s","options":{"sort":"VIEWER_COUNT","recommendationsContext":{"platform":"web"},"requestID":"a40436b85daf0810","tags":[%s]},"sortTypeIsRecency":false,"limit":30%s},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"c250a5fa4134a24c3d96abff9450391fd621b1c973c47f3d6adda3be6098c850"}}}]' % (cItem['game_name'], lang, cursor)
         url = self.getFullUrl('/gql', self.API2_URL)
         sts, data = self.getPage(url, MergeDicts(self.defaultParams, {'raw_post_data':True}), post_data)
         if not sts: return
@@ -243,16 +242,15 @@ class Twitch(CBaseHostClass):
 
         login = cItem['user_login']
         post_data = []
-        post_data.append('{"operationName":"ChannelShell","variables":{"login":"%s"},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"d6b850262351d0a1e01369809ca87ef837c45e148301053a8f6a9dc440d3c806"}}}' % login)
+        post_data.append('{"operationName":"ChannelRoot_Channel","variables":{"channelLogin":"%s","includeChanlets": true},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"90a23e279e3ed997efcf53550abc3570bbaabee73f78d2f36bef770fa232e91b"}}}' % login)
         post_data.append('{"operationName":"ChannelPage_ChannelHeader","variables":{"login":"%s"},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"32f05e9f36086c6e6930e3f3d0d515eea61cc3263bf7f92870f97c9aae024593"}}}' % login)
         post_data.append('{"operationName":"ChannelPage_StreamType_User","variables":{"channelLogin":"%s"},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"43b152e4f17090ece0b50a5bc41e4690c7a6992ad3ed876d88bf7292be2d2cba"}}}' % login)
         post_data.append('{"operationName":"ChannelPage__ChannelViewersCount","variables":{"login":"%s"},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"3b5b233b59cc71f5ab273c74a30c46485fa52901d98d7850d024ad0669270184"}}}' % login)
-        post_data.append('{"operationName":"StreamMetadata","variables":{"channelLogin":"%s"},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"1c719a40e481453e5c48d9bb585d971b8b372f8ebb105b17076722264dfa5b3e"}}}' % login)
+        post_data.append('{"operationName":"ComscoreStreamingQuery","variables":{"channel":"%s","clipSlug":null,"isClip":false,"isLive":true,"isVodOrCollection":false,"vodID":null},"extensions":{"persistedQuery":{"version":1,"sha256Hash":"e1edae8122517d013405f237ffcc124515dc6ded82480a88daef69c83b53ac01"}}}' % login)
 
         url = self.getFullUrl('/gql', self.API2_URL)
         sts, data = self.getPage(url, MergeDicts(self.defaultParams, {'raw_post_data':True}), '[%s]' % ','.join(post_data))
         if not sts: return
-        printDBG("Twitch.listChannel %s" % data)
         icon = ''
         try:
             data = json.loads(data)
@@ -261,7 +259,8 @@ class Twitch(CBaseHostClass):
                     descTab = []
                     viewers = str(data[3]['data']['user']['stream']['viewersCount'])
                     descTab.append(_('%s viewers') % viewers)
-                    title = jstr(data[4]['data']['user']['lastBroadcast'], 'title')
+                    item = data[4]['data']['user']['broadcastSettings']
+                    title = jstr(item, 'title')
                     item = data[4]['data']['user']['stream']
                     if item.get('game'):
                         descTab.append( '%s: %s' % (jstr(item['game'], '__typename'), jstr(item['game'], 'name')) )

@@ -1,6 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-## @file  ihost.py
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is ? E2iStream Team, aka Codermik.  TSiPlayer is ? Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 
 ###################################################
@@ -10,7 +21,7 @@ from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT
 from Plugins.Extensions.IPTVPlayer.components.asynccall import MainSessionWrapper
 from Plugins.Extensions.IPTVPlayer.libs.pCommon import common, CParsingHelper
 from Plugins.Extensions.IPTVPlayer.libs.urlparser import urlparser
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import CSearchHistoryHelper, GetCookieDir, printDBG, printExc, GetLogoDir
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import CSearchHistoryHelper, GetCookieDir, printDBG, printExc, GetLogoDir, byteify
 from Plugins.Extensions.IPTVPlayer.libs.e2ijson import loads as json_loads, dumps as json_dumps
 
 from Components.config import config
@@ -56,7 +67,8 @@ class CDisplayListItem:
                 possibleTypesOfSearch = None, \
                 pinLocked = False, \
                 isGoodForFavourites = False, \
-                isWatched = False, \
+                isGoodForDemoFav = False, \
+				isWatched = False, \
                 textColor = '', \
                 pinCode = ''):
                 
@@ -80,6 +92,9 @@ class CDisplayListItem:
         if isGoodForFavourites: self.isGoodForFavourites = True
         else: self.isGoodForFavourites = False
         
+        if isGoodForDemoFav: self.isGoodForDemoFav = True
+        else: self.isGoodForDemoFav = False
+		
         if isWatched: self.isWatched = True
         else: self.isWatched = False
         
@@ -584,6 +599,7 @@ class CHostBase(IHost):
         icon        =  self.getFullIconUrl( cItem.get('icon', '') )
         if icon == '': icon = self.getDefaulIcon(cItem)
         isGoodForFavourites = cItem.get('good_for_fav', False)
+        isGoodForDemoFav = cItem.get('demo', False)
         pinLocked = cItem.get('pin_locked', False)
         pinCode   = cItem.get('pin_code', '')
         textColor = cItem.get('text_color', '')
@@ -597,7 +613,8 @@ class CHostBase(IHost):
                                     possibleTypesOfSearch = possibleTypesOfSearch,
                                     pinLocked = pinLocked,
                                     isGoodForFavourites = isGoodForFavourites,
-                                    textColor = textColor,
+                                    isGoodForDemoFav = isGoodForDemoFav,
+									textColor = textColor,
                                     pinCode = pinCode)
     # end converItem
 
@@ -644,16 +661,12 @@ class CBaseHostClass:
         except Exception: 
             self.isGeoBlockingChecked = False
         sts, data = self.cm.getPage('https://dcinfos.abtasty.com/geolocAndWeather.php')
-        if not sts: 
-            return
+        if not sts: return
         try:
-            data = json_loads(data)
-            mycountry = data.get('country','')
-            if mycountry != country:
-                if not mycountry:
-                    mycountry = '?'
+            data = json_loads(data.strip()[1:-1], '', True)
+            if data['country'] != country:
                 message = _('%s uses "geo-blocking" measures to prevent you from accessing the services from abroad.\n Host country: %s, your country: %s') 
-                GetIPTVNotify().push(message % (self.getMainUrl(), country, mycountry ), 'info', 5)
+                GetIPTVNotify().push(message % (self.getMainUrl(), country, data['country']  ), 'info', 5)
             self.isGeoBlockingChecked = True
         except Exception: printExc()
     

@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 """
 websocket - WebSocket client library for Python
 
@@ -39,7 +37,7 @@ try:
     def _validate_utf8(utfbytes):
         return Utf8Validator().validate(utfbytes)[0]
 
-except ImportError as e:
+except ImportError:
     # UTF-8 validator
     # python implementation of http://bjoern.hoehrmann.de/utf-8/decoder/dfa/
 

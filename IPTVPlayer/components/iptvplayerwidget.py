@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 #
 #  IplaPlayer based on SHOUTcast
 #
@@ -7,11 +6,12 @@
 #
 # 
 
-from os import path as os_path
+from time import sleep as time_sleep
+from os import remove as os_remove, path as os_path
 from urllib import quote as urllib_quote
 from random import shuffle as random_shuffle
 import traceback
-
+import re,os
 ####################################################
 #                   E2 components
 ####################################################
@@ -22,13 +22,14 @@ from Screens.ChoiceBox import ChoiceBox
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.Pixmap import Pixmap
+from Components.ScrollLabel import ScrollLabel
 from Components.config import config, configfile
 from Components.Sources.StaticText import StaticText
 from Tools.BoundFunction import boundFunction
 from Tools.LoadPixmap import LoadPixmap
 from Tools.Directories import fileExists
 from enigma import getDesktop, eTimer
-from boxbranding import getImageArch
+
 ####################################################
 #                   IPTV components
 ####################################################
@@ -41,13 +42,14 @@ from Plugins.Extensions.IPTVPlayer.components.iptvfavouriteswidgets import IPTVF
 from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdownloadercreator import IsUrlDownloadable
 from Plugins.Extensions.IPTVPlayer.libs.pCommon import CParsingHelper
 from Plugins.Extensions.IPTVPlayer.libs.urlparser import urlparser
+from Plugins.Extensions.IPTVPlayer.tools.iptvtypes import strwithmeta
 from Plugins.Extensions.IPTVPlayer.tools.iptvtools import FreeSpace as iptvtools_FreeSpace, \
                                                           mkdirs as iptvtools_mkdirs, GetIPTVPlayerVerstion, GetVersionNum, \
                                                           printDBG, printExc, iptv_system, GetHostsList, IsHostEnabled, \
                                                           eConnectCallback, GetSkinsDir, GetIconDir, GetPluginDir, GetExtensionsDir, \
                                                           SortHostsList, GetHostsOrderList, CSearchHistoryHelper, IsExecutable, \
-                                                          CMoviePlayerPerHost, CFakeMoviePlayerOption, GetAvailableIconSize, \
-                                                          GetE2VideoMode, SetE2VideoMode, TestTmpCookieDir, TestTmpJSCacheDir,\
+                                                          CMoviePlayerPerHost, GetFavouritesDir, CFakeMoviePlayerOption, GetAvailableIconSize, \
+                                                          GetE2VideoModeChoices, GetE2VideoMode, SetE2VideoMode, TestTmpCookieDir, TestTmpJSCacheDir,\
                                                           ClearTmpCookieDir, ClearTmpJSCacheDir, SetTmpCookieDir, SetTmpJSCacheDir,\
                                                           GetEnabledHostsList, SaveHostsOrderList, GetUpdateServerUri, GetHostsAliases, formatBytes
 from Plugins.Extensions.IPTVPlayer.tools.iptvhostgroups import IPTVHostsGroups
@@ -56,8 +58,9 @@ from Plugins.Extensions.IPTVPlayer.iptvdm.iptvbuffui import E2iPlayerBufferingWi
 from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdmapi import IPTVDMApi, DMItem
 from Plugins.Extensions.IPTVPlayer.iptvupdate.updatemainwindow import IPTVUpdateWindow, UpdateMainAppImpl
 
-from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT as _, GetIPTVPlayerLastHostError, GetIPTVNotify, GetIPTVSleep
+from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT as _, IPTVPlayerNeedInit, GetIPTVPlayerLastHostError, GetIPTVNotify, GetIPTVSleep
 
+from Plugins.Extensions.IPTVPlayer.setup.iptvsetupwidget import IPTVSetupMainWidget
 from Plugins.Extensions.IPTVPlayer.components.iptvplayer import IPTVStandardMoviePlayer, IPTVMiniMoviePlayer
 from Plugins.Extensions.IPTVPlayer.components.iptvextmovieplayer import IPTVExtMoviePlayer
 from Plugins.Extensions.IPTVPlayer.components.iptvpictureplayer import IPTVPicturePlayerWidget
@@ -457,7 +460,14 @@ class E2iPlayerWidget(Screen):
                         msg = '%s (%s)' % (self.statusTextValue, msg)
                         self["statustext"].setText(msg)
                     else:
-                        self["statustext"].setText(self.statusTextValue)
+                        path_listing = '/tmp/TSIPlayer/statusText.tmp'
+                        if os.path.exists(path_listing):
+                            file = open(path_listing, 'r')
+                            lines = file.read()
+                            file.close()
+                            self["statustext"].setText(lines.strip())
+                        else:
+                            self["statustext"].setText(self.statusTextValue)
                     
                     if "spinner" in self:
                         x, y = self["spinner"].getPosition()
@@ -477,7 +487,7 @@ class E2iPlayerWidget(Screen):
                         message = _('It seems that the host "%s" has crashed. Do you want to report this problem?') % self.hostName
                         message += "\n"
                         message += _('\nMake sure you are using the latest version of the plugin.')
-                        message += _('\nYou can also report problem here: \nhttps://github.com/persianpros/e2iplayer/issues')
+                        message += _('\nYou can also report problem here: \nhttps://gitlab.com/iptvplayer-for-e2/iptvplayer-for-e2/issues\nor here: samsamsam@o2.pl')
                         self.session.openWithCallback(self.reportHostCrash, MessageBox, text=message, type=MessageBox.TYPE_YESNO)
             self.hideSpinner()
         except Exception: printExc()
@@ -590,7 +600,8 @@ class E2iPlayerWidget(Screen):
             options.append((_("Add item to favourites"), "ADD_FAV"))
             options.append((_("Edit favourites"), "EDIT_FAV"))
         elif 'favourites' == self.hostName: options.append((_("Edit favourites"), "EDIT_FAV"))
-        
+        if -1 < self.canByAddedToDemoFav()[0]: 
+            options.append((_("Add item to Enigma2 favourites"), "ADD_FAV_DEMO"))
         if None != self.activePlayer.get('player', None): title = _('Change active movie player')
         else: title = _('Set active movie player')
         options.append((title, "SetActiveMoviePlayer"))
@@ -684,7 +695,8 @@ class E2iPlayerWidget(Screen):
         if ret:
             if ret[1] == "info": #information about plugin
                 TextMSG  = _("Lead programmer: ") + "\n\t- samsamsam\n"
-                TextMSG += _("www: ") + "\n\t- https://github.com/persianpros/e2iplayer"
+                TextMSG += _("E-mail: ") + "\n\t- iptvplayere2@gmail.com\n"
+                TextMSG += _("www: ") + "\n\t- http://iptvplayer.vline.pl/" + '\n\t- http://www.iptvplayer.gitlab.io/\n'
                 TextMSG += _("Developers: ") 
                 developersTab = [{'nick':'zdzislaw22',},
                                  {'nick':'mamrot',    },
@@ -695,10 +707,6 @@ class E2iPlayerWidget(Screen):
                                  {'nick':'matzg',     },
                                  {'nick':'tomashj291',},
                                  {'nick':'a4tech',    },
-                                 {'nick':'zadmario',    },
-                                 {'nick':'mosz_nowy',    },
-                                 {'nick':'maxbambi',    },
-                                 {'nick':'Open Vision Developers',    },
                                 ]
                 # present alphabetically, the order does not mean validity
                 sortedList = sorted(developersTab, key=lambda k: k['nick'].upper())
@@ -745,6 +753,29 @@ class E2iPlayerWidget(Screen):
             elif ret[1] == 'ADD_FAV':
                 currSelIndex = self.canByAddedToFavourites()[0]
                 self.requestListFromHost('ForFavItem', currSelIndex, '')
+            elif ret[1] == 'ADD_FAV_DEMO':
+                currSelIndex = self.canByAddedToDemoFav()[0]
+                selItem = self.currList[currSelIndex]
+                printDBG('item='+str(selItem))
+                printDBG('name='+str(selItem.name))
+                printDBG('url='+str(selItem.urlItems[0].url))
+                folder='/etc/enigma2'
+                path_=''
+                lst=os.listdir(folder)
+                for (file_) in lst:
+                    if (file_.endswith('.tv'))and('tsiplayer' in file_):
+                        path_=folder+'/'+file_
+                        break
+                if path_ !='':
+                    Ln1 = '\n#SERVICE 4097:0:1:E11:24:800:DCA0000:0:0:0:'+urllib_quote(selItem.urlItems[0].url)+':'+selItem.name
+                    Ln2 = '\n#DESCRIPTION '+selItem.name
+                    with open(path_, "a") as myfile:
+                        myfile.write(Ln1)
+                        myfile.write(Ln2)
+						
+						
+						
+						
             elif ret[1] == 'EDIT_FAV':
                 self.session.openWithCallback(self.editFavouritesCallback, IPTVFavouritesMainWidget)
             elif ret[1] == 'RandomizePlayableItems':
@@ -1127,9 +1158,12 @@ class E2iPlayerWidget(Screen):
         self.categoryList = []
         self.currList = []
         self.currItem = CDisplayListItem()
-        
+
         if (config.plugins.iptvplayer.group_hosts.value == False or 0 == GetAvailableIconSize()):
-            self.selectHostFromSingleList()
+            #self.selectHostFromSingleList()
+            printDBG('vvvvvvvvvvvvvvv'+str(GetAvailableIconSize()))
+            printDBG('vvvvvvvvvvvvvvv'+str(config.plugins.iptvplayer.group_hosts.value))
+            self.selectGroup()
         else:
             self.selectGroup()
         
@@ -1192,16 +1226,37 @@ class E2iPlayerWidget(Screen):
         
         brokenHostList = []
         for hostName in hostsList:
-            try:
-                title = self.hostsAliases.get('host'+hostName, '')
-                if not title:
-                    _temp = __import__('Plugins.Extensions.IPTVPlayer.hosts.host' + hostName, globals(), locals(), ['gettytul'], -1)
-                    title = _temp.gettytul()
-            except Exception:
-                printExc('get host name exception for host "%s"' % hostName)
-                brokenHostList.append('host'+hostName)
-                continue 
-            self.displayHostsList.append((title, hostName))
+			try:
+				# get info from Tsiplayer hosts
+				if hostName.startswith('TS_'):
+					tmp_titre=hostName.replace('TS_','').title()
+					_temp = __import__('Plugins.Extensions.IPTVPlayer.tsiplayer.'+hostName.replace('TS_','host_'), globals(), locals(), ['getinfo'], -1)
+					inf=_temp.getinfo()
+					title=inf.get('name',tmp_titre)#+' V'+inf.get('version','1.0')+' \c00????00['+inf.get('dev','')+']'
+				elif hostName.startswith('TSM_'):
+					dir1,dir2=hostName.replace('TSM_','').split('__',1)
+					folder='/usr/lib/enigma2/python/Plugins/Extensions/TSmedia/addons/'
+					addon_xml=folder+dir1+'/'+dir2+'/addon.xml'
+					printDBG('fiiiiiiiiiiiiile='+addon_xml)
+					with open(addon_xml) as f:
+						content = f.read()	
+					inf_list = re.findall('id.*?"(.*?)".*?version.*?"(.*?)".*?name.*?"(.*?)".*?name.*?"(.*?)".*?<description>(.*?)</description>', content, re.S)
+					if inf_list: 				
+						title=inf_list[0][2].strip()
+					else:
+						title='Unknown'
+				else:
+					title = self.hostsAliases.get('host'+hostName, '')
+					if not title:
+						_temp = __import__('Plugins.Extensions.IPTVPlayer.hosts.host' + hostName, globals(), locals(), ['gettytul'], -1)
+						title = _temp.gettytul()
+			except Exception:
+				printExc('get host name exception for host "%s"' % hostName)
+				if hostName.startswith('TSM_'): hostName = hostName.replace('TSM_',' ')+' (TSMedia)'
+				elif hostName.startswith('TS_'): hostName = hostName.replace('TS_',' ')+' (TSIPLAYER)'
+				brokenHostList.append('host'+hostName)
+				continue 
+			self.displayHostsList.append((title, hostName))
             
         # if there is no order hosts list use old behavior for all group
         if self.group == 'all' and 0 == len(GetHostsOrderList()):
@@ -1441,8 +1496,29 @@ class E2iPlayerWidget(Screen):
     def loadHost(self):
         self.hostFavTypes = []
         try:
-            _temp = __import__('Plugins.Extensions.IPTVPlayer.hosts.host' + self.hostName, globals(), locals(), ['IPTVHost'], -1)
-            self.host = _temp.IPTVHost()
+			# load tsiplayer hosts
+            if self.hostName.startswith('TS_'):
+                _temp = __import__('Plugins.Extensions.IPTVPlayer.hosts.hosttsiplayer', globals(), locals(), ['IPTVHost'], -1)
+                import_ = 'from Plugins.Extensions.IPTVPlayer.tsiplayer.host_'+self.hostName.replace('TS_','')+' import '
+                #try:
+                _temp1 = __import__('Plugins.Extensions.IPTVPlayer.tsiplayer.'+self.hostName.replace('TS_','host_'), globals(), locals(), ['getinfo'], -1)
+                inf = _temp1.getinfo()
+                icon = inf.get('icon','')
+                #except:
+                #icon = ''
+                Item={'category': 'host2', 'title': 'TSIPlayer', 'mode': '00', 'import': import_, 'icon': icon, 'type': 'category', 'desc': ''}
+                self.host = _temp.IPTVHost(Item)
+            elif self.hostName.startswith('TSM_'):  
+                section,plugin_id=self.hostName.replace('TSM_','').split('__',1)
+                _temp = __import__('Plugins.Extensions.IPTVPlayer.hosts.hosttsiplayer', globals(), locals(), ['IPTVHost'], -1)
+                py_file = '/usr/lib/enigma2/python/Plugins/Extensions/TSmedia/addons/'+section+'/'+plugin_id+'/default.py'
+                icon = 'file:///usr/lib/enigma2/python/Plugins/Extensions/TSmedia/addons/'+section+'/'+plugin_id+'/icon.png'
+                import_='from Plugins.Extensions.IPTVPlayer.tsiplayer.modules.host_tsmedia import '
+                Item={'import':import_,'category': 'host2', 'gnr': 'menu2', 'title': 'TSMedia', 'py_file': py_file , 'section': section, 'icon': icon, 'type': 'category', 'plugin_id': plugin_id, 'desc': '','mode':'20'}
+                self.host = _temp.IPTVHost(Item)
+            else:
+                _temp = __import__('Plugins.Extensions.IPTVPlayer.hosts.host' + self.hostName, globals(), locals(), ['IPTVHost'], -1)
+                self.host = _temp.IPTVHost()
             if not isinstance(self.host, IHost):
                 printDBG("Host [%r] does not inherit from IHost" % self.hostName)
                 self.close()
@@ -1718,7 +1794,7 @@ class E2iPlayerWidget(Screen):
                     gstAdditionalParams['show_iframe'] = config.plugins.iptvplayer.show_iframe.value
                     gstAdditionalParams['iframe_file_start'] = config.plugins.iptvplayer.iframe_file.value
                     gstAdditionalParams['iframe_file_end'] = config.plugins.iptvplayer.clear_iframe_file.value
-                    if getImageArch() == "sh4":
+                    if 'sh4' == config.plugins.iptvplayer.plarform.value:
                         gstAdditionalParams['iframe_continue'] = True
                     else:
                         gstAdditionalParams['iframe_continue'] = False
@@ -1740,7 +1816,7 @@ class E2iPlayerWidget(Screen):
                             playerVal = 'gstplayer'
                             gstAdditionalParams['download-buffer-path'] = ''
                             gstAdditionalParams['ring-buffer-max-size'] = 0
-                            if getImageArch() == "sh4": # use default value, due to small amount of RAM
+                            if 'sh4' == config.plugins.iptvplayer.plarform.value: # use default value, due to small amount of RAM
                                 #use the default value, due to small amount of RAM
                                 #in the future it will be configurable
                                 gstAdditionalParams['buffer-duration'] = -1
@@ -1943,7 +2019,10 @@ class E2iPlayerWidget(Screen):
             self.requestListFromHost('ForSearch')
 
     def configCallback(self):
-        self.askUpdateAvailable(self.selectHost)
+        if IPTVPlayerNeedInit():
+            self.session.openWithCallback(self.selectHost, IPTVSetupMainWidget, True)
+        else:
+            self.askUpdateAvailable(self.selectHost)
             
     def randomizePlayableItems(self, randomize=True):
         printDBG("randomizePlayableItems")
@@ -2106,7 +2185,19 @@ class E2iPlayerWidget(Screen):
             else:
                 cItem = None
         return index, cItem
-        
+    
+    def canByAddedToDemoFav(self):
+        cItem = None
+        index = -1
+        # we need to check if fav is available
+        if not self.isInWorkThread() and self.visible:
+            cItem = self.getSelItem()
+            if None != cItem and (cItem.isGoodForDemoFav):
+                index = self.getSelIndex()
+            else:
+                cItem = None
+        return index, cItem
+    
     def getFavouriteItemCallback(self, thread, ret):
         asynccall.gMainFunctionsQueueTab[0].addToQueue("handleFavouriteItemCallback", [thread, ret])
         

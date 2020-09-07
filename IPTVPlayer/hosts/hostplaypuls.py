@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 
 ###################################################
 # LOCAL import
@@ -23,16 +35,16 @@ except Exception: import json
 ###################################################
 # Config options for HOST
 ###################################################
-config.plugins.iptvplayer.playpuls_defaultformat = ConfigSelection(default = "999999", choices = [("0", "najgorsza"), ("600", "średnia"), ("800", "dobra"), ("999999", "najlepsza")])
+config.plugins.iptvplayer.playpuls_defaultformat = ConfigSelection(default = "999999", choices = [("0", "najgorsza"), ("600", "Årednia"), ("800", "dobra"), ("999999", "najlepsza")])
 config.plugins.iptvplayer.playpuls_usedf = ConfigYesNo(default = False)
 config.plugins.iptvplayer.playpuls_defaultproto = ConfigSelection(default = "hls", choices = [("rtmp", "dash (mpd)"), ("hls", "hls (m3u8)")])
 config.plugins.iptvplayer.playpuls_proxy = ConfigYesNo(default = False)
 
 def GetConfigList():
     optionList = []
-    optionList.append( getConfigListEntry( "Preferowany protokół:", config.plugins.iptvplayer.playpuls_defaultproto ) )
-    optionList.append( getConfigListEntry( "Domyślny jakość video:", config.plugins.iptvplayer.playpuls_defaultformat ) )
-    optionList.append( getConfigListEntry( "Używaj domyślnej jakości video:", config.plugins.iptvplayer.playpuls_usedf ) )
+    optionList.append( getConfigListEntry( "Preferowany protokÃ³Å:", config.plugins.iptvplayer.playpuls_defaultproto ) )
+    optionList.append( getConfigListEntry( "DomyÅlny jakoÅÄ video:", config.plugins.iptvplayer.playpuls_defaultformat ) )
+    optionList.append( getConfigListEntry( "UÅ¼ywaj domyÅlnej jakoÅci video:", config.plugins.iptvplayer.playpuls_usedf ) )
     optionList.append( getConfigListEntry( "PlayPuls korzystaj z proxy?", config.plugins.iptvplayer.playpuls_proxy) )
     return optionList
 ###################################################
@@ -83,7 +95,7 @@ class Playpuls(CBaseHostClass):
                 tmpList = []
                 for item in data:
                     title = self.cm.ph.getDataBeetwenReMarkers(item, re.compile('<h2[^>]*?>'), re.compile('</h2>'), False)[1].strip()
-                    if '' == title or 'Zobacz również' in title:
+                    if '' == title or 'Zobacz rÃ³wnieÅ¼' in title:
                         continue
                     tmpList.append({'title':title, 'data':item})
                 if 1 == len(tmpList):

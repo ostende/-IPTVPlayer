@@ -1,12 +1,11 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
 
 ###################################################
-# LOCAL import
+# LOCAL import 
 ###################################################
 from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import TranslateTXT as _
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, GetConfigDir, GetHostsList, IsHostEnabled
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, byteify, GetConfigDir, GetHostsList, IsHostEnabled
 from Plugins.Extensions.IPTVPlayer.components.ihost import CHostsGroupItem
 from Plugins.Extensions.IPTVPlayer.libs.e2ijson import loads as json_loads, dumps as json_dumps
 ###################################################
@@ -15,7 +14,8 @@ from Plugins.Extensions.IPTVPlayer.libs.e2ijson import loads as json_loads, dump
 # FOREIGN import
 ###################################################
 import codecs
-from os import path as os_path
+import os
+from os import path as os_path, remove as os_remove
 ###################################################
 
 
@@ -26,16 +26,14 @@ class IPTVHostsGroups:
         self.GROUPS_FILE = GetConfigDir('iptvplayerhostsgroups.json')
         
         # groups
-        self.PREDEFINED_GROUPS = ["userdefined", "moviesandseries", "cartoonsandanime", "music", "sport", "live", "documentary", "science", \
-                                  "polish", "english", "german", "french", "russian", "hungarian", "arabic", "greek", "latino", "italian","swedish","balkans","others"]
+        self.PREDEFINED_GROUPS = ["userdefined", "moviesandseries", "cartoonsandanime", "music", "sport", "documentary", \
+                                  "polish", "english", "german", "french", "russian", "hungarian", "arabic", "greek", "spanish", "indian", "italian","swedish","balkans","others"]
         self.PREDEFINED_GROUPS_TITLES = {"userdefined":      "User defined", 
                                          "moviesandseries":  "Movies and series",
                                          "cartoonsandanime": "Cartoons and anime",
-                                         "music":            "Music",
+                                         "music":            "Music and Radio",
                                          "sport":            "Sport",
-                                         "live":             "Live",
                                          "documentary":      "Documentary",
-                                         "science":          "Science",
                                          "polish":           "Polish",
                                          "english":          "English",
                                          "german":           "German",
@@ -44,7 +42,8 @@ class IPTVHostsGroups:
                                          "hungarian":        "Hungarian",
                                          "arabic":           "Arabic",
                                          "greek":            "Greek",
-                                         "latino":           "Latino",
+                                         "spanish":          "Spanish",
+                                         "indian":           "Indian",
                                          "italian":          "Italian",
                                          'swedish':          "Swedish",
                                          "balkans":          "Balkans",
@@ -59,62 +58,134 @@ class IPTVHostsGroups:
         
         # hosts
         self.PREDEFINED_HOSTS = {}
-        self.PREDEFINED_HOSTS['userdefined']      = ['favourites','localmedia']
-        self.PREDEFINED_HOSTS['moviesandseries']  = ['appletrailers','3filmy','efilmytv','alltubetv','ekinomaniak','ekinotv','cdapl','iitvpl','ogladajto','watchmovies','zalukajcom','serialnet','freediscpl', \
-                                                     'movienightws','yifytv','hdpopcornscom','losmovies', \
-                                                     'solarmovie','mythewatchseries','thewatchseriesto','classiccinemaonline','seriesonline','vumooch','movie4kto','dardarkomcom','movs4ucom','movizlandcom', \
-                                                     'sovdub','kinopokaz','cinemay','icefilmsinfo','hdkinomir','kinotan','egybest','dpstreamingcx','librestream','streamcomplet','skstream','filmstreamvkcom', \
-                                                     'filmpalast','hdstreams','serienstreamto','bsto','hdfilmetv','cineto','treetv','mozicsillag','filmezz','rtlmost','gamatocom','xrysoise','gamatotvme','mooviecc','mrpiracy', \
-                                                     'filmativa','filmovizijastudio','filma24hdcom','serijeonline','kinox','szenestreamz','cartoonhd','worldfree4u','tantifilmorg','forjatn', 'serialeco', 'faselhdcom', \
-                                                     'darshowcom','yesmoviesto','movierulzsx','allboxtv','planetstreamingcom','filmeonlineto','tainieskaiseirestv','3sktv', 'cimaclubcom', 'gledalica', \
-                                                     'tfarjocom','kinogo','filmaoncom','filmstreamhdit','altadefinizione','streaminghdfun','putlockertvto','akoam','filmehdnet','oipeirates','filmixco', 'andrijaiandjelka', \
-                                                     'altadefinizione01','123movieshd','guardaserie','filma24io','officialfilmillimite','filmpertutti','hdsto','ddl','vidcorncom','hdfull','dixmax','plusdede','fenixsite', \
-                                                     'cinemaxx','hd1080online','kkiste']
-        self.PREDEFINED_HOSTS['cartoonsandanime'] = ['bajeczkiorg','kreskowkazone','kreskoweczki','animeodcinki','9anime','kisscartoonme','kissanimeto','watchcartoononline','shahiidanimenet', \
-                                                     'otakufr','crtankocom']
-        self.PREDEFINED_HOSTS['sport']            = ['webstream','meczykipl','ekstraklasatv','laola1tv','bbcsport','ourmatchnet','hoofootcom','okgoals','ngolos','watchwrestlinguno','watchwrestling','fighttube','fightvideo', \
-                                                     'twitchtv','hitboxtv','pinkbike','sportdeutschland','eurosportplayer','del','redbull', 'fullmatchtvcom']
-        self.PREDEFINED_HOSTS['live']             = ['webstream','streamliveto','ustreamtv','youtube','dailymotion','eskago','arconaitvme','eurosportplayer','ustvgo']
-        self.PREDEFINED_HOSTS['documentary']      = ['fokustv','dokumentalnenet','greekdocumentaries3','dailymotion','orthobulletscom','vumedicom']
-        self.PREDEFINED_HOSTS['science']          = ['questtvcouk','dailymotion','ustreamtv','dokumentalnenet','orthobulletscom','vumedicom']
+        self.PREDEFINED_HOSTS['userdefined']      = ['favourites', 'localmedia', 'youtube', 'dailymotion', 'vimeo ','appletrailers' ,'webstream','tsiplayer','infoversion']
+        self.PREDEFINED_HOSTS['moviesandseries']  = ['yifytv','solarmovie','mythewatchseries','thewatchseriesto','classiccinemaonline','seriesonline', 'filma24hdcom', 'allboxtv', 'alltubetv', 'ekinotv', 'gledalica', \
+                                                     'tfarjocom','efilmytv','akoam','kinox','filmativa','putlockertvto','filmovizijastudio','forjatn', 'movierulzsx','streamzennet','serienstreamto', 'fenixsite', \
+                                                     'filisertv','iitvpl','movs4ucom','serialeco','serialnet','videopenny','zalukajcom','cineto','ddl','cinemay','dpstreamingcx','planetstreamingcom',  \
+                                                     'movizlandcom','bsto','altadefinizione','altadefinizione01','altadefinizione1','altadefinizionecool','tantifilmorg','filmezz','mooviecc','mozicsillag','mrpiracy','gamatotvme','oipeirates', \
+                                                     'tainieskaiseirestv','andrijaiandjelka','pregledajnet','icefilmsinfo', 'appletrailers','cdapl','cimaclubcom','dardarkomcom', 'cb01', \
+                                                     'filma24io','filmaoncom','filmehdnet','freediscpl','guardaserie','lookmovieag','tsiplayer'
+                                                     ]
+        self.PREDEFINED_HOSTS['cartoonsandanime'] = ['watchcartoononline','bajeczkiorg','animeodcinki','kreskowkazone','otakufr']
+        self.PREDEFINED_HOSTS['sport']            = ['webstream','bbcsport','twitchtv','ourmatchnet','watchwrestling','watchwrestling','eurosportplayer','hoofootcom','ekstraklasatv','pmgsport','hitboxtv','meczykipl','del','redbull','laola1tv','ngolos', \
+                                                     'okgoals','pinkbike','watchwrestlinguno','fullmatchtvcom']
+        self.PREDEFINED_HOSTS['documentary']      = ['dailymotion','ororotv','dokumentalnenet','vumedicom','greekdocumentaries3','dsda']
         
-        self.PREDEFINED_HOSTS['polish']           = ['youtube','webstream','3filmy','efilmytv','alltubetv','allboxtv','ekinomaniak','ekinotv','cdapl','cdafilmy','iitvpl','ogladajto','watchmovies','zalukajcom','serialnet','tvpvod','ipla','tvnvod','vodpl', \
-                                                     'freediscpl','ekstraklasatv','kreskowkazone','kreskoweczki','bajeczkiorg','animeodcinki','playpuls','meczykipl','eskago', \
-                                                     'tvjworg','artetv','dailymotion', 'vimeo', 'kabarety','twitchtv','hitboxtv','tvgrypl','chomikuj','fighttube','spryciarze','wgrane','wolnelekturypl','tvn24','ninateka', \
-                                                     'maxtvgo','wpolscepl','wrealu24tv','wptv','interiatv','dokumentalnenet', 'serialeco','radiostacja','nuteczki','luxveritatis','tvproart','tvrepublika', \
-                                                     'christusvincit','joemonsterorg']
-        self.PREDEFINED_HOSTS['english']          = ['youtube','webstream','liveleak','bbciplayer','bbcsport','tvplayercom','itvcom','uktvplay','appletrailers','classiccinemaonline','seriesonline','mythewatchseries', \
-                                                     'thewatchseriesto','icefilmsinfo','movienightws','yifytv', 'artetv',\
-                                                     'hdpopcornscom','losmovies','solarmovie','putlockertvto','vumooch','movie4kto','cineto','cartoonhd','worldfree4u','9anime','kisscartoonme','kissanimeto','watchcartoononline','dailymotion', \
-                                                     'ourmatchnet','watchwrestlinguno','watchwrestling','laola1tv','hoofootcom','fightvideo','twitchtv','hitboxtv','ted','ororotv','pinkbike','dancetrippin','appletrailers', \
-                                                     'ustreamtv','rteieplayer','3player','questtvcouk','forjatn','yesmoviesto','movierulzsx','filmeonlineto','playrtsiw','123movieshd','orthobulletscom','vumedicom','hdsto','ddl']
-        self.PREDEFINED_HOSTS['german']           = ['youtube','webstream','ardmediathek','zdfmediathek','artetv','tvnowde','spiegeltv','7tvde','ddl','hdstreams','serienstreamto','bsto','hdfilmetv','cineto','filmpalast','kinox','szenestreamz','arconaitvme','movie4kto','tata', \
-                                                     'dailymotion','vimeo','laola1tv','sportdeutschland','twitchtv','hitboxtv','playrtsiw','del','cinemaxx','kkiste']
-        self.PREDEFINED_HOSTS['french']           = ['youtube','tfarjocom','skstream','filmstreamvkcom','streamcomplet','dpstreamingcx','librestream','cinemay','otakufr','rtbfbe','artetv','movie4kto','dailymotion',\
-                                                     'vimeo','twitchtv','hitboxtv','forjatn','planetstreamingcom','playrtsiw','officialfilmillimite','hdsto']
-        self.PREDEFINED_HOSTS['russian']          = ['youtube','hd1080online','treetv','kinogo','kinotan','hdkinomir','sovdub','filmixco','kinopokaz','movie4kto','dailymotion','vimeo','twitchtv','hitboxtv']
-        self.PREDEFINED_HOSTS['hungarian']        = ['youtube','mooviecc','filmezz','mozicsillag','rtlmost','dailymotion','vimeo','twitchtv','hitboxtv']
-        self.PREDEFINED_HOSTS['arabic']           = ['youtube','webstream','akoam','egybest','dardarkomcom','movs4ucom','movizlandcom','shahiidanimenet','dailymotion','vimeo','twitchtv','hitboxtv','forjatn','faselhdcom','darshowcom','movierulzsx','3sktv','cimaclubcom','hdsto']
-        self.PREDEFINED_HOSTS['greek']            = ['youtube','gamatotvme','xrysoise','tainieskaiseirestv','gamatocom','greekdocumentaries3','dailymotion','vimeo','twitchtv','hitboxtv','oipeirates']
-        self.PREDEFINED_HOSTS['latino']           = ['youtube','mrpiracy','solarmovie','artetv','dailymotion','vimeo','twitchtv','hitboxtv','plusdede','hdsto','hdfull','vidcorncom','dixmax']
-        self.PREDEFINED_HOSTS['italian']          = ['youtube','mediasetplay','filmpertutti','altadefinizione01','tantifilmorg','filmstreamhdit','dailymotion','vimeo','twitchtv','hitboxtv','playrtsiw','altadefinizione','streaminghdfun','guardaserie','raiplay','dplayit']
-        self.PREDEFINED_HOSTS['swedish']          = ['youtube','dailymotion','vimeo','svtplayse','twitchtv','hitboxtv']
-        self.PREDEFINED_HOSTS['balkans']          = ['youtube','andrijaiandjelka','filmehdnet','gledalica','filmativa','filmovizijastudio','filma24hdcom','filma24io','filmaoncom','crtankocom','serijeonline','filmeonlineto', 'fenixsite', \
-                                                     'dailymotion','vimeo','twitchtv','hitboxtv']
-        self.PREDEFINED_HOSTS['music']            = ['youtube','vevo','myfreemp3','musicmp3ru','dancetrippin','musicbox','vimeo','dailymotion','shoutcast','eskago','radiostacja','nuteczki']
+        self.PREDEFINED_HOSTS['polish']           = ['favourites','webstream','localmedia','youtube','twitchtv','bajeczkiorg','allboxtv','efilmytv','ekinotv','kinox','ekstraklasahttps://www.facebook.com/groups/629673107501622/?ref=bookmarkstv','alltubetv','dokumentalnenet','filisertv','hitboxtv','iitvpl', \
+                                                     'interiatv', 'kabarety', 'maxtvgo', 'meczykipl','ninateka','playpuls','serialeco','serialnet','spryciarze','tvgrypl','tvpvod','videopenny', 'vimeo','vodpl','joemonsterorg', 'tvproart', 'tvrepublika', \
+                                                     'wgrane','zalukajcom','artetv','animeodcinki','cdapl','freediscpl','kreskowkazone','tvn24','tvnvod','wolnelekturypl','wpolscepl','wptv','wrealu24tv']
         
-        self.PREDEFINED_HOSTS['others']           = ['iptvplayerinfo','localmedia','urllist','youtube','cdapl','wolnelekturypl','chomikuj','freediscpl','kabarety','spryciarze','wgrane','liveleak','dailymotion','vimeo','ted', \
-                                                     'ororotv','tvjworg','twitchtv','hitboxtv','drdk','pinkbike','kijknl','rtbfbe','playrtsiw']
+        self.PREDEFINED_HOSTS['english']          = ['favourites','youtube','musicbox','liveleak','twitchtv','hitboxtv','tvplayercom','bbciplayer','itvcom','lookmovieag', 'streamzennet','filmativa','filmovizijastudio','solarmovie','putlockertvto', \
+                                                     'yifytv','icefilmsinfo','movierulzsx','streamzennet','forjatn','classiccinemaonline','seriesonline','mythewatchseries','thewatchseriesto','bbcsport','ourmatchnet','watchwrestling','watchwrestlinguno','hoofootcom','eurosportplayer','ngolos', \
+                                                     'laola1tv','redbull','dailymotion','artetv','ted', 'pinkbike','watchcartoononline','orthobulletscom','vumedicom','ororotv','appletrailers','localmedia','webstream','tsiplayer','infoversion']
         
+        self.PREDEFINED_HOSTS['german']           = ['filmpalast','hdfilmetv','kinox','serienstreamto', 'bsto','cineto','hdstreams','artetv', 'tvnowde','playrtsiw','ardmediathek','hitboxtv','sportdeutschland', 'twitchtv','zdfmediathek','youtube', \
+                                                     'dailymotion','vimeo', 'vevo','webstream','favourites','localmedia','appletrailers', 'tsiplayer','infoversion']
+        self.PREDEFINED_HOSTS['french']           = ['favourites','webstream','localmedia','youtube','twitchtv','dailymotion','vevo','tsiplayer','tfarjocom','hitboxtv', 'vimeo','artetv','cinemay','dpstreamingcx','librestream', \
+                                                     'rtbfbe', 'otakufr','planetstreamingcom','playrtsiw', 'francetv','appletrailers','forjatn','infoversion']
+        self.PREDEFINED_HOSTS['russian']          = ['kinogo','kinotan','hd1080online','sovdub', 'kinox', 'youtube', 'dailymotion', 'vimeo', 'vevo', 'twitchtv', 'hitboxtv', 'webstream', 'favourites', 'localmedia', 'appletrailers', 'tsiplayer', 'infoversion']
+        self.PREDEFINED_HOSTS['hungarian']        = ['filmezz','mooviecc', 'mozicsillag', 'kinox', 'youtube', 'dailymotion', 'vimeo', 'vevo', 'webstream', 'favourites', 'localmedia', 'twitchtv', 'hitboxtv', 'appletrailers', 'tsiplayer', 'infoversion']
+        self.PREDEFINED_HOSTS['arabic']           = ['tsiplayer','akoam','egybest','dardarkomcom','movs4ucom', 'movizlandcom','faselhdcom','arbcinema','forjatn','webstream','youtube', 'dailymotion','vimeo','vevo','localmedia','favourites', 'appletrailers','hitboxtv','twitchtv','infoversion']
+        self.PREDEFINED_HOSTS['greek']            = ['tainieskaiseirestv','greekdocumentaries3', 'oipeirates', 'gamatotvme', 'youtube', 'dailymotion', 'vimeo', 'vevo', 'twitchtv', 'hitboxtv', 'webstream', 'localmedia', 'favourites', 'appletrailers', 'tsiplayer', 'infoversion']
+        self.PREDEFINED_HOSTS['spanish']          = ['mrpiracy','plusdede','hdfull', 'vidcorncom', 'dixmax', 'seriesblanco', 'artetv', 'hitboxtv', 'twitchtv', 'youtube', 'vimeo', 'dailymotion', 'vevo', 'webstream', 'favourites', 'localmedia', 'tsiplayer', 'appletrailers', 'infoversion', 'sagasclasicas', \
+                                                     'tdtiptvchannels','boxtvmania',]
+        self.PREDEFINED_HOSTS['indian']           = ['movierulzsx','favourites','webstream', 'localmedia', 'youtube', 'dailymotion', 'vevo', 'twitchtv', 'hitboxtv', 'appletrailers', 'tsiplayer', 'infoversion']
+        self.PREDEFINED_HOSTS['italian']          = ['altadefinizione01','altadefinizionecool', 'altadefinizione1', 'tantifilmorg', 'cb01', 'cb01uno', 'filmstreamhdit', 'guardaserie', 'dsda', 'playrtsiw', 'la7it', 'raiplay', 'artetv', 'dplayit', 'mediasetplay', 'pmgsport', \
+                                                     'sportitalia','youtube','dailymotion','vimeo', 'vevo', 'twitchtv', 'hitboxtv', 'webstream', 'favourites', 'localmedia', 'tsiplayer', 'appletrailers', 'infoversion'
+                                                     ]
+        self.PREDEFINED_HOSTS['swedish']          = ['favourites','webstream','localmedia','youtube','dailymotion','vimeo','vevo','twitchtv','hitboxtv','appletrailers','tsiplayer','infoversion']
+        self.PREDEFINED_HOSTS['balkans']          = ['fenixsite','gledalica','filma24io','andrijaiandjelka','filmehdnet','filmaoncom','filmovizijastudio','filmativa','filma24hdcom','kinox','youtube','dailymotion','vimeo','vevo','hitboxtv','twitchtv','webstream', \
+                                                     'favourites','localmedia','appletrailers','tsiplayer','infoversion','filmowood']
+        self.PREDEFINED_HOSTS['music']            = ['vevo','musicmp3ru','musicbox','shoutcast','youtube','dailymotion','vimeo','localmedia','favourites']      
+        self.PREDEFINED_HOSTS['others']           = ['favourites','webstream','youtube','dailymotion','vimeo','localmedia', 'urllist', 'tsiplayer', 'liveleak', 'twitchtv', 'hitboxtv', 'spryciarze', 'wgrane', 'playrtsiw', 'cdapl', 'drdk', 'appletrailers', 'infoversion']
+        self.PREDEFINED_HOSTS['live']=[]
+        self.PREDEFINED_HOSTS['science']=[]
         self.LOADED_HOSTS = {}
         self.LOADED_DISABLED_HOSTS = {}
         self.CACHE_HOSTS = {}
         
         self.ADDED_HOSTS = {}
+
         
         self.hostListFromFolder = None
         self.hostListFromList = None
+
+        self._setTsiplayerGroup()
         
+    def _setTsiplayerGroup(self):
+		folder='/usr/lib/enigma2/python/Plugins/Extensions/IPTVPlayer/tsiplayer' 
+		if os.path.exists(folder):
+			#add Tsiplayer group 
+			self.PREDEFINED_GROUPS.append('tsiplayerc')
+			self.PREDEFINED_HOSTS['tsiplayerc']=[]
+			self.PREDEFINED_GROUPS_TITLES['tsiplayerc']='TSIPlayer'
+			#add Tsiplayer hosts to groups
+			self.PREDEFINED_HOSTS['others'].append('tsiplayer')
+			self.PREDEFINED_HOSTS['tsiplayerc'].append('tsiplayer')
+			lst=[] 
+			lst=os.listdir(folder)
+			lst.sort()
+			for (file_) in lst:
+				if (file_.endswith('.py'))and(file_.startswith('host_')):
+					try:
+						hst_titre=file_.replace('.py','')
+						_temp = __import__('Plugins.Extensions.IPTVPlayer.tsiplayer.'+hst_titre, globals(), locals(), ['getinfo'], -1)
+						inf=_temp.getinfo()
+						cat_= inf.get('cat_id','0')
+						if (cat_!='104')and(cat_!='102'):
+							self.PREDEFINED_HOSTS['tsiplayerc'].append(hst_titre.replace('host_','TS_')) 
+						if (cat_=='202')or(cat_=='203')or(cat_=='302')or(cat_=='303')or(cat_=='402')or(cat_=='403'):
+							self.PREDEFINED_HOSTS['cartoonsandanime'].append(hst_titre.replace('host_','TS_'))
+						if (cat_=='201')or(cat_=='301')or(cat_=='401')or(cat_=='101'):
+							self.PREDEFINED_HOSTS['moviesandseries'].append(hst_titre.replace('host_','TS_'))
+						if (cat_=='401')or(cat_=='402')or(cat_=='403')or(cat_=='101'):
+							self.PREDEFINED_HOSTS['english'].append(hst_titre.replace('host_','TS_'))
+						if (cat_=='301')or(cat_=='302')or(cat_=='403')or(cat_=='101'):
+							self.PREDEFINED_HOSTS['french'].append(hst_titre.replace('host_','TS_'))                    
+						if (cat_=='201')or(cat_=='202')or(cat_=='203')or(cat_=='204')or(cat_=='101'):
+							self.PREDEFINED_HOSTS['arabic'].append(hst_titre.replace('host_','TS_'))                    
+						if (cat_=='100')or(cat_=='110'):
+							self.PREDEFINED_HOSTS['sport'].append(hst_titre.replace('host_','TS_'))                     
+						if (cat_=='100')or(cat_=='120'):
+							self.PREDEFINED_HOSTS['live'].append(hst_titre.replace('host_','TS_')) 
+					except:
+						pass                    
+			#add Tsmedia group
+			folder='/usr/lib/enigma2/python/Plugins/Extensions/TSmedia/addons'
+			if os.path.exists(folder):
+				self.PREDEFINED_GROUPS.append('tsmedia')           
+				self.PREDEFINED_HOSTS['tsmedia']=[]
+				self.PREDEFINED_GROUPS_TITLES['tsmedia']='TSMedia'
+				printDBG('Start Get Tsmedia Hosts')
+				lst=[]
+				lst=os.listdir(folder)
+				for (dir_) in lst:
+					try:
+						if ('.py' not in dir_)and('youtube' not in dir_)and('programs' not in dir_)and('favorites' not in dir_):
+							folder2=folder+'/'+dir_
+							lst2=[]
+							lst2=os.listdir(folder2)
+							for (dir_2) in lst2:
+								try:
+									if ('.py' not in dir_2):
+										hst_titre='TSM_'+dir_+'__'+dir_2
+										self.PREDEFINED_HOSTS['tsmedia'].append(hst_titre)				    
+										if (dir_=='arabic')      : self.PREDEFINED_HOSTS['arabic'].append(hst_titre)	
+										elif (dir_=='sport')     : self.PREDEFINED_HOSTS['sport'].append(hst_titre)	        
+										elif (dir_=='french')    : self.PREDEFINED_HOSTS['french'].append(hst_titre)	
+										elif (dir_=='kids')      : self.PREDEFINED_HOSTS['cartoonsandanime'].append(hst_titre)	
+										elif (dir_=='movies')    : 
+											self.PREDEFINED_HOSTS['moviesandseries'].append(hst_titre)
+											self.PREDEFINED_HOSTS['english'].append(hst_titre)	
+										elif (dir_=='iptv')      : self.PREDEFINED_HOSTS['live'].append(hst_titre)
+										elif (dir_=='radio')     : self.PREDEFINED_HOSTS['live'].append(hst_titre)
+										elif (dir_=='netmedia')  : self.PREDEFINED_HOSTS['live'].append(hst_titre)
+										elif (dir_=='science')   : self.PREDEFINED_HOSTS['science'].append(hst_titre)										
+										elif (dir_=='music')     : self.PREDEFINED_HOSTS['music'].append(hst_titre)										                        
+										else: self.PREDEFINED_HOSTS['others'].append(hst_titre) 
+								except: pass
+					except: pass                
+                                                   
     def _getGroupFile(self, groupName):
         printDBG("IPTVHostsGroups._getGroupFile")
         return GetConfigDir("iptvplayer%sgroup.json" % groupName)
@@ -169,8 +240,12 @@ class IPTVHostsGroups:
                 hosts.append(host)
         
         for host in self.PREDEFINED_HOSTS.get(groupName, []):
-            if host not in hosts and host not in self.LOADED_DISABLED_HOSTS[groupName] and host in self.hostListFromList and host in self.hostListFromFolder and IsHostEnabled(host):
+            if host not in hosts and host not in self.LOADED_DISABLED_HOSTS[groupName] and host in self.hostListFromFolder and IsHostEnabled(host):
                 hosts.append(host)
+        
+        printDBG('Group Hosts = '+str(hosts))
+        
+        
                 
         self.CACHE_HOSTS[groupName] = hosts
         return hosts
@@ -217,12 +292,12 @@ class IPTVHostsGroups:
         predefinedHosts = self.PREDEFINED_HOSTS.get(groupName, [])
         hosts = []
         disabledHosts = []
-        
+        printDBG('All Host = '+str(hostListFromFolder))
         ret = True
         if os_path.isfile(groupFile):
             try:
                 data = self._loadFromFile(groupFile)
-                data = json_loads(data)
+                data = json_loads(data) 
                 for item in data.get('disabled_hosts', []):
                     # we need only information about predefined hosts which were disabled
                     if item in predefinedHosts and item in hostListFromList:
@@ -233,9 +308,10 @@ class IPTVHostsGroups:
                         hosts.append(item)
             except Exception:
                 printExc()
-        
+        printDBG('Host from File'+str(hosts))
         self.LOADED_HOSTS[groupName] = hosts
         self.LOADED_DISABLED_HOSTS[groupName] = disabledHosts
+        printDBG('self.LOADED_HOSTS = '+str(hosts))
         
     def getGroupsList(self):
         printDBG("IPTVHostsGroups.getGroupsList")
@@ -335,3 +411,5 @@ class IPTVHostsGroups:
         printDBG("IPTVHostsGroups._loadFromFile filePath[%s]" % filePath)
         with codecs.open(filePath, 'r', encoding, 'replace') as fp:
             return fp.read()
+        
+        

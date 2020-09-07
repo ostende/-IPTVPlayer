@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+# -*- coding: iso-8859-1 -*-
 """ crypto.cipher.wep
 
     The WEP encryption algorithm used in IEEE 802.11

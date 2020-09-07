@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 #
 #      Copyright (C) 2012 Tommy Winther
 #      http://tommy.winther.nu

@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -53,8 +65,8 @@ class FreeDiscPL(CBaseHostClass):
     SEARCH_URL = MAIN_URL + 'search/get'
     DEFAULT_ICON_URL = "http://i.imgur.com/mANjWqL.png"
 
-    MAIN_CAT_TAB = [{'category':'list_filters',  'title': 'Najnowsze publiczne pliki użytkowników',  'url':MAIN_URL+'explore/start/get_tabs_pages_data/%s/newest/'},
-                    {'category':'list_filters',  'title': 'Ostatnio przeglądane pliki',              'url':MAIN_URL+'explore/start/get_tabs_pages_data/%s/visited/'},
+    MAIN_CAT_TAB = [{'category':'list_filters',  'title': 'Najnowsze publiczne pliki uÅ¼ytkownikÃ³w',  'url':MAIN_URL+'explore/start/get_tabs_pages_data/%s/newest/'},
+                    {'category':'list_filters',  'title': 'Ostatnio przeglÄdane pliki',              'url':MAIN_URL+'explore/start/get_tabs_pages_data/%s/visited/'},
                     {'category':'search',        'title': _('Search'), 'search_item':True},
                     {'category':'search_history','title': _('Search history')} ]
     
@@ -270,17 +282,17 @@ class FreeDiscPL(CBaseHostClass):
         try:
             if userItem != {}:
                 url = '/%s,d-%s,%s' % (userItem['url'], userItem['userRootDirID'], userItem['url'])
-                desc = ['Ilość plików: %s' % userItem['filesCount']]
-                desc.append('Ilość odsłon: %s' % userItem['viewsCount'])
-                desc.append('Rozmiar plików: %s' % userItem['files_size_format'])
-                desc.append('Ilość pobrań: %s' % userItem['filesCount'])
+                desc = ['IloÅÄ plikÃ³w: %s' % userItem['filesCount']]
+                desc.append('IloÅÄ odsÅon: %s' % userItem['viewsCount'])
+                desc.append('Rozmiar plikÃ³w: %s' % userItem['files_size_format'])
+                desc.append('IloÅÄ pobraÅ: %s' % userItem['filesCount'])
                 params = dict(cItem)
                 params.update({'good_for_fav':True, 'category':nextCategory, 'title':userItem['display'], 'url':self.getFullUrl(url), 'f_user_id':userItem['url'], 'f_dir_id':userItem['userRootDirID'], 'icon':'', 'desc':'[/br]'.join(desc)})
                 self.addDir(params)
             if dirItem != {}:
                 url = '/%s,d-%s,%s' % (userItem['url'], dirItem['id'], dirItem['name_url'])
-                desc = ['Katalogów: %s' % dirItem['dir_count']]
-                desc.append('Plików: %s' % dirItem['file_count'])
+                desc = ['KatalogÃ³w: %s' % dirItem['dir_count']]
+                desc.append('PlikÃ³w: %s' % dirItem['file_count'])
                 params = dict(cItem)
                 params.update({'good_for_fav':True, 'category':nextCategory, 'title':dirItem['name'], 'url':self.getFullUrl(url), 'f_user_id':userItem['url'], 'f_dir_id':dirItem['id'], 'icon':'', 'desc':'[/br]'.join(desc)})
                 self.addDir(params)
@@ -324,8 +336,8 @@ class FreeDiscPL(CBaseHostClass):
                     if item['id'] in ['0', dirId]: continue
                     url = '/%s,d-%s,%s' % (userId, item['id'], item['name_url'])
                     title = self.cleanHtmlStr(item['name'])
-                    desc = ['Katalogów: %s' % item['dir_count']]
-                    desc.append('Plików: %s' % item['file_count'])
+                    desc = ['KatalogÃ³w: %s' % item['dir_count']]
+                    desc.append('PlikÃ³w: %s' % item['file_count'])
                     params = dict(cItem)
                     params.update({'good_for_fav':True, 'title':title, 'url':self.getFullUrl(url), 'icon':dirIcon, 'f_dir_id':item['id'], 'f_prev_dir_id':dirId, 'prev_url':cItem['url'], 'desc':'[/br]'.join(desc)})
                     self.addDir(params)
@@ -379,8 +391,8 @@ class FreeDiscPL(CBaseHostClass):
             if item['id'] not in ['0', dirId, cItem.get('f_prev_dir_id', '')]:
                 url = '/%s,d-%s,%s' % (userId, item['id'], item['name_url'])
                 title = self.cleanHtmlStr(item['name'])
-                desc = ['Katalogów: %s' % item['dir_count']]
-                desc.append('Plików: %s' % item['file_count'])
+                desc = ['KatalogÃ³w: %s' % item['dir_count']]
+                desc.append('PlikÃ³w: %s' % item['file_count'])
                 params = dict(cItem)
                 params.update({'good_for_fav':True, 'title':title, 'url':self.getFullUrl(url), 'icon':dirIcon, 'f_dir_id':item['id'], 'f_prev_dir_id':dirId, 'prev_url':cItem['url'], 'desc':'[/br]'.join(desc)})
                 self.currList.insert(0, params)

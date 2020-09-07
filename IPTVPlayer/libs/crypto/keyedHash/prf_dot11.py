@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+# -*- coding: iso-8859-1 -*-
 """  prf_dot11.py
 
 The PRF function is used in a number of places in 802.11i

@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -107,7 +119,7 @@ class FilmezzEU(CBaseHostClass):
                 value = self.cm.ph.getSearchGroups(item, marker + '''="([^"]+?)"''')[0]
                 if value == '': continue
                 title = self.cleanHtmlStr(item)
-                if title in ['Összes']:
+                if title in ['Ãsszes']:
                     addAll = False
                 self.cacheFilters[key].append({'title':title.title(), key:value})
                 
@@ -232,7 +244,7 @@ class FilmezzEU(CBaseHostClass):
             serverName = reDescObj.findall(t)
             if t != '': serverName.append(self.cleanHtmlStr(t))
             serverName = ' | '.join(serverName)
-            #if 'letöltés' in serverName: continue
+            #if 'letÃ¶ltÃ©s' in serverName: continue
             
             t = self.cm.ph.getDataBeetwenReMarkers(tmp, re.compile('<a[^>]+?class="url-btn play"'), re.compile('>'))[1]
             url = self.cm.ph.getSearchGroups(t, '''href=['"]([^'^"]+?)['"]''')[0]
@@ -428,8 +440,8 @@ class FilmezzEU(CBaseHostClass):
         if desc == '':  title = cItem['desc']
         if icon == '':  title = cItem['icon']
         
-        descTabMap = {"Kategória":    "genre",
-                      "Rendező":      "director",
+        descTabMap = {"KategÃ³ria":    "genre",
+                      "RendezÅ":      "director",
                       "Hossz":        "duration"}
         
         otherInfo = {}

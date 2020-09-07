@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 # WebComponent will use own translation files to simplify management.
 from Components.Language import language

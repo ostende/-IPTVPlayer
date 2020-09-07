@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -55,11 +67,11 @@ class WPolscePL(CBaseHostClass):
         printDBG("WPolscePL.listMainMenu")
         
         params = dict(cItem)
-        params.update({'good_for_fav':True, 'title':'Na żywo', 'category':'list_live', 'url':self.getMainUrl()})
+        params.update({'good_for_fav':True, 'title':'Na Å¼ywo', 'category':'list_live', 'url':self.getMainUrl()})
         self.addDir(params)
         
         params = dict(cItem)
-        params.update({'good_for_fav':True, 'title':'Ramówka', 'category':'list_days', 'url':self.getMainUrl()})
+        params.update({'good_for_fav':True, 'title':'RamÃ³wka', 'category':'list_days', 'url':self.getMainUrl()})
         self.addDir(params)
         
         sts, data = self.getPage(self.getMainUrl())
@@ -152,7 +164,7 @@ class WPolscePL(CBaseHostClass):
                 
                 title = self.cleanHtmlStr(item['title'])
                 desc = []
-                if item['is_future_publication']: desc.append('Już za ' + self.delta2str(self.str2date(item['starts_at']) - NOW))
+                if item['is_future_publication']: desc.append('JuÅ¼ za ' + self.delta2str(self.str2date(item['starts_at']) - NOW))
                 desc.append(item['division_name'])
                 if item['duration'] != '': desc.append(self.delta2str(timedelta(seconds=item['duration'])))
                 params = dict(cItem)
@@ -171,7 +183,7 @@ class WPolscePL(CBaseHostClass):
                 url = data['main_video']['video_url']
                 if self.cm.isValidUrl(url) and onlyLiveItems:
                     params = dict(cItem)
-                    params.update({'good_for_fav':False, 'type':'video', 'title':'Na żywo', 'url':url, 'icon':'', 'desc':''})
+                    params.update({'good_for_fav':False, 'type':'video', 'title':'Na Å¼ywo', 'url':url, 'icon':'', 'desc':''})
                     self.currList.insert(0, params)
         except Exception:
             printExc()
@@ -195,7 +207,7 @@ class WPolscePL(CBaseHostClass):
                 icon  = self.getFullIconUrl(item['thumbnail_url'])
                 title = self.cleanHtmlStr(item['title'])
                 desc = []
-                if item['is_future_publication']: desc.append('Już za ' + self.delta2str(self.str2date(item['starts_at']) - NOW))
+                if item['is_future_publication']: desc.append('JuÅ¼ za ' + self.delta2str(self.str2date(item['starts_at']) - NOW))
                 
                 desc.append(item['division_name'])
                 if item['duration'] != '': desc.append(self.delta2str(timedelta(seconds=item['duration'])))

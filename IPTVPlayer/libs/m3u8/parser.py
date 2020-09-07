@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 '''
 M3U8 parser.
 
@@ -161,7 +159,7 @@ def _parse_simple_parameter(line, data, cast_to=str):
     data[param] = cast_to(value)
 
 def string_to_lines(string):
-    return string.strip().replace('\r\n', '\n').split('\n')
+    return string.strip().replace('\r\n', '\n').replace('\r', '\n').split('\n')
 
 def remove_quotes(string):
     '''

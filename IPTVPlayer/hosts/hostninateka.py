@@ -1,5 +1,16 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
 
 ###################################################
 # LOCAL import
@@ -46,9 +57,7 @@ class Ninateka(CBaseHostClass):
         self.MAIN_URL = 'http://ninateka.pl/'
         self.VIDEOS_URL = self.getFullUrl('filmy?MediaType=video&Paid=False&CategoryCodenames=')
         self.SEARCH_URL = self.VIDEOS_URL + '&SearchQuery='
-        
-        #DEFAULT_GET_PARAM = 'MediaType=video&Paid=False'
-        
+                
         self.MAIN_CAT_TAB = [{'category':'list_all',       'title': 'Wszystkie',             'url':self.VIDEOS_URL},
                              {'category':'list_cats',      'title': 'Kategorie',             'url':self.MAIN_URL  },
                              
@@ -173,7 +182,7 @@ class Ninateka(CBaseHostClass):
                 nextPageUrl = match.group(1)
 
         if '' != nextPageUrl:
-            params = {'name': 'sub-category', 'page': self.MAIN_URL + nextPageUrl.replace('&amp;', '&'), 'title': 'Następna strona'}
+            params = {'name': 'sub-category', 'page': self.MAIN_URL + nextPageUrl.replace('&amp;', '&'), 'title': 'NastÄpna strona'}
             self.addDir( params )
     # end getVideosList
     

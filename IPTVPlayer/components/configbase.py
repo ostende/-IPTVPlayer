@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  Konfigurator dla iptv 2013
 #  autorzy: j00zek, samsamsam
@@ -24,7 +36,7 @@ from enigma import getDesktop
 from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 
-from Components.ActionMap import ActionMap
+from Components.ActionMap import ActionMap, HelpableActionMap
 from Components.Label import Label
 from Components.config import config, ConfigDirectory, ConfigText, ConfigPassword, ConfigBoolean, ConfigSelection, configfile
 from Components.ConfigList import ConfigListScreen
@@ -78,7 +90,7 @@ class ConfigBaseWidget(Screen, ConfigListScreen):
         self.onChangedEntry = [ ]
         self.list = [ ]
         ConfigListScreen.__init__(self, self.list, session = session, on_change = self.changedEntry)
-        self.setup_title = (_("E2iPlayer - settings"))
+        self.setup_title = (_("E2iPlayer - Settings"))
 
         self["key_green"] = Label(_("Save"))
         self["key_ok"] = Label(_(" "))
@@ -127,7 +139,7 @@ class ConfigBaseWidget(Screen, ConfigListScreen):
             self["config"].onSelectionChanged.remove(self.onSelectionChanged)
 
     def layoutFinished(self):
-        self.setTitle(_("E2iPlayer - settings"))
+        self.setTitle(_("E2iPlayer - Settings"))
         if not self.onSelectionChanged in self["config"].onSelectionChanged:
             self["config"].onSelectionChanged.append(self.onSelectionChanged)
         self.runSetup()

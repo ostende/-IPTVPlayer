@@ -1,15 +1,29 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 
 ###################################################
 # LOCAL import
 ###################################################
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, DownloadFile, eConnectCallback
 ###################################################
 # FOREIGN import
 ###################################################
-from Tools.Directories import resolveFilename, SCOPE_PLUGINS
+from Tools.BoundFunction import boundFunction
+from enigma import eConsoleAppContainer
+from Tools.Directories import resolveFilename, fileExists, SCOPE_PLUGINS
+from Components.config import config, configfile
 from Components.Language import language
 import gettext
 import os

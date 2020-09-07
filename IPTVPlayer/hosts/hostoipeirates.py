@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -223,7 +235,7 @@ class OipeiratesOnline(CBaseHostClass):
             self.addVideo(params)
 
         # check 
-        ms1 = '<b>ΠΕΡΙΛΗΨΗ</b>'
+        ms1 = '<b>Î ÎÎ¡ÎÎÎÎ¨Î</b>'
         if ms1 in data:
             m1 = ms1
         elif trailerMarker in data:
@@ -232,7 +244,7 @@ class OipeiratesOnline(CBaseHostClass):
             m1 = '<!-- END TAG -->'
         sts, linksData = self.cm.ph.getDataBeetwenMarkers(data, m1, 'facebok', False, False)
         if not sts: return
-        seasonMarkerObj = re.compile(">\s*season|>\s*σεζόν")
+        seasonMarkerObj = re.compile(">\s*season|>\s*ÏÎµÎ¶ÏÎ½")
         linksDataLower = linksData.decode('utf-8').lower().encode('utf-8')
 
         mode = cItem.get('mode', 'unknown')
@@ -370,7 +382,7 @@ class OipeiratesOnline(CBaseHostClass):
         
         title = cItem['title']
         
-        descMarker = 'ΠΕΡΙΛΗΨΗ'
+        descMarker = 'Î ÎÎ¡ÎÎÎÎ¨Î'
         desc = self.cleanHtmlStr( self.cm.ph.getDataBeetwenNodes(data, ('<span', '</span>', descMarker), ('<a', '>'), False)[1] )
         data = self.cm.ph.getDataBeetwenNodes(data, ('<script', '>', 'oipeirates/vp'), ('<img', '>'))[1]
         icon = self.getFullIconUrl( self.cm.ph.getSearchGroups(data, '''<img[^>]+?src=['"]([^'^"]+?(?:\.jpe?g|\.png)(?:\?[^'^"]*?)?)['"]''')[0] )

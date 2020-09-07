@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 # Based on (root)/trunk/xbmc-addons/src/plugin.video.polishtv.live/hosts/ @ 419 - Wersja 605
 
 ###################################################
@@ -24,7 +36,7 @@ import binascii
 from os import urandom as os_urandom
 try:
     from hashlib import sha1
-except ImportError as e:
+except ImportError:
     import sha
     sha1 = sha.new
 ###################################################
@@ -33,7 +45,7 @@ except ImportError as e:
 ###################################################
 # Config options for HOST
 ###################################################
-config.plugins.iptvplayer.TVNDefaultformat = ConfigSelection(default = "9999", choices = [("0", "Najgorsza"), ("1", "Bardzo niska"), ("2", "Niska"),  ("3", "Średnia"), ("4", "Standard"), ("5", "Wysoka"), ("6", "Bardzo wysoka"), ("7", "HD"), ("9999", "Najlepsza")])
+config.plugins.iptvplayer.TVNDefaultformat = ConfigSelection(default = "9999", choices = [("0", "Najgorsza"), ("1", "Bardzo niska"), ("2", "Niska"),  ("3", "Årednia"), ("4", "Standard"), ("5", "Wysoka"), ("6", "Bardzo wysoka"), ("7", "HD"), ("9999", "Najlepsza")])
 config.plugins.iptvplayer.TVNUseDF = ConfigYesNo(default = False)
 config.plugins.iptvplayer.TVNdevice = ConfigSelection(default = "_mobile_", choices = [("_mobile_", "Mobile"),("_tv_", "TV")])
 config.plugins.iptvplayer.proxyenable = ConfigYesNo(default = False)
@@ -41,9 +53,9 @@ config.plugins.iptvplayer.proxyenable = ConfigYesNo(default = False)
 def GetConfigList():
     optionList = []
 
-    optionList.append(getConfigListEntry("Domyślna jakość video:", config.plugins.iptvplayer.TVNDefaultformat))
-    optionList.append(getConfigListEntry("Używaj domyślnej jakości video:", config.plugins.iptvplayer.TVNUseDF))
-    #optionList.append(getConfigListEntry("TVN-Przedstaw się jako:", config.plugins.iptvplayer.TVNdevice))
+    optionList.append(getConfigListEntry("DomyÅlna jakoÅÄ video:", config.plugins.iptvplayer.TVNDefaultformat))
+    optionList.append(getConfigListEntry("UÅ¼ywaj domyÅlnej jakoÅci video:", config.plugins.iptvplayer.TVNUseDF))
+    #optionList.append(getConfigListEntry("TVN-Przedstaw siÄ jako:", config.plugins.iptvplayer.TVNdevice))
     optionList.append(getConfigListEntry("TVN-korzystaj z proxy?", config.plugins.iptvplayer.proxyenable))
 
     return optionList
@@ -60,7 +72,7 @@ class TvnVod(CBaseHostClass):
         'Bardzo wysoka' : 6,
         'Wysoka'        : 5,
         'Standard'      : 4,
-        'Średnia'       : 3,
+        'Årednia'       : 3,
         'Niska'         : 2,
         'Bardzo niska'  : 1,
     }
@@ -314,7 +326,7 @@ class TvnVod(CBaseHostClass):
                             continue
                         self.addVideo(params)
                     else:
-                        if title in ['SPORT', 'Live', 'STREFY', 'KONTYNUUJ OGLĄDANIE', 'ULUBIONE', 'PAKIETY']:
+                        if title in ['SPORT', 'Live', 'STREFY', 'KONTYNUUJ OGLÄDANIE', 'ULUBIONE', 'PAKIETY']:
                             continue
                         self.addDir(params)
             else:

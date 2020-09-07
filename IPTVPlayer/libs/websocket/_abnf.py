@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 """
 websocket - WebSocket client library for Python
 
@@ -34,7 +32,7 @@ try:
     def _mask(_m, _d):
         return XorMaskerSimple(_m).process(_d)
 
-except ImportError as e:
+except ImportError:
     # wsaccel is not available, we rely on python implementations.
     def _mask(_m, _d):
         for i in range(len(_d)):

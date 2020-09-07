@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###################################################
 # LOCAL import
@@ -40,15 +39,15 @@ def GetConfigList():
     return optionList
 ###################################################
 def gettytul():
-    return 'http://egy.best/'
+    return 'https://gray.egybest.me/'
 
 class EgyBest(CBaseHostClass):
     
     def __init__(self):
         CBaseHostClass.__init__(self, {'history':'egy.best', 'cookie':'egy.best.cookie'})
-        self.DEFAULT_ICON_URL = 'http://cdn.egy.best/static/img/egybest_logo.png'
+        self.DEFAULT_ICON_URL = 'https://ww.egybest1.com/wp-content/uploads/2019/06/icon.png'
         self.USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0'
-        self.MAIN_URL = 'http://egy.best/'
+        self.MAIN_URL = 'https://gray.egybest.me/'
         self.HEADER = {'User-Agent': self.USER_AGENT, 'DNT':'1', 'Accept': 'text/html', 'Accept-Encoding':'gzip, deflate', 'Referer':self.getMainUrl(), 'Origin':self.getMainUrl()}
         self.AJAX_HEADER = dict(self.HEADER)
         self.AJAX_HEADER.update( {'X-Requested-With': 'XMLHttpRequest', 'Accept-Encoding':'gzip, deflate', 'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8', 'Accept':'application/json, text/javascript, */*; q=0.01'} )
@@ -220,7 +219,7 @@ class EgyBest(CBaseHostClass):
         
         # list seasons
         seasonsItems = []
-        tmp = self.cm.ph.getDataBeetwenNodes(data, ('<div', '</div>', 'مشاهدة جميع مواسم'), ('</div', '>'), False)[1]
+        tmp = self.cm.ph.getDataBeetwenNodes(data, ('<div', '</div>', 'ÙØ´Ø§ÙØ¯Ø© Ø¬ÙÙØ¹ ÙÙØ§Ø³Ù'), ('</div', '>'), False)[1]
         seasonsItems = self.cm.ph.getAllItemsBeetwenMarkers(tmp, '<a', '</a>')
         
         if len(seasonsItems):
@@ -241,8 +240,9 @@ class EgyBest(CBaseHostClass):
         sts, data = self.getPage(cItem['url'])
         if not sts: return
             
-        data = self.cm.ph.getAllItemsBeetwenNodes(data, ('<a', '>', 'tvep'), ('</a', '>'), True)
+        data = self.cm.ph.getAllItemsBeetwenNodes(data, ('<a', '>', 'tv-p'), ('</a', '>'), True)
         for item in data:
+            printDBG('item='+item)
             url   = self.getFullUrl(self.cm.ph.getSearchGroups(item, '''href=['"]([^'^"]+?)['"]''')[0])
             icon  = self.getFullIconUrl(self.cm.ph.getSearchGroups(item, '''src=['"]([^'^"]+?)['"]''')[0])
             title = self.cleanHtmlStr(item) 
@@ -384,19 +384,19 @@ class EgyBest(CBaseHostClass):
             sts, data = self.getPage(cItem['url'])
             if not sts: return []
         
-        desc = self.cleanHtmlStr(self.cm.ph.getDataBeetwenNodes(data, ('<strong', '</div>', 'القصة'), ('</div', '>'), False)[1])
+        desc = self.cleanHtmlStr(self.cm.ph.getDataBeetwenNodes(data, ('<strong', '</div>', 'Ø§ÙÙØµØ©'), ('</div', '>'), False)[1])
         tmp  = self.cm.ph.getDataBeetwenNodes(data, ('<div', '>', 'full_movie'), ('</table', '>'), False)[1]
         icon  = self.cm.ph.getDataBeetwenNodes(tmp, ('<div', '>', 'movie_img'), ('</div', '>'), False)[1]
         icon  = self.getFullIconUrl(self.cm.ph.getSearchGroups(icon, '''src=['"]([^'^"]+?)['"]''')[0])
         title = self.cleanHtmlStr(self.cm.ph.getDataBeetwenNodes(tmp, ('<div', '>', 'movie_title'), ('</div', '>'), False)[1])
         
-        keysMap = {'اللغة • البلد'            :'country',
-                   'التصنيف'                  :'type',
-                   'النوع'                    :'genres',
-                   'التقييم العالمي'          :'rating',
-                   'المدة'                    :'duration',
-                   'الجودة'                   :'quality',
-                   'الترجمة'                  :'translation'}
+        keysMap = {'Ø§ÙÙØºØ© â¢ Ø§ÙØ¨ÙØ¯'            :'country',
+                   'Ø§ÙØªØµÙÙÙ'                  :'type',
+                   'Ø§ÙÙÙØ¹'                    :'genres',
+                   'Ø§ÙØªÙÙÙÙ Ø§ÙØ¹Ø§ÙÙÙ'          :'rating',
+                   'Ø§ÙÙØ¯Ø©'                    :'duration',
+                   'Ø§ÙØ¬ÙØ¯Ø©'                   :'quality',
+                   'Ø§ÙØªØ±Ø¬ÙØ©'                  :'translation'}
         
         tmp = self.cm.ph.getAllItemsBeetwenMarkers(tmp, '<tr>', '</tr>')
         for item in tmp:
@@ -441,7 +441,7 @@ class EgyBest(CBaseHostClass):
             sts, data = self.getPage(self.getMainUrl())
             if not sts: return False
             
-            url = self.getFullUrl(self.cm.ph.getSearchGroups(data, '''<a[^>]+?href=['"]([^'^"]+?)['"][^>]*?>[^<]*?تسجيل الدخول[^<]*?</a>''')[0])
+            url = self.getFullUrl(self.cm.ph.getSearchGroups(data, '''<a[^>]+?href=['"]([^'^"]+?)['"][^>]*?>[^<]*?ØªØ³Ø¬ÙÙ Ø§ÙØ¯Ø®ÙÙ[^<]*?</a>''')[0])
             
             sts, data = self.getPage(url)
             if not sts: return False
@@ -462,7 +462,7 @@ class EgyBest(CBaseHostClass):
             httpParams['header'] = dict(httpParams['header'])
             httpParams['header']['Referer'] = url
             sts, data = self.cm.getPage(actionUrl, httpParams, post_data)
-            if sts and '/logout' in data and 'تسجيل الدخول' not in data:
+            if sts and '/logout' in data and 'ØªØ³Ø¬ÙÙ Ø§ÙØ¯Ø®ÙÙ' not in data:
                 printDBG('tryTologin OK')
                 self.loggedIn = True
             else:

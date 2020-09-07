@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+# -*- coding: iso-8859-1 -*-
 """ crypto.keyedHash.tkip_mic
 
     A reference implementation of the TKIP Message Integrety Chek (MIC)

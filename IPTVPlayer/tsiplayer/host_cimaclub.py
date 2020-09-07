@@ -13,7 +13,7 @@ def getinfo():
 	if hst=='': hst = 'https://www.cimaclub.cam'
 	info_['host']= hst
 	info_['name']=name
-	info_['version']='1.1.01 05/07/2020'
+	info_['version']='1.1.02 27/08/2020'
 	info_['dev']='RGYSoft'
 	info_['cat_id']='201'
 	info_['desc']='أفلام, مسلسلات و انمي عربية و اجنبية'
@@ -101,6 +101,7 @@ class TSIPHost(TSCBaseHostClass):
 		if page!=0:
 			url=url0+'?page='+str(page)
 		#sts, data = self.cm.getPage(url)	
+
 		sts, data = self.getPage(url)	
 		if sts:		
 			lst_data=re.findall('media-block" data-post="(.*?)".*?href="(.*?)".*?src="(.*?)".*?class="info">(.*?)<h3>(.*?)</h3>', data, re.S)
@@ -123,6 +124,7 @@ class TSIPHost(TSCBaseHostClass):
 		if page!=0:
 			url=url0+'?page='+str(page)
 		#sts, data = self.cm.getPage(url)	
+		if (not url.startswith('http')): url = self.MAIN_URL + url
 		sts, data = self.getPage(url)	
 		if sts:		
 			lst_data=re.findall('MovieBlock">.*?href="(.*?)"(.*?)image:url\((.*?)\).*?Title">(.*?)<(.*?)</a>', data, re.S)
@@ -261,12 +263,15 @@ class TSIPHost(TSCBaseHostClass):
 		
 	def get_links(self,cItem): 	
 		urlTab = []	
-		URL=cItem['url']	
+		URL=cItem['url'].replace('/watch/','/')	
 		sts, data = self.getPage(URL)
 		if sts:
 			server_data = re.findall('data-url="(.*?)".*?>(.*?)</li>', data, re.S)	
 			for (url,name) in server_data:
 				type_=''
+				if 'إعلان العرض' in name:
+					name = '|Trailer|IMDB'
+					type_= 'local'					
 				if 'govid.co' in url:
 					name = '|Local|Govid.Co'
 					type_= 'local'

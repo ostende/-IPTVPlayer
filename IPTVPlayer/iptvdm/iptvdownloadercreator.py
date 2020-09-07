@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  IPTV downloader creator
 #
@@ -9,20 +21,21 @@
 ###################################################
 # LOCAL import
 ###################################################
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, IsExecutable
-from Plugins.Extensions.IPTVPlayer.libs.urlparser import urlparser
-from Plugins.Extensions.IPTVPlayer.iptvdm.wgetdownloader import WgetDownloader
-from Plugins.Extensions.IPTVPlayer.iptvdm.pwgetdownloader import PwgetDownloader
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG, printExc, IsExecutable
+from Plugins.Extensions.IPTVPlayer.tools.iptvtypes import strwithmeta
+from Plugins.Extensions.IPTVPlayer.libs.urlparser  import urlparser
+from Plugins.Extensions.IPTVPlayer.iptvdm.wgetdownloader    import WgetDownloader
+from Plugins.Extensions.IPTVPlayer.iptvdm.pwgetdownloader   import PwgetDownloader
 from Plugins.Extensions.IPTVPlayer.iptvdm.busyboxdownloader import BuxyboxWgetDownloader
-from Plugins.Extensions.IPTVPlayer.iptvdm.m3u8downloader import M3U8Downloader
-from Plugins.Extensions.IPTVPlayer.iptvdm.em3u8downloader import EM3U8Downloader
-from Plugins.Extensions.IPTVPlayer.iptvdm.hlsdownloader import HLSDownloader
-from Plugins.Extensions.IPTVPlayer.iptvdm.ehlsdownloader import EHLSDownloader
-from Plugins.Extensions.IPTVPlayer.iptvdm.rtmpdownloader import RtmpDownloader
-from Plugins.Extensions.IPTVPlayer.iptvdm.f4mdownloader import F4mDownloader
-from Plugins.Extensions.IPTVPlayer.iptvdm.mergedownloader import MergeDownloader
-from Plugins.Extensions.IPTVPlayer.iptvdm.ffmpegdownloader import FFMPEGDownloader
-from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper
+from Plugins.Extensions.IPTVPlayer.iptvdm.m3u8downloader    import M3U8Downloader
+from Plugins.Extensions.IPTVPlayer.iptvdm.em3u8downloader   import EM3U8Downloader
+from Plugins.Extensions.IPTVPlayer.iptvdm.hlsdownloader     import HLSDownloader
+from Plugins.Extensions.IPTVPlayer.iptvdm.ehlsdownloader    import EHLSDownloader
+from Plugins.Extensions.IPTVPlayer.iptvdm.rtmpdownloader    import RtmpDownloader
+from Plugins.Extensions.IPTVPlayer.iptvdm.f4mdownloader     import F4mDownloader
+from Plugins.Extensions.IPTVPlayer.iptvdm.mergedownloader   import MergeDownloader
+from Plugins.Extensions.IPTVPlayer.iptvdm.ffmpegdownloader  import FFMPEGDownloader
+from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh            import DMHelper
 ###################################################
 
 ###################################################
@@ -44,12 +57,12 @@ def DownloaderCreator(url):
     url = urlparser.decorateUrl(url)
     iptv_proto = url.meta.get('iptv_proto', '')
     if 'm3u8' == iptv_proto:
-        if config.plugins.iptvplayer.hlsdl_download.value:
+        if config.plugins.iptvplayer.hlsdlpath.value != '':
             downloader = HLSDownloader()
         else:
             downloader = M3U8Downloader()
     elif 'em3u8' == iptv_proto:
-        if config.plugins.iptvplayer.hlsdl_download.value:
+        if config.plugins.iptvplayer.hlsdlpath.value != '':
             downloader = EHLSDownloader()
         else:
             downloader = EM3U8Downloader()
@@ -60,13 +73,13 @@ def DownloaderCreator(url):
     elif iptv_proto in ['https', 'http']:
         downloader = WgetDownloader()
     elif 'merge' == iptv_proto:
-        if url.meta.get('prefered_merger') == 'hlsdl' and config.plugins.iptvplayer.hlsdl_download.value and config.plugins.iptvplayer.prefer_hlsdl_for_pls_with_alt_media.value:
+        if url.meta.get('prefered_merger') == 'hlsdl' and config.plugins.iptvplayer.hlsdlpath.value != '' and config.plugins.iptvplayer.prefer_hlsdl_for_pls_with_alt_media.value:
             downloader = HLSDownloader()
-        elif IsExecutable('ffmpeg'):
+        elif IsExecutable('ffmpeg') and config.plugins.iptvplayer.cmdwrappath.value != '':
             downloader = FFMPEGDownloader()
         else:
             downloader = MergeDownloader()
-    elif 'mpd' == iptv_proto and IsExecutable('ffmpeg'):
+    elif 'mpd' == iptv_proto and IsExecutable('ffmpeg') and config.plugins.iptvplayer.cmdwrappath.value != '':
         downloader = FFMPEGDownloader()
     
     return downloader

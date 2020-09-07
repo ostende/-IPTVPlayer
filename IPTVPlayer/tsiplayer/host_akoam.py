@@ -29,7 +29,7 @@ def getinfo():
 	if hst=='': hst = 'https://akwam.org'
 	info_['host']= hst
 	info_['name']=name
-	info_['version']='1.9 09/06/2020'
+	info_['version']='1.9.1 22/07/2020'
 	info_['dev']='RGYSoft'
 	info_['cat_id']='201'
 	info_['desc']='أفلام, مسلسلات و انمي عربية و اجنبية'
@@ -161,7 +161,8 @@ class TSIPHost(TSCBaseHostClass):
 				if trailer_data:
 					self.addVideo({'category' : 'host2','title':'TRAILER','url':'https://www.youtube.com/watch?v='+trailer_data[0],'desc':'','icon':cItem['icon'],'hst':'none'})	
 				if ('الانتقال إلي التصميم الجديد' in data) or ('على التصميم الجديد' in data):
-					lst_data=re.findall('class="sub_desc">.*?href="(.*?)"', data, re.S)
+					lst_data=re.findall('sub_extra_desc">.*?href="(.*?)"', data, re.S)
+					if not lst_data: lst_data=re.findall('class="sub_desc">.*?href="(.*?)"', data, re.S)
 					if lst_data:
 						Url=lst_data[0]
 						import_ = 'from Plugins.Extensions.IPTVPlayer.tsiplayer.host_akwam import '

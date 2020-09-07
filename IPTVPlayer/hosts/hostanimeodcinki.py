@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -48,7 +60,7 @@ class AnimeOdcinkiPL(CBaseHostClass):
                             ]
         
         self.NEW_CAT_TAB = [{'category':'list_new', 'title': 'Nowe odcinki emitowane',                        'm1':'>Nowe'    },
-                            {'category':'list_new', 'title': 'Ostatnio dodane odcinki z poprzednich sezonów', 'm1':'>Ostatnio'}]
+                            {'category':'list_new', 'title': 'Ostatnio dodane odcinki z poprzednich sezonÃ³w', 'm1':'>Ostatnio'}]
                             
         self.filtersTab = []
         self.cacheFilters = {}
@@ -193,7 +205,7 @@ class AnimeOdcinkiPL(CBaseHostClass):
         sts, data = self.cm.getPage(baseUrl)
         if not sts: return
         
-        if '>»<' in data:
+        if '>Â»<' in data:
             nextPage = True
         else: nextPage = False
         

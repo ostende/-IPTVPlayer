@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  IPTV List Component
 #
@@ -17,7 +29,7 @@ from Plugins.Extensions.IPTVPlayer.components.ihost import CDisplayListItem
 # FOREIGN import
 ###################################################
 from Components.GUIComponent import GUIComponent
-from enigma import eListboxPythonMultiContent, eListbox, gFont, RT_HALIGN_LEFT, RT_VALIGN_CENTER, getDesktop
+from enigma import eListboxPythonMultiContent, eListbox, gFont, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_CENTER, getDesktop
 from Tools.LoadPixmap import LoadPixmap
 import skin
 ###################################################
@@ -95,8 +107,8 @@ class IPTVMainNavigatorList(IPTVListComponentBase):
         self.screenwidth = getDesktop(0).size().width()
         try: self.font = skin.fonts["iptvlistitem"]
         except Exception:
-            if self.screenwidth and self.screenwidth == 1920: self.font = ("Regular", 28, 40, 0)
-            else: self.font = ("Regular", 18, 35, 0)
+            if self.screenwidth and self.screenwidth == 1920: self.font = ("Regular", 30, 40, 0)
+            else: self.font = ("Regular", 23, 35, 0)
         self.l.setFont(0, gFont("Regular", 40))
         self.l.setFont(1, gFont(self.font[0], self.font[1]))
         self.l.setItemHeight(self.font[2])

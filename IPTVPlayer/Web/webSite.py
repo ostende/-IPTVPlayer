@@ -1,6 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #### Local imports
 from __init__ import _
 import settings
@@ -9,7 +20,9 @@ import webThreads
 import Plugins.Extensions.IPTVPlayer.components.iptvplayerwidget
 
 from webTools import *
+from Plugins.Extensions.IPTVPlayer.components.ihost import IHost, CDisplayListItem, RetHost, CUrlItem, ArticleContent, CFavItem
 from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper, DMItemBase
+from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdownloadercreator import IsUrlDownloadable
 from Plugins.Extensions.IPTVPlayer.tools.iptvtools import GetPluginDir, printDBG
 from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdmapi import IPTVDMApi, DMItem
 #### e2 imports
@@ -42,7 +55,7 @@ def reloadScripts():
 ########################################################
 class redirectionPage(resource.Resource):
     
-    title = "E2iPlayer Webinterface"
+    title = "E2iStream Webinterface"
     isLeaf = False
    
     def render(self, req):
@@ -65,14 +78,14 @@ class redirectionPage(resource.Resource):
   </body>
 </html>""" % (language.getLanguage()[:2],
           _('Redirect'),
-          _('You are using old version of OpenWebif.<br> To go to E2iPlayer web Select the following link<br>'),
+          _('You are using old version of OpenWebif.<br> To go to E2iStream web Select the following link<br>'),
           _('Click'))
 
         return html
 
 #######################################################
 class StartPage(resource.Resource):
-    title = "E2iPlayer Webinterface"
+    title = "E2iStream Webinterface"
     isLeaf = False
    
     def __init__(self):
@@ -118,7 +131,7 @@ class StartPage(resource.Resource):
         return html 
 #######################################################
 class searchPage(resource.Resource):
-    title = "E2iPlayer Webinterface"
+    title = "E2iStream Webinterface"
     isLeaf = False
    
     def __init__(self):
@@ -140,7 +153,7 @@ class searchPage(resource.Resource):
                     else:
                         settings.GlobalSearchTypes = ["VIDEO"]
                 arg = req.args.get(key,None)[0]
-            #print('searchPage received: ', key, '=' , arg)
+            #print 'searchPage received: ', key, '=' , arg
         else:
             key = None
             arg = None
@@ -196,7 +209,7 @@ class searchPage(resource.Resource):
 
 #######################################################
 class hostsPage(resource.Resource):
-    title = "E2iPlayer Webinterface"
+    title = "E2iStream Webinterface"
     isLeaf = False
     
     def __init__(self):
@@ -232,7 +245,7 @@ class hostsPage(resource.Resource):
         return html
 ##########################################################
 class logsPage(resource.Resource):
-    title = "E2iPlayer Webinterface"
+    title = "E2iStream Webinterface"
     isLeaf = False
    
     def __init__(self):
@@ -293,7 +306,7 @@ class logsPage(resource.Resource):
         return html
 #######################################################
 class settingsPage(resource.Resource):
-    title = "E2iPlayer Webinterface"
+    title = "E2iStream Webinterface"
     isLeaf = False
    
     def __init__(self):
@@ -309,7 +322,7 @@ class settingsPage(resource.Resource):
         if len(req.args.keys()) > 0:
             key = req.args.keys()[0]
             arg = req.args.get(key,None)[0]
-            print('Received: ', key, '=' , arg)
+            print 'Received: ', key, '=' , arg
         
             try:
                 if key is None or arg is None:
@@ -357,7 +370,7 @@ class settingsPage(resource.Resource):
         return html
 #######################################################
 class downloaderPage(resource.Resource):
-    title = "E2iPlayer Webinterface"
+    title = "E2iStream Webinterface"
     isLeaf = False
    
     def __init__(self):
@@ -381,7 +394,7 @@ class downloaderPage(resource.Resource):
             except Exception: pass
             try: arg3 = req.args.get(key,None)[2]
             except Exception: pass
-            print('Received: "%s"="%s","%s","%s"' % ( key,arg,arg2,arg3))
+            print 'Received: "%s"="%s","%s","%s"' % ( key,arg,arg2,arg3)
 
         if key is None or arg is None:
             if None != Plugins.Extensions.IPTVPlayer.components.iptvplayerwidget.gDownloadManager:
@@ -462,7 +475,7 @@ class downloaderPage(resource.Resource):
         return html
 #######################################################
 class useHostPage(resource.Resource):
-    title = "E2iPlayer Webinterface"
+    title = "E2iStream Webinterface"
     isLeaf = False
    
     def __init__(self):
@@ -484,9 +497,9 @@ class useHostPage(resource.Resource):
             self.arg = req.args.get(self.key,None)[0]
             if len(req.args.keys()) > 1:
                 self.searchType = req.args.keys()[1]
-                print("useHostPage received: '%s'='%s' searchType='%s'" % (self.key, str(self.arg), self.searchType))
+                print "useHostPage received: '%s'='%s' searchType='%s'" % (self.key, str(self.arg), self.searchType)
             else:
-                print("useHostPage received: '%s'='%s'" % (self.key, str(self.arg)))
+                print "useHostPage received: '%s'='%s'" % (self.key, str(self.arg))
         
         if self.key is None and isActiveHostInitiated() == False:
             return util.redirectTo("/iptvplayer/hosts", req)

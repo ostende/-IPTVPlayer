@@ -1,6 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #### Local imports
 from __init__ import _
 import settings
@@ -8,7 +19,7 @@ import settings
 from webTools import *
 from Plugins.Extensions.IPTVPlayer.iptvdm.iptvdh import DMHelper
 from Plugins.Extensions.IPTVPlayer.version import IPTV_VERSION
-from Plugins.Extensions.IPTVPlayer.tools.iptvtools import GetHostsList, SortHostsList, GetHostsOrderList, getDebugMode, formatBytes
+from Plugins.Extensions.IPTVPlayer.tools.iptvtools import GetHostsList, IsHostEnabled, SaveHostsOrderList, SortHostsList, GetLogoDir, GetHostsOrderList, getDebugMode, formatBytes
 #### e2 imports
 from Components.config import config
 
@@ -24,7 +35,7 @@ def IncludeHEADER(extraMetas = ''):
 	<meta http-equiv="pragma" content="no-cache" />
 	<meta http-equiv="expires" content="0">
 	%s
-	<title>E2iPlayer %s</title>
+	<title>E2iStream %s</title>
   <style>
     body {margin:0;}
 
@@ -52,21 +63,21 @@ def IncludeMENU( MenuStatusMSG = '', ShowCancelButton = False):
 	if isActiveHostInitiated():
 		tempText = """
   <div class="topbar">
-    <a href="http://iptvplayer.vline.pl/" target="_blank"> <img border="0" alt="IPTVPlayer" src="./icons/iptvlogo.png" width="60" height="24"></a>
+    <a href="http://softrix.co.uk/istream/" target="_blank"> <img border="0" alt="IPTVPlayer" src="./icons/iptvlogo.png" width="60" height="24"></a>
     <a href="/iptvplayer/usehost" >%s</a>
     <a href="/iptvplayer/downloader" >%s</a>
     <a href="/iptvplayer/logs" >%s</a>
     <a href="/iptvplayer/?resetState=1" >%s</a>
   </div>
   <div class="bottombar">
-    <a href="https://github.com/persianpros/e2iplayer/commits/master" target="_blank" >IPTVPlayer %s: <b><font color="#A9F5F2">%s</font></b></a>
+    <a href="http://softrix.co.uk/istream/" target="_blank" >IPTVPlayer %s: <b><font color="#A9F5F2">%s</font></b></a>
     <a>, %s: <b>%s</b></a/>
   </div>
 """ % ( _('Active host'), _('Download manager'), _('Logs'), _('Reset State'), _('version'), IPTV_VERSION, _('Web interface version'), settings.WebInterfaceVersion )
 	else:
 		tempText = """
   <div class="topbar">
-    <a href="http://iptvplayer.vline.pl/" target="_blank"> <img border="0" alt="IPTVPlayer" src="./icons/iptvlogo.png" width="60" height="24"></a>
+    <a href="http://softrix.co.uk/istream/" target="_blank"> <img border="0" alt="IPTVPlayer" src="./icons/iptvlogo.png" width="60" height="24"></a>
     <a href="/iptvplayer/" >%s</a>
     <a href="/iptvplayer/hosts" ">%s</a>
     <a href="/iptvplayer/search" ">%s</a>
@@ -76,7 +87,7 @@ def IncludeMENU( MenuStatusMSG = '', ShowCancelButton = False):
     <a href="/iptvplayer/?resetState=1" >%s</a>
   </div>
   <div class="bottombar">
-    <a href="https://github.com/persianpros/e2iplayer/commits/master" target="_blank" >E2iPlayer %s: <b><font color="#A9F5F2">%s</font></b></a>
+    <a href="http://softrix.co.uk/istream/" target="_blank" >E2iStream %s: <b><font color="#A9F5F2">%s</font></b></a>
     <a>, %s: <b>%s</b></a/>
   </div>
 """ % ( _('Information'), _('Selected hosts'), _('Search'), _('Download manager'), _('Settings'), _('Logs'), _('Reset State'), _('version'), IPTV_VERSION, _('Web interface version'), settings.WebInterfaceVersion )
@@ -96,7 +107,7 @@ class Body():
 		tempText += '<form method="POST" action="--WEBBOT-SELF--">\n'
 		tempText += IncludeMENU()
 		tempText += '<div class="main">\n'
-		tempText += '<p align="left"><b>%s</b></p>' % _('<font color="#FE642E">REMEMBER:</font></b> E2iPlayer <b>IS ONLY</b> specialized Web browser. It does <b>NOT</b> host any materials!!!</font>')
+		tempText += '<p align="left"><b>%s</b></p>' % _('<font color="#FE642E">REMEMBER:</font></b> E2iStream <b>IS ONLY</b> specialized Web browser. It does <b>NOT</b> host any materials!!!</font>')
 		tempText += '<p align="left">%s</p>' % resetStatusMSG
 		tempText += '</div></body>\n'
 		return tempText
@@ -143,7 +154,7 @@ class Body():
 			cfgtype = ''
 			try:
 				CFGElements = option.doException()
-			except Exception as e:
+			except Exception, e:
 				cfgtype = str(e).split("'")[1]
 			return cfgtype
 		########################################################
@@ -167,7 +178,7 @@ class Body():
 						ConfName = itemL2[0]
 						ConfDesc = itemL1[0]
 					CFGtype = getCFGType(itemL1[1])
-					#print(ConfName, '=' , CFGtype)
+					#print ConfName, '=' , CFGtype
 					if CFGtype in ['ConfigYesNo','ConfigOnOff', 'ConfigEnableDisable', 'ConfigBoolean']:
 						if int(confKey[1].getValue()) == 0 :
 							CFGElements =  '<input type="radio" name="cmd" value="ON:%s">%s</input>' % (ConfName, _('Yes'))
@@ -180,7 +191,7 @@ class Body():
 					else:
 						try:
 							CFGElements = confKey[1].getHTML('CFG:' + ConfName)
-						except Exception as e:
+						except Exception, e:
 							CFGElements = 'ERROR:%s' % str(e)
 					tableCFG.append([ConfName, ConfDesc, CFGElements])
 		return tableCFG
@@ -217,7 +228,7 @@ class Body():
 		displayHostsList = SortHostsList(GetHostsList())
 		if 0 == len(GetHostsOrderList()):
 			try: displayHostsList.sort(key=lambda t : tuple('.'.join(str(t[0]).replace('://','.').replace('www.','').split('.')[1:-1]).lower()))
-			except Exception as e: print("Exception during sorting displayHostsList", str(e))
+			except Exception, e: print "Exception during sorting displayHostsList", str(e)
 		for hostName in displayHostsList:
 			if hostName in settings.activeHostsHTML.keys():
 				hostHTML = settings.activeHostsHTML[hostName]
@@ -457,8 +468,8 @@ class Body():
 						else:
 							tempText += self.buildItemsListTable(item, index)
 						index += 1
-			except Exception as e:
-				print('EXCEPTION in webParts:useHostPageContent - ', str(e))
+			except Exception, e:
+				print 'EXCEPTION in webParts:useHostPageContent - ', str(e)
 				tempText += tableHorizontalRedLine( colspan = 3 )
 				tempText += '<td colspan="3" align="center">%s %s</td></tr>' % ( _('ERROR:'), str(e) )
 				tempText += tableHorizontalRedLine( colspan = 3 )
@@ -498,8 +509,8 @@ class Body():
 							_tempBody += self.buildItemsListTable(item, index, allowedCategories = settings.GlobalSearchTypes,
 											destinationURL = '/iptvplayer/usehost?activeHostSearchHistory=%s' % key )
 						index += 1
-				except Exception as e:
-					print('EXCEPTION in webParts:useHostPageContent - ', str(e))
+				except Exception, e:
+					print 'EXCEPTION in webParts:useHostPageContent - ', str(e)
 					tempText += tableHorizontalRedLine( colspan = 3 )
 					tempText += '<td colspan="2" align="left">%s %s</td></tr>' % ( _('ERROR:'), str(e) )
 					tempText += tableHorizontalRedLine( colspan = 3 )

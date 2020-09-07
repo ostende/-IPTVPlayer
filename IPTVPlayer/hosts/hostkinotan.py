@@ -1,7 +1,18 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
 #
-# -*- Coded  by gorr -*-
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
+
 #
 ###################################################
 # LOCAL import
@@ -338,7 +349,7 @@ class Kinotan(CBaseHostClass):
             self.addVideo(params)
         
     def listSearchResult(self, cItem, searchPattern, searchType):
-        #searchPattern = 'сезон'
+        #searchPattern = 'ÑÐµÐ·Ð¾Ð½'
         
         post_data = {'do':'search', 'titleonly':3, 'subaction':'search', 'story':searchPattern}
         

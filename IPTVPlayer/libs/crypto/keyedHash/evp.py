@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+# -*- coding: iso-8859-1 -*-
 
 def EVP_BytesToKey(md, data, salt, keyLength, ivLength, count):
     assert(data)

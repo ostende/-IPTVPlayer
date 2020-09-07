@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 ###################################################
@@ -51,6 +50,7 @@ class Favourites(CBaseHostClass):
         
     def _setHost(self, hostName):
         if hostName == self.hostName: return True
+        if (hostName.startswith('TS_')) or (hostName.startswith('TSM_')): hostName = 'tsiplayer'
         try:
             _temp = __import__('Plugins.Extensions.IPTVPlayer.hosts.host' + hostName, globals(), locals(), ['IPTVHost'], -1)
             host = _temp.IPTVHost()

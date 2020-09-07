@@ -1,5 +1,19 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -40,7 +54,7 @@ class TVRepublkaPL(CBaseHostClass):
         
     def listMainMenu(self, cItem):
         params = dict(cItem)
-        params = {'good_for_fav': True, 'title':'Telewizja Republika - na żywo', 'url':'http://live.telewizjarepublika.pl/live.php', 'icon':self.getFullIconUrl('/imgcache/750x400/c/uploads/news/republika.png')}
+        params = {'good_for_fav': True, 'title':'Telewizja Republika - na Å¼ywo', 'url':'http://live.telewizjarepublika.pl/live.php', 'icon':self.getFullIconUrl('/imgcache/750x400/c/uploads/news/republika.png')}
         self.addVideo(params)
         
         MAIN_CAT_TAB = [{'category':'list_items',      'title': 'Poland Daily',   'url':self.getFullUrl('/poland-daily')},

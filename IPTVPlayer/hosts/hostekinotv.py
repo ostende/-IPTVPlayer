@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 ###################################################
@@ -252,14 +251,14 @@ class EkinoTv(CBaseHostClass, CaptchaHelper):
         printDBG("EkinoTv.listSearchResult cItem[%s], searchPattern[%s] searchType[%s]" % (cItem, searchPattern, searchType))
         searchPattern = searchPattern.replace(' ', '+')
         
-        url = 'https://ekino-tv.pl/search/qf/?q=' + urllib.quote_plus(searchPattern)
+        url = 'https://ekino-tv.pl/s/search?q=' + urllib.quote_plus(searchPattern)
         sts, data = self.getPage(url)
         if not sts: return
-#        if not 'search' in self.cm.meta['url']:
-#            url = 'https://ekino-tv.pl/se/search?q=' + urllib.quote_plus(searchPattern)
-#            sts, data = self.getPage(url)
-#            if not sts: return
-        printDBG("EkinoTv.listSearchResult data[%s]" % data)
+        if not 'search' in self.cm.meta['url']:
+            url = 'https://ekino-tv.pl/se/search?q=' + urllib.quote_plus(searchPattern)
+            sts, data = self.getPage(url)
+            if not sts: return
+        
         if 'movies' == searchType:
             sp = '<div class="movies-list-item"'
             data = self.cm.ph.getDataBeetwenMarkers(data, sp, 'Znalezione seriale', False)[1]
@@ -339,8 +338,9 @@ class EkinoTv(CBaseHostClass, CaptchaHelper):
                     continue
                 for p in players:
                     if p['id'] == id:
-                        if premium: linkTab.append({'name':'[premium] %s' % p['title'], 'url':strwithmeta(url, {'Referer':cItem['url'], 'is_premium':True}), 'need_resolve':1})
-                        else: linkTab.append({'name':p['title'], 'url':strwithmeta(url, {'Referer':cItem['url']}), 'need_resolve':1})
+                        if premium: title = '[premium] %s' % p['title']
+                        else: title = p['title']
+                        linkTab.append({'name':title, 'url':strwithmeta(url, {'Referer':cItem['url']}), 'need_resolve':1})
                         break
         
         _findHostingLinks(data, urlTab, False)
@@ -396,29 +396,27 @@ class EkinoTv(CBaseHostClass, CaptchaHelper):
                 break
 
             printDBG(">>>\n%s\n<<<" % data)
-            if 'hcaptcha' in data:
-                SetIPTVPlayerLastHostError(_('Link protected with hCaptcha.')) 
+            if 'recaptcha' in data:
+                SetIPTVPlayerLastHostError(_('Link protected with google recaptcha v2.')) 
                 sitekey  = self.cm.ph.getSearchGroups(data, 'data-sitekey="([^"]+?)"')[0]
                 if sitekey == '': sitekey = self.cm.ph.getSearchGroups(data, '''['"]?sitekey['"]?\s*:\s*['"]([^"^']+?)['"]''')[0]
                 if sitekey != '':
-                    from Plugins.Extensions.IPTVPlayer.libs.hcaptcha_2captcha import UnCaptchahCaptcha
-                    recaptcha = UnCaptchahCaptcha(lang=GetDefaultLang())
-                    token = recaptcha.processCaptcha(sitekey, self.cm.meta['url'])
+                    token, errorMsgTab = self.processCaptcha(sitekey, self.cm.meta['url'])
                     if token != '':
                         vUrl = self.getFullUrl('/watch/verify.php')
                         urlParams['header']['Referer'] = baseUrl
                         sts, data = self.getPage(vUrl, urlParams, {'verify':token})
                     else:
-                        SetIPTVPlayerLastHostError(_('Link protected with hCaptcha.'))
+                        SetIPTVPlayerLastHostError(_('Link protected with google recaptcha v2.')+'\nWejdź na https://ekino-tv.pl/ i odpal dowolny film przez przeglądarke na komputerze.\nJak nie pomogło użyj MyJDownloader.')
                         return []
                         break
             
             sts, data = self.getPage(url, urlParams)
             if not sts: return urlTab
 
-            url = self.getFullUrl(self.cm.ph.getSearchGroups(data, '''\shref=['"]([^'^"]+?)['"].+?buttonprch''')[0])
+            premium = self.cm.ph.getDataBeetwenMarkers(data, '<video', '</video>', False)[1]
 
-            if not meta.get('is_premium', False) and url == '':
+            if not self.loggedIn:
                 url = self.getFullUrl(self.cm.ph.getSearchGroups(data, '''\shref=['"]([^'^"]+?)['"]''')[0])
                 if self.cm.isValidUrl(url):
                     urlParams['header']['Referer'] = baseUrl
@@ -430,23 +428,27 @@ class EkinoTv(CBaseHostClass, CaptchaHelper):
                 SetIPTVPlayerLastHostError(_('Link protected with google recaptcha v2.')) 
                 continue
             
-            if not self.cm.isValidUrl(url):
-                url = self.getFullUrl(self.cm.ph.getSearchGroups(data, '<iframe[^>]+?src="([^"]+?)"')[0])
+            url = self.getFullUrl(self.cm.ph.getSearchGroups(data, '<iframe[^>]+?src="([^"]+?)"')[0])
 
             if not self.cm.isValidUrl(url):
                 url = self.getFullUrl(self.cm.ph.getSearchGroups(data, '''var\s+url\s*=\s*['"]([^'^"]+?)['"]''')[0])
-
+            
             if not self.cm.isValidUrl(url):
                 url = data.meta.get('url', '')
+                
+            if meta.get('is_premium', False) and 'video-player' in data:
+                vidUrl = self.cm.ph.getSearchGroups(data, '''var\s+[^=]+?\s*=\s*['"](https?://[^'^"]+?\.mp4(:?\?[^'^"]*?)?)['"]''', ignoreCase=True)[0]
+                if self.cm.isValidUrl(vidUrl):
+                    urlTab.append({'name':'direct', 'url':vidUrl})
+                    return urlTab
 
-            if meta.get('is_premium', False):
-                data = self.cm.ph.getDataBeetwenMarkers(data, '<video', '</video>', False)[1]
-                vidUrl = self.cm.ph.getSearchGroups(data, '''\ssrc=['"]([^'^"]+?)['"]''')[0]
-                name = self.cm.ph.getSearchGroups(data, '''\stype=['"]([^'^"]+?)['"]''')[0]
+            if self.loggedIn and premium != '':
+                vidUrl = self.cm.ph.getSearchGroups(premium, '''\ssrc=['"]([^'^"]+?)['"]''')[0]
+                name = self.cm.ph.getSearchGroups(premium, '''\stype=['"]([^'^"]+?)['"]''')[0]
                 if self.cm.isValidUrl(vidUrl):
                     urlTab.append({'name':name, 'url':vidUrl, 'need_resolve':0})
                     return urlTab
-
+            
             printDBG("|||"  + url)
             printDBG("#################################################################")
             printDBG(data)

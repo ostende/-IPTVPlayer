@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+# -*- coding: iso-8859-1 -*-
 """ crypto.entropy.prn_rijndael
 
     A Psudeo Random Number Generator based on Rijndael_256k_256b

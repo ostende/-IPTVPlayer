@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -80,7 +92,7 @@ class IITVPL(CBaseHostClass):
                     self.cacheSeries[letter] = []
                 self.cacheSeries[letter].append( {'title':title, 'url':url} )
         
-        letterTab = ["0-9","a","A","ą","Ą","b","B","c","C","ć","Ć","d","D","e","E","ę","Ę","f","F","g","G","h","H","i","I","j","J","k","K","l","L","ł","Ł","m","M","n","N","ń","Ń","o","O","ó","Ó","p","P","q","Q","r","R","s","S","ś","Ś","t","T","u","U","v","V","w","W","x","X","y","Y","z","Z","ź","Ź","ż","Ż"]
+        letterTab = ["0-9","a","A","Ä","Ä","b","B","c","C","Ä","Ä","d","D","e","E","Ä","Ä","f","F","g","G","h","H","i","I","j","J","k","K","l","L","Å","Å","m","M","n","N","Å","Å","o","O","Ã³","Ã","p","P","q","Q","r","R","s","S","Å","Å","t","T","u","U","v","V","w","W","x","X","y","Y","z","Z","Åº","Å¹","Å¼","Å»"]
         for letter in letterTab:
             if 0 == len(self.cacheSeries.get(letter, [])): continue
             params = dict(cItem)
@@ -176,7 +188,7 @@ class IITVPL(CBaseHostClass):
                     if self.cm.isValidUrl(tmp[0]):
                         links[tabTitle].append({'name':'[{0}] '.format(tabTitle) + self.cleanHtmlStr(tmp[1]), 'url':tmp[0], 'need_resolve':1})
         
-        keys = ['Lektor', 'Napisy PL', 'Oryginał']
+        keys = ['Lektor', 'Napisy PL', 'OryginaÅ']
         keys.extend(links.keys())
         for key in keys:
             for item in links.get(key, []):

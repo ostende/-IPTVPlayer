@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -89,7 +101,7 @@ class MuziCsillangCC(CBaseHostClass):
                 value = self.cm.ph.getSearchGroups(item, marker + '''="([^"]+?)"''')[0]
                 if value == '': continue
                 title = self.cleanHtmlStr(item)
-                if title in ['Összes']:
+                if title in ['Ãsszes']:
                     allTitle = ''
                 self.cacheFilters[key].append({'title':title.title(), key:value, ('%s_type' % key):type })
                 
@@ -274,7 +286,7 @@ class MuziCsillangCC(CBaseHostClass):
                 params.update({'good_for_fav': False, 'title':'%s. %s' % (idx+1, title), 'prev_title':cItem['title'], 'url':url, 'prev_url':cItem['url'], 'prev_desc':cItem.get('desc', ''), 'desc':desc})
                 self.addVideo(params)
         
-        sourcesLink = self.cm.ph.rgetDataBeetwenMarkers2(data, 'Beküldött linkek megtekintése', '<a', caseSensitive=False)[1]
+        sourcesLink = self.cm.ph.rgetDataBeetwenMarkers2(data, 'BekÃ¼ldÃ¶tt linkek megtekintÃ©se', '<a', caseSensitive=False)[1]
         sourcesLink = self.cm.ph.getSearchGroups(sourcesLink, '''href=['"](https?://[^'^"]+?)['"]''')[0]
         if not self.cm.isValidUrl(sourcesLink):
             printDBG("MuziCsillangCC.exploreItem - missing link for sources")
@@ -421,8 +433,8 @@ class MuziCsillangCC(CBaseHostClass):
         icon  = self.getFullIconUrl( self.cm.ph.getSearchGroups(data, '''<img[^>]+?src=['"]([^"^']+?\.jpe?g[^"^']*?)["']''')[0] )
         desc  = self.cleanHtmlStr(self.cm.ph.getDataBeetwenMarkers(data, '<p>', '</p>', False)[1])
         
-        for item in [('Rendező(k):', 'directors'),
-                     ('Színészek:',     'actors'),
+        for item in [('RendezÅ(k):', 'directors'),
+                     ('SzÃ­nÃ©szek:',     'actors'),
                      ('Kategoria:',      'genre')]:
             tmpTab = []
             tmp = self.cm.ph.getDataBeetwenMarkers(data, item[0], '</li>', False)[1].split('<br>')
@@ -431,9 +443,9 @@ class MuziCsillangCC(CBaseHostClass):
                 if t != '': tmpTab.append(t)
             if len(tmpTab): otherInfo[item[1]] = ', '.join(tmpTab)
         
-        for item in [('Játékidő:',     'duration'),
+        for item in [('JÃ¡tÃ©kidÅ:',     'duration'),
                      ('IMDB Pont:', 'imdb_rating'),
-                     ('Nézettség:',       'views')]:
+                     ('NÃ©zettsÃ©g:',       'views')]:
             tmp = self.cleanHtmlStr(self.cm.ph.getDataBeetwenMarkers(data, item[0], '</li>', False)[1])
             if tmp != '': otherInfo[item[1]] = tmp
         

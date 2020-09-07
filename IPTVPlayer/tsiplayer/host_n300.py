@@ -12,13 +12,13 @@ import re
 def getinfo():
 	info_={}
 	info_['name']='N300.Me'
-	info_['version']='1.2 16/04/2020'
+	info_['version']='1.3 11/07/2020'
 	info_['dev']='RGYSoft'
 	info_['cat_id']='201'
 	info_['desc']='افلام و مسلسلات عربية واجنبية'
 	info_['icon']='http://www.n300.me/IMGCenter/IMGSystem/LOGO/LOGO_N300_me_200px.png'
 	info_['recherche_all']='0'
-	info_['update']='Bugs Fix'
+	#info_['update']='Bugs Fix'
 	return info_
 	
 	
@@ -95,16 +95,14 @@ class TSIPHost(TSCBaseHostClass):
 		elif gnr2==2:	 
 			sts, data = self.cm.getPage(url,self.defaultParams)
 			if sts:
+				#printDBG('data='+data)
 				lst_data=re.findall('<table id="Content(.*?)</form>', data, re.S)
 				if 	lst_data:
-					lst_data2=re.findall('<a href="(.*?)&.*?src="(.*?)".*?<span.*?>(.*?)</span>', lst_data[0], re.S)
-					for (url1,image,name) in lst_data2:
-						image=image.replace('../../../',self.MAIN_URL+'/')
-						url1=self.MAIN_URL+'/phone/Category/moslsl/'+url1
-						if '<br />' in name:
-							x1,name = name.split('<br />',1)
-						if not image.startswith('http'): image = self.MAIN_URL + image
-						self.addVideo({'import':cItem['import'],'good_for_fav':True, 'hst':'tshost', 'category':'host2', 'url':url1, 'title':ph.clean_html(name), 'desc':'', 'icon':image} )	
+					lst_data2=re.findall('href="(.*?)".*?>(.*?)</a>', lst_data[0], re.S)
+					for (url1,name) in lst_data2:
+						url1 = self.MAIN_URL+'/phone/Category/moslsl/'+url1
+						name = name.replace('<br />',' - ')
+						self.addVideo({'import':cItem['import'],'good_for_fav':True, 'hst':'tshost', 'category':'host2', 'url':url1, 'title':ph.clean_html(name), 'desc':'', 'icon':cItem['icon']} )	
 
 		
 	def get_links(self,cItem): 	
@@ -125,6 +123,7 @@ class TSIPHost(TSCBaseHostClass):
 						#if 'سرفر' in titre:
 						titre = titre.replace('سيرفر','Server')
 						titre = titre.replace('الموقع','Local')
+						if url.startswith('//'): url ='https:'+url
 						if '.mp4' in url:
 							url=url.replace('../../../',self.MAIN_URL+'/')
 							url=url.replace('http://www.n300.net:8080/','https://ssl.n300.me:8080/')

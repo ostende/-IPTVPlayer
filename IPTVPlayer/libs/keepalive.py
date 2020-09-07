@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 #   This library is free software; you can redistribute it and/or
@@ -354,7 +353,7 @@ class HTTPSHandler(KeepAliveHandler, urllib2.HTTPSHandler):
             try:
                 import sslfactory
                 ssl_factory = sslfactory.get_factory()
-            except ImportError as e:
+            except ImportError:
                 pass
         self._ssl_factory = ssl_factory
     

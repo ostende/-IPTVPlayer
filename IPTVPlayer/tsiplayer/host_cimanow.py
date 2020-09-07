@@ -163,7 +163,7 @@ class TSIPHost(TSCBaseHostClass):
 		return [{'title':title, 'text': desc, 'images':[{'title':'', 'url':icon}], 'other_info':otherInfo1}]
 
 	def get_links(self,cItem): 	
-		url=str(cItem['url'])
+		url=str(cItem['url'])+'watch/'
 		printDBG('url='+url)
 		urlTab = self.cacheLinks.get(url, [])
 		printDBG('Cache='+str(urlTab))

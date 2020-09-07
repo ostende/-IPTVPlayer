@@ -13,13 +13,13 @@ def getinfo():
 	if hst=='': hst = 'https://m2.arabseed.net'
 	info_['host']= hst
 	info_['name']=name
-	info_['version']='1.5.1 07/11/2019'
+	info_['version']='1.5.2 11/07/2020'
 	info_['dev']='RGYSoft'
 	info_['cat_id']='201'#'201'
 	info_['desc']='أفلام و مسلسلات عربية و اجنبية'
 	info_['icon']='https://m2.arabseed.net/wp-content/themes/ArbSeed/logo-white.png'
 	info_['recherche_all']='1'
-	info_['update']='Add Filter section'
+	#info_['update']='Add Filter section'
 	return info_
 	
 	
@@ -130,6 +130,7 @@ class TSIPHost(TSCBaseHostClass):
 			data1=re.findall('class="BlockItem.*?href="(.*?)"(.*?)src="(.*?)".*?Title">(.*?)(<.*?)</div>', data, re.S)		
 			i=0
 			for (url,x1,image,titre,desc) in data1:
+				image=self.std_url(image)
 				desc = desc .replace ('<li>','rgyrgy')
 				desc=ph.clean_html(desc)
 				desc = desc .replace ('rgyrgy','\n')

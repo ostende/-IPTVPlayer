@@ -1,5 +1,17 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
+# all other work is ï¿½ E2iStream Team, aka Codermik.  TSiPlayer is ï¿½ Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 ###################################################
 # LOCAL import
 ###################################################
@@ -84,8 +96,8 @@ class GreekDocumentaries3(CBaseHostClass):
         if not sts: return
         
         for cat in  [('labels', 'list-label-widget-content', '</ul>'), \
-                     ('categories', 'ΚΑΤΗΓΟΡΙΕΣ', 'ΠΑΡΑΓΩΓΗΣ'), \
-                     ('programs', 'ΠΑΡΑΓΩΓΗΣ', '</ul>')]:
+                     ('categories', 'ÎÎÎ¤ÎÎÎÎ¡ÎÎÎ£', 'Î ÎÎ¡ÎÎÎ©ÎÎÎ£'), \
+                     ('programs', 'Î ÎÎ¡ÎÎÎ©ÎÎÎ£', '</ul>')]:
             self.cacheFilters[cat[0]] = [] 
             tmp = self.cm.ph.getDataBeetwenMarkers(data, cat[1], cat[2], False)[1]
             tmp = re.compile('''<a[^>]+?href=['"]([^'^"]+?)['"][^>]*?>([^<]+?)<''').findall(tmp)
@@ -163,7 +175,7 @@ class GreekDocumentaries3(CBaseHostClass):
                   
             #"<div style='clear: both;'>"
             if 1 == m[3]:
-                idx = data.find('Γλώσσα:')
+                idx = data.find('ÎÎ»ÏÏÏÎ±:')
             else: idx = -1
             if idx > -1:
                 tmp = data[idx:]
@@ -181,7 +193,7 @@ class GreekDocumentaries3(CBaseHostClass):
             
             for item in tmp:
                 title = self.cleanHtmlStr(self.cleanHtmlStr(item).replace('\r', ' ').replace('\n', ' '))
-                idx = title.find('Επεισόδιο')
+                idx = title.find('ÎÏÎµÎ¹ÏÏÎ´Î¹Î¿')
                 if idx > -1:
                     title = title[idx:]
                 if title == "": title = cItem['title']
