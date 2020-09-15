@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG
 from Plugins.Extensions.IPTVPlayer.libs import ph
-from Plugins.Extensions.IPTVPlayer.tsiplayer.libs.tstools import TSCBaseHostClass,tscolor,tshost
+from Plugins.Extensions.IPTVPlayer.tsiplayer.libs.tstools import TSCBaseHostClass,tscolor
 
 import re,urllib
 
 def getinfo():
 	info_={}
-	name = 'Arblionz'
-	hst = tshost(name)	
-	if hst=='': hst = 'https://w.arblionz.tv'
-	info_['host']= hst
-	info_['name']=name
-	info_['version']='1.1.02 27/08/2020'
+	info_['name']='Arblionz.Tv'
+	info_['version']='1.5 20/02/2020'
 	info_['dev']='RGYSoft'
 	info_['cat_id']='201'
 	info_['desc']='أفلام و مسلسلات عربية و اجنبية'
@@ -27,17 +23,10 @@ class TSIPHost(TSCBaseHostClass):
 	def __init__(self):
 		TSCBaseHostClass.__init__(self,{'cookie':'arblionz.cookie'})
 		self.USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0'
-		self.MAIN_URL = getinfo()['host']
-		self.HEADER = {'User-Agent': self.USER_AGENT, 'Connection': 'keep-alive', 'Accept-Encoding':'gzip','Referer':self.getMainUrl(), 'Origin':self.getMainUrl()}
+		self.MAIN_URL = 'https://m.arblionz.tv'
+		self.HEADER = {'User-Agent': self.USER_AGENT, 'Connection': 'keep-alive', 'Accept-Encoding':'gzip', 'Content-Type':'application/x-www-form-urlencoded','Referer':self.getMainUrl(), 'Origin':self.getMainUrl()}
 		self.defaultParams = {'header':self.HEADER, 'use_cookie': True, 'load_cookie': True, 'save_cookie': True, 'cookiefile': self.COOKIE_FILE}
-		#self.getPage = self.cm.getPage
-		 
-		 
-	def getPage(self, baseUrl, addParams = {}, post_data = None):
-		baseUrl=self.std_url(baseUrl)
-		if addParams == {}: addParams = dict(self.defaultParams)
-		addParams['cloudflare_params'] = {'cookie_file':self.COOKIE_FILE, 'User-Agent':self.USER_AGENT}
-		return self.cm.getPageCFProtection(baseUrl, addParams, post_data)		 
+		self.getPage = self.cm.getPage
 		 
 	def showmenu0(self,cItem):
 		hst='host2'
@@ -47,7 +36,7 @@ class TSIPHost(TSCBaseHostClass):
 							{'category':hst, 'sub_mode':'music','title': 'اغاني وكليبات',          'mode':'21'},							
 							{'category':hst, 'sub_mode':'other','title': 'برامج تليفزيونية',       'mode':'30','url':self.MAIN_URL+'/category/%D8%A8%D8%B1%D8%A7%D9%85%D8%AC-%D8%AA%D9%84%D9%8A%D9%81%D8%B2%D9%8A%D9%88%D9%86%D9%8A%D8%A9/','page':1},
 							{'category':hst, 'sub_mode':'other','title': 'رياضة و مصارعه',         'mode':'30','url':self.MAIN_URL+'/category/%D8%B9%D8%B1%D9%88%D8%B6-%D8%A7%D9%84%D9%85%D8%B5%D8%A7%D8%B1%D8%B9%D8%A9/','page':1},
-							#{'category':hst,'title': tscolor('\c0000????') + 'حسب التصنيف'   , 'mode':'20','count':1,'data':'none','code':self.MAIN_URL+'/getposts?'},						  
+							{'category':hst,'title': tscolor('\c0000????') + 'حسب التصنيف'   , 'mode':'20','count':1,'data':'none','code':self.MAIN_URL+'/getposts?'},						  
 							{'category':'search'  ,'title':tscolor('\c00????30') + _('Search'),'search_item':True,'page':1,'hst':'tshost'},
 							]		
 		self.listsTab(self.Arablionz_TAB, {'import':cItem['import'],'icon':cItem['icon']})	
@@ -57,7 +46,7 @@ class TSIPHost(TSCBaseHostClass):
 		data1=cItem['data']	
 		codeold=cItem['code']	
 		if count==1:
-			sts, data = self.getPage(self.MAIN_URL+'/%D8%A7%D9%84%D8%B1%D8%A6%D9%8A%D8%B3%D9%8A%D8%A9')
+			sts, data = self.getPage(self.MAIN_URL)
 			if sts:
 				data1=re.findall('dropdown select-menu">.*?<ul(.*?)</ul>', data, re.S)
 			else:
@@ -75,7 +64,7 @@ class TSIPHost(TSCBaseHostClass):
 	def showmenu2(self,cItem):		
 		gnr=cItem['sub_mode']
 		img_=cItem['icon']
-		url=self.MAIN_URL+'/%D8%A7%D9%84%D8%B1%D8%A6%D9%8A%D8%B3%D9%8A%D8%A9'
+		url=self.MAIN_URL
 		sts, data = self.getPage(url)
 		if sts:
 			cat_film_data=re.findall('href="/cat/افلام">(.*?)</ul>', data, re.S) 
@@ -105,18 +94,16 @@ class TSIPHost(TSCBaseHostClass):
 						self.addDir({'import':cItem['import'],'category' : 'host2','url': url,'title':titre,'desc':titre,'page':1,'icon':img_,'sub_mode':gnr,'mode':'30'} )
 		
 	def showitms(self,cItem):
-		printDBG('citem='+str(cItem))
 		gnr=cItem['sub_mode']
 		url=cItem['url']
 		titre=cItem['title']
 		img_=cItem['icon']
-		#printDBG('url='+url)
-		#url=urllib.unquote(url)
-		#printDBG('url='+url)
-		#url=url.replace('://','rgysoft')
-		#url=urllib.quote(url).replace('rgysoft','://')
-		#printDBG('url='+url)
-		url =url.replace('category/افلام-عربية/','category/افلام-عربية-1').replace('category/افلام-اجنبية-افلام-اون-لاين/','category/افلام-اجنبية-افلام-اون-لاين-1')
+		printDBG('url='+url)
+		url=urllib.unquote(url)
+		printDBG('url='+url)
+		url=url.replace('://','rgysoft')
+		url=urllib.quote(url).replace('rgysoft','://')
+		printDBG('url='+url)
 		if gnr=='items':
 			sts, data = self.getPage(url)
 			desc=''
@@ -187,19 +174,20 @@ class TSIPHost(TSCBaseHostClass):
 		URL=urllib.quote(URL).replace('rgysoft','://')
 		sts, data = self.getPage(URL)
 		if sts:
-			server_data = re.findall('class="ProServer.*?="(.*?)".*?>(.*?)<', data, re.S)
+			server_data = re.findall('data-embedd="&lt.*?(SRC|src)=&quot;(.*?)&quot;.*?">(.*?)"', data, re.S)
 			if server_data:
-				for (url,titre_) in server_data:
+				for (x1,url,titre_) in server_data:
 					hostUrl=url.replace("www.", "")				
 					raw1 =  re.findall('//(.*?)/', hostUrl, re.S)				
 					hostUrl=raw1[0]
-					urlTab.append({'name':'|Pro Server '+titre_+'| '+hostUrl, 'url':url, 'need_resolve':1, 'type':'local' })
-			code_data = re.findall('data-embedd="(.*?)".*?alt="(.*?)"', data, re.S)
-			id_data = re.findall("attr\('data-embedd'\).*?url: \"(.*?)\"", data, re.S)
-			if id_data:
-				for (code_,titre_) in code_data:
-					url=id_data[0]+'&serverid='+code_
-					urlTab.append({'name':'|Watch Server| '+titre_, 'url':'hst#tshost#'+url, 'need_resolve':1})
+					urlTab.append({'name':hostUrl, 'url':url, 'need_resolve':1})
+			else:
+				code_data = re.findall('data-embedd="(.*?)".*?alt="(.*?)"', data, re.S)
+				id_data = re.findall("attr\('data-embedd'\).*?url: \"(.*?)\"", data, re.S)
+				if id_data:
+					for (code_,titre_) in code_data:
+						url=id_data[0]+'&serverid='+code_
+						urlTab.append({'name':titre_, 'url':'hst#tshost#'+url, 'need_resolve':1})
 
 		URL=url_origin.replace('/episode/','/download/')
 		URL=URL.replace('/film/','/download/')
@@ -217,7 +205,7 @@ class TSIPHost(TSCBaseHostClass):
 					hostUrl=url_1.replace("www.", "")				
 					raw1 =  re.findall('//(.*?)/', hostUrl, re.S)
 					if raw1: hostUrl=raw1[0]
-					if ('uppom' in hostUrl.lower()) or ('filesload' in hostUrl.lower()):
+					if ('uppom' in hostUrl.lower()):
 						urlTab.append({'name':'|Down Serv: '+label+'| '+hostUrl, 'url':url_1, 'need_resolve':1})
 			else:
 				code_data = re.findall('data-embedd="(.*?)".*?alt="(.*?)"', data, re.S)

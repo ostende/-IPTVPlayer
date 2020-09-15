@@ -18,11 +18,11 @@ def getinfo():
 	info_['name']='Planet-Streaming.Net'
 	info_['version']='1.3 22/03/2020'
 	info_['dev']='RGYSoft'
-	info_['cat_id']='104'
+	info_['cat_id']='301'
 	info_['desc']='Films en VF & VOSTFR'
 	info_['icon']='https://i.ibb.co/VvvSHFT/logo.png'
 	info_['recherche_all']='1'
-	info_['update']='Site out'
+	info_['update']='New Host'
 	return info_
 	
 	
