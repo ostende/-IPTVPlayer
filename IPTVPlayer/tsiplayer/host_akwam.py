@@ -324,7 +324,7 @@ class TSIPHost(TSCBaseHostClass):
 			lst_dat0=re.findall('class="font-size-16 d-flex align-items-center mt-3">(.*?)</div>', data, re.S)
 			if lst_dat0: otherInfo1['genre'] = ph.clean_html(lst_dat0[0])
 
-			lst_dat0=re.findall('class="text-white">(.*?)</div>', data, re.S)	
+			lst_dat0=re.findall('header-link text-white">.*?<h2>(.*?)</div>', data, re.S)	
 			if lst_dat0: desc = ph.clean_html(lst_dat0[0])
 		
 		return [{'title':title, 'text': desc, 'images':[{'title':'', 'url':icon}], 'other_info':otherInfo1}]

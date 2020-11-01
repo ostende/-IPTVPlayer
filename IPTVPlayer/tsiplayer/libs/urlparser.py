@@ -41,6 +41,9 @@ from binascii import unhexlify
 from hashlib import md5
 from Plugins.Extensions.IPTVPlayer.libs.crypto.cipher.aes_cbc import AES_CBC
 
+def urlEncodeNonAscii(b):
+    return re.sub('[\x80-\xFF]', lambda c: '%%%02x' % ord(c.group(0)), b)
+
 
 def cryptoJS_AES_decrypt(encrypted, password, salt):
     def derive_key_and_iv(password, salt, key_length, iv_length):
@@ -232,7 +235,7 @@ class urlparser:
 						'samaup.co'       : self.pp.parserUNI01,
 						'clipwatching.com': self.pp.parserUNI01,	
 						'vidhd.net'       : self.pp.parserUNI01,#self.pp.parserCLIPWATCHINGCOM,
-						'youdbox.com'     : self.pp.parserUNI01,	
+						'youdbox.com'     : self.pp.parserYOUDBOX,	
 						'vidlox.tv'       : self.pp.parserUNI01, 
 						'vidlox.me'       : self.pp.parserUNI01,   
  						'gounlimited.to'  : self.pp.parserUNI01,
@@ -2366,12 +2369,21 @@ class pageParser(CaptchaHelper):
 		urlParams = {'header': HTTP_HEADER}
 		sts, data = self.cm.getPage(baseUrl, urlParams)
 		if not sts: return False
-		lst_data = re.findall('source.*?"(.*?)"', data, re.S)
+		lst_data = re.findall('function\(\) {var.*?\[(.*?)\]', data, re.S)
 		if lst_data:		
-			url_ = lst_data[0]
-			if url_.startswith('//'): url_ = 'http:'+url_
-			vidTab.append({'name':'[MP4]', 'url':url_})
-
+			html_ = ''
+			elms = lst_data[0].split(',')
+			for elm in elms:
+				elm=elm.replace('"','').replace('\\x','')
+				elm=chr(int(elm,16))
+				html_=elm+html_
+			printDBG('html_100 ='+html_)
+			lst_data = re.findall('src="(.*?)"', html_, re.S)
+			if lst_data:
+				url_=lst_data[0]
+				if url_.startswith('//'): url_ = 'http:'+url_
+				vidTab.append({'name':'[MP4]', 'url':url_})
+ 
 		return vidTab
 
 	def parserSTD06(self, baseUrl):

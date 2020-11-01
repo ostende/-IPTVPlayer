@@ -8,7 +8,7 @@ import re,urllib,base64
 def getinfo():
 	info_={}
 	info_['name']='Extra-3sk.Com'
-	info_['version']='1.1 10/04/2020'
+	info_['version']='1.2 20/10/2020'
 	info_['dev']='RGYSoft'
 	info_['cat_id']='201'
 	info_['desc']='أفلام و مسلسلات تركية'
@@ -23,7 +23,7 @@ class TSIPHost(TSCBaseHostClass):
 	def __init__(self):
 		TSCBaseHostClass.__init__(self,{'cookie':'extra_3sk.cookie'})
 		self.USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0'
-		self.MAIN_URL = 'https://co.extra-3sk.com'
+		self.MAIN_URL = 'https://extra3sk.com'
 		self.HEADER = {'User-Agent': self.USER_AGENT, 'Connection': 'keep-alive', 'Accept-Encoding':'gzip', 'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8'}
 		self.defaultParams = {'header':self.HEADER, 'use_cookie': True, 'load_cookie': True, 'save_cookie': True, 'cookiefile': self.COOKIE_FILE}
 		self.getPage = self.cm.getPage

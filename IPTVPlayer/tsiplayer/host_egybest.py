@@ -222,6 +222,7 @@ class TSIPHost(TSCBaseHostClass):
 	def SearchResult(self,str_ch,page,extra):
 		printDBG('extra='+extra)
 		url_=self.MAIN_URL+'/explore/?page='+str(page)+'&output_format=json&q='+str_ch+'&output_mode=movies_list'
+		url_=self.std_url(url_)
 		sts, data = self.getPage(url_)	
 		if sts:
 			data=data.replace('\\"','"')	

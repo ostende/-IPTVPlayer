@@ -26,10 +26,10 @@ def getinfo():
 	info_={}
 	name = 'Akoam'
 	hst = tshost(name)	
-	if hst=='': hst = 'https://old.akwam.net'
+	if hst=='': hst = 'https://old.akwam.co'
 	info_['host']= hst
 	info_['name']=name
-	info_['version']='1.9.1 22/07/2020'
+	info_['version']='1.9.2 20/10/2020'
 	info_['dev']='RGYSoft'
 	info_['cat_id']='201'
 	info_['desc']='أفلام, مسلسلات و انمي عربية و اجنبية'
@@ -254,7 +254,7 @@ class TSIPHost(TSCBaseHostClass):
 			printDBG('start')
 			url_dat=re.findall('<iframe[^>]+?src=[\'"]([^"^\']+?)[\'"]', data, re.S | re.IGNORECASE)
 			if not url_dat:
-				lst_dat=re.findall('file:.*?"(.*?)"', data, re.S)	
+				lst_dat=re.findall('file:.{,3}?"(.*?)"', data, re.S)	
 				if lst_dat:
 					urlTab.append({'name':'direct_link', 'url':lst_dat[0]})
 			else:

@@ -226,8 +226,13 @@ class TSCBaseHostClass:
 		elif mode=='21':
 			self.showelms(cItem)		
 		return True
+    def add_menu(self, cItem, pat1, pat2, data, mode_, del_=[], TAB=[], search=False, Titre='',ord=[0,1],Desc=[],Next=[0,0],u_titre=False,ind_0=0,local=[],resolve='0',EPG=False,corr_=True,post_data='',pat3='',ord3=[0,1],LINK=''):
+		if isinstance(mode_, str):
+			mode = mode_
+		else:
+			mode = ''
 
-    def add_menu(self, cItem, pat1, pat2, data, mode, del_=[], TAB=[], search=False, Titre='',ord=[0,1],Desc=[],Next=[0,0],u_titre=False,ind_0=0,local=[],resolve='0',EPG=False,corr_=True):
+		printDBG('start_add_menu, URL = '+cItem.get('url',self.MAIN_URL) )
 		page=cItem.get('page',1)
 		data_out  = ''
 		found = False
@@ -238,7 +243,14 @@ class TSCBaseHostClass:
 				self.addDir({'category':'host2', 'title': titre,'mode':mode,'sub_mode':sub_mode,'url':url,'import':cItem['import'],'icon':cItem['icon']})
 		else:
 			if data=='':
-				sts, data = self.getPage(cItem.get('url',self.MAIN_URL))
+				if LINK == '': LINK = cItem.get('url',self.MAIN_URL) 
+				if LINK == '': LINK = self.MAIN_URL 
+				if LINK.startswith('/'): LINK = self.MAIN_URL+LINK
+				
+				if post_data !='':
+					sts, data = self.getPage(LINK,post_data=post_data)
+				else:
+					sts, data = self.getPage(LINK)
 				if not sts: data=''
 			if pat1 !='':
 				data0=re.findall(pat1, data, re.S)
@@ -248,8 +260,13 @@ class TSCBaseHostClass:
 				if len(data0)>ind_0:
 					if pat2 !='':
 						data1=re.findall(pat2, data0[ind_0], re.S)
+						if ((not data1) and (pat3!='')):
+							ord = ord3
+							data1=re.findall(pat3, data0[ind_0], re.S)	
 					else:
-						data1 = [data0[ind_0],]					
+						data1 = [data0[ind_0],]	
+					
+						
 					if data1 and (Titre!=''):
 						self.addMarker({'title': tscolor('\c00????30') + Titre,'icon':cItem['icon']})
 					if mode=='desc': 
@@ -269,7 +286,14 @@ class TSCBaseHostClass:
 						return desc
 					for elm in data1:
 						if len(ord)==2:
-							if mode.startswith('data_out'):
+							if mode.startswith('data_out0'):
+								url   = ''
+								titre = elm[ord[0]]
+								image = cItem.get('icon','')
+								desc  = cItem.get('desc','')
+								data_out  = elm[ord[1]]
+								printDBG('data_out0='+data_out)
+							elif mode.startswith('data_out'):
 								url   = elm[ord[0]]
 								titre = elm[ord[1]]
 								image = cItem.get('icon','')
@@ -318,7 +342,8 @@ class TSCBaseHostClass:
 								if resolve == '1': URL = 'hst#tshost#'+url
 								if elm[0] in url:
 									Local = 'local'
-									titre = '|Local| '+elm[1]
+									if 'TRAILER' in elm[1]: titre = '|Trailer| '+elm[1].replace('TRAILER','').strip()
+									else: titre = '|Local| '+elm[1]
 									if elm[2] == '1': URL = 'hst#tshost#'+url
 									else: URL = url			
 							TAB0.append({'name':self.cleanHtmlStr(titre), 'url':URL, 'need_resolve':1,'type':Local})
@@ -326,17 +351,26 @@ class TSCBaseHostClass:
 							if mode=='link4':
 								TAB0.append((titre+'|'+url,'4'))
 						else:
+
 							titre = self.cleanHtmlStr(titre)
 							if not any(word in titre for word in del_):
 								if u_titre:
 									desc1,titre = self.uniform_titre(titre)
 									desc = desc1 + desc
 								if titre!='':
+									if isinstance(mode_, str):
+										mode = mode_
+									else:
+										for (tag,md,tp) in mode_:
+											if tp == 'URL': str_cnt = url
+											else: str_cnt = titre
+											if tag=='': mode = md
+											elif tag in str_cnt: mode = md 
 									if mode=='video':
 										found = True
 										self.addVideo({'category':'host2', 'title': titre,'url':url, 'desc':desc,'import':cItem['import'],'icon':image,'hst':'tshost','EPG':EPG})	
 									else:	
-										self.addDir({'category':'host2', 'title': titre,'mode':mode.replace('data_out:',''),'url':url, 'desc':desc,'import':cItem['import'],'icon':image,'hst':'tshost','EPG':EPG,'data_out':data_out})
+										self.addDir({'category':'host2', 'title': titre,'mode':mode.replace('data_out:','').replace('data_out0:',''),'url':url, 'desc':desc,'import':cItem['import'],'icon':image,'hst':'tshost','EPG':EPG,'data_out':data_out})
 					if Next[0]==1:
 						self.addDir({'import':cItem['import'],'name':'categories', 'category':'host2', 'url':cItem['url'], 'title':'Page Suivante', 'page':page+1, 'desc':'Page Suivante', 'icon':cItem['icon'], 'mode':Next[1]})	
 					elif Next[0]!=0:

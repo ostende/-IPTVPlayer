@@ -16,7 +16,7 @@ def getinfo():
 	info_={}
 	name = 'Cima4u.Tv'
 	hst = tshost(name)	
-	if hst=='': hst = 'http://w.cima4u.io'
+	if hst=='': hst = 'http://w1.cima4u.io'
 	info_['host']= hst
 	info_['name']=name
 	info_['version']='1.1.01 05/07/2020' 
@@ -192,7 +192,7 @@ class TSIPHost(TSCBaseHostClass):
 			
 	
 	def SearchResult(self,str_ch,page,extra):
-		url_=self.MAIN_URL+'/search/'+str_ch+'/page/'+str(page)+'/'
+		url_='http://cima4u.io'+'/search/'+str_ch+'/page/'+str(page)+'/'
 		sts, data = self.getPage(url_)
 		if sts:
 			pat = 'class="MovieBlock">.*?href="(.*?)".*?image:url\((.*?)\).*?BoxInfo">(.*?)</div>.*?class="Views">(.*?)</div>.*?class="Category">(.*?)</div>(.*?)</li>'
