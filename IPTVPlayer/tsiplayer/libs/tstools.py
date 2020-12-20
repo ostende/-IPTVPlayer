@@ -27,10 +27,6 @@ tunisia_gouv = [("", "None"),("Tunis","Tunis"),("Ariana","Ariana"),("Béja","Bé
                 ("Sousse","Sousse"),("Tataouine","Tataouine"),("Tozeur","Tozeur"),("Zaghouane","Zaghouane")]
 
 
-def printD(x1,x2=''):
-	printDBG(x1)
-	return ''
-
 def cryptoJS_AES_decrypt(encrypted, password, salt):
 	def derive_key_and_iv(password, salt, key_length, iv_length):
 		d = d_i = ''
@@ -57,8 +53,6 @@ def tscolor(color):
 				else: return color
 		else: return color	
 
-def tshost(hst):
-	return ''
 	
 def gethostname(url):
 	url=url.replace('http://','').replace('https://','').replace('www.','')
@@ -183,13 +177,6 @@ class TsThread(threading.Thread):
 
 class TSCBaseHostClass:
     def __init__(self, params={}):
-        self.USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0'
-        self.HEADER = {'User-Agent': self.USER_AGENT, 'Connection': 'keep-alive'}
-        if '' != params.get('cookie', ''):
-            self.COOKIE_FILE = GetCookieDir(params['cookie'])
-            self.defaultParams = {'header':self.HEADER, 'use_cookie': True, 'load_cookie': True, 'save_cookie': True, 'cookiefile': self.COOKIE_FILE}
-        else:
-            self.defaultParams = {'header':self.HEADER}
         self.sessionEx = MainSessionWrapper() 
         self.up = urlparser()
         self.ts_urlpars = ts_urlparser()
@@ -201,195 +188,9 @@ class TSCBaseHostClass:
         self.currItem = {}
         if '' != params.get('history', ''):
             self.history = CSearchHistoryHelper(params['history'], params.get('history_store_type', False))
+        if '' != params.get('cookie', ''):
+            self.COOKIE_FILE = GetCookieDir(params['cookie'])
         self.moreMode = False
-
-    def getPage(self, baseUrl, addParams = {}, post_data = None):
-        baseUrl=self.std_url(baseUrl)
-        if addParams == {}: addParams = dict(self.defaultParams)
-        return self.cm.getPage(baseUrl, addParams, post_data)
-
-    def get_url_page(self,url,page,type_=1):
-		if page > 1:
-			if type_==1:
-				url=url+'/page/'+str(page)
-				url = url.replace('//page','/page')
-		return url
-
-    def start(self,cItem):
-		mode=cItem.get('mode', None)
-		if mode=='00':
-			self.showmenu(cItem)
-		elif mode=='10':
-			self.showmenu1(cItem)	
-		elif mode=='20':
-			self.showitms(cItem)
-		elif mode=='21':
-			self.showelms(cItem)		
-		return True
-    def add_menu(self, cItem, pat1, pat2, data, mode_, del_=[], TAB=[], search=False, Titre='',ord=[0,1],Desc=[],Next=[0,0],u_titre=False,ind_0=0,local=[],resolve='0',EPG=False,corr_=True,post_data='',pat3='',ord3=[0,1],LINK=''):
-		if isinstance(mode_, str):
-			mode = mode_
-		else:
-			mode = ''
-
-		printDBG('start_add_menu, URL = '+cItem.get('url',self.MAIN_URL) )
-		page=cItem.get('page',1)
-		data_out  = ''
-		found = False
-		TAB0 = []
-		if TAB!=[]:
-			for (titre,url,mode,sub_mode) in TAB:
-				if url.startswith('/'): url = self.MAIN_URL+url
-				self.addDir({'category':'host2', 'title': titre,'mode':mode,'sub_mode':sub_mode,'url':url,'import':cItem['import'],'icon':cItem['icon']})
-		else:
-			if data=='':
-				if LINK == '': LINK = cItem.get('url',self.MAIN_URL) 
-				if LINK == '': LINK = self.MAIN_URL 
-				if LINK.startswith('/'): LINK = self.MAIN_URL+LINK
-				
-				if post_data !='':
-					sts, data = self.getPage(LINK,post_data=post_data)
-				else:
-					sts, data = self.getPage(LINK)
-				if not sts: data=''
-			if pat1 !='':
-				data0=re.findall(pat1, data, re.S)
-			else:
-				data0 = [data,]
-			if data0:
-				if len(data0)>ind_0:
-					if pat2 !='':
-						data1=re.findall(pat2, data0[ind_0], re.S)
-						if ((not data1) and (pat3!='')):
-							ord = ord3
-							data1=re.findall(pat3, data0[ind_0], re.S)	
-					else:
-						data1 = [data0[ind_0],]	
-					
-						
-					if data1 and (Titre!=''):
-						self.addMarker({'title': tscolor('\c00????30') + Titre,'icon':cItem['icon']})
-					if mode=='desc': 
-						desc = ''
-						for (tag,pat,frst,Del_) in Desc:
-							printDBG('pat='+str(pat))
-							if desc == '': frst = ''
-							elif frst == '': frst = ' | '
-							if data1:
-								desc_=re.findall(pat, data1[0], re.S)	
-								if desc_:
-									printDBG('1')
-									if ((Del_=='') or ((Del_!='') and (Del_.lower() not in desc_[0].lower()))):
-										printDBG('2')
-										if self.cleanHtmlStr(desc_[0]).strip()!='':
-											desc = desc + frst + tscolor('\c00????00') + tag + ': ' + tscolor('\c00??????') + self.cleanHtmlStr(desc_[0])
-						return desc
-					for elm in data1:
-						if len(ord)==2:
-							if mode.startswith('data_out0'):
-								url   = ''
-								titre = elm[ord[0]]
-								image = cItem.get('icon','')
-								desc  = cItem.get('desc','')
-								data_out  = elm[ord[1]]
-								printDBG('data_out0='+data_out)
-							elif mode.startswith('data_out'):
-								url   = elm[ord[0]]
-								titre = elm[ord[1]]
-								image = cItem.get('icon','')
-								desc  = cItem.get('desc','')
-								data_out  = elm[2]
-								printDBG('data_out1='+data_out)
-							else:
-								url   = elm[ord[0]]
-								titre = elm[ord[1]]
-								image = cItem.get('icon','')
-								desc  = cItem.get('desc','')
-						elif len(ord)==3:
-							url   = elm[ord[0]]
-							titre = elm[ord[1]]
-							image = self.std_url(elm[ord[2]])
-							desc  = cItem.get('desc','')
-						elif len(ord)>3:
-							url   = elm[ord[0]]
-							titre = elm[ord[1]]
-							image = self.std_url(elm[ord[2]])
-							x = range(3, len(ord))
-							printDBG('x='+str(x))
-							desc0 = ''
-							for i in x:
-								desc0  = desc0 + elm[ord[i]]					
-							desc = ''
-							printDBG('desc0='+str(desc0))
-							for (tag,pat,frst,Del_) in Desc:
-								printDBG('pat='+str(pat))
-								if desc == '': frst = ''
-								elif frst == '': frst = ' | '
-								desc_=re.findall(pat, desc0, re.S)	
-								if desc_:
-									printDBG('1')
-									if ((Del_=='') or ((Del_!='') and (Del_.lower() not in desc_[0].lower()))):
-										printDBG('2')
-										desc = desc + frst + tscolor('\c00????00') + tag + ': ' + tscolor('\c00??????') + self.cleanHtmlStr(desc_[0])
-						if corr_:
-							if   url.startswith('http'): url = url
-							elif url.startswith('/'): url = self.MAIN_URL+url
-							else: url = self.MAIN_URL+'/'+url
-						if mode=='serv': 
-							Local = ''
-							for elm in local:
-								URL = url
-								if resolve == '1': URL = 'hst#tshost#'+url
-								if elm[0] in url:
-									Local = 'local'
-									if 'TRAILER' in elm[1]: titre = '|Trailer| '+elm[1].replace('TRAILER','').strip()
-									else: titre = '|Local| '+elm[1]
-									if elm[2] == '1': URL = 'hst#tshost#'+url
-									else: URL = url			
-							TAB0.append({'name':self.cleanHtmlStr(titre), 'url':URL, 'need_resolve':1,'type':Local})
-						elif mode.startswith('link'):
-							if mode=='link4':
-								TAB0.append((titre+'|'+url,'4'))
-						else:
-
-							titre = self.cleanHtmlStr(titre)
-							if not any(word in titre for word in del_):
-								if u_titre:
-									desc1,titre = self.uniform_titre(titre)
-									desc = desc1 + desc
-								if titre!='':
-									if isinstance(mode_, str):
-										mode = mode_
-									else:
-										for (tag,md,tp) in mode_:
-											if tp == 'URL': str_cnt = url
-											else: str_cnt = titre
-											if tag=='': mode = md
-											elif tag in str_cnt: mode = md 
-									if mode=='video':
-										found = True
-										self.addVideo({'category':'host2', 'title': titre,'url':url, 'desc':desc,'import':cItem['import'],'icon':image,'hst':'tshost','EPG':EPG})	
-									else:	
-										self.addDir({'category':'host2', 'title': titre,'mode':mode.replace('data_out:','').replace('data_out0:',''),'url':url, 'desc':desc,'import':cItem['import'],'icon':image,'hst':'tshost','EPG':EPG,'data_out':data_out})
-					if Next[0]==1:
-						self.addDir({'import':cItem['import'],'name':'categories', 'category':'host2', 'url':cItem['url'], 'title':'Page Suivante', 'page':page+1, 'desc':'Page Suivante', 'icon':cItem['icon'], 'mode':Next[1]})	
-					elif Next[0]!=0:
-						next_=re.findall(Next[0], data, re.S)	
-						if next_:
-							URL_=next_[0]
-							if corr_:
-								if   URL_.startswith('http'): URL_ = URL_
-								elif URL_.startswith('/'): URL_ = self.MAIN_URL+URL_
-								else: URL_ = self.MAIN_URL+'/'+URL_
-							self.addDir({'import':cItem['import'],'name':'categories', 'category':'host2', 'url':URL_, 'title':'Page Suivante', 'page':1, 'desc':'Page Suivante', 'icon':cItem['icon'], 'mode':Next[1]})	
-			if (mode=='video') and (not found):
-				self.addVideo({'category':'host2', 'title': cItem['title'],'url':cItem['url'], 'desc':cItem['desc'],'import':cItem['import'],'icon':cItem['icon'],'hst':'tshost','EPG':EPG})						
-		if search:
-			self.addDir({'category':'search'  ,'title':tscolor('\c00????30') + _('Search'),'search_item':True,'page':1,'hst':'tshost','import':cItem['import'],'icon':cItem['icon']})
-		return (data,TAB0)	
-
-
-
 
     def std_host_name(self,name_, direct=False):
         if '|' in name_:
@@ -412,24 +213,10 @@ class TSCBaseHostClass:
                 				
         return name_ 
 		
-    def std_url(self,url):
-		url1=url
-		printDBG('url0='+url1)
-		url1=url1.replace('://','rgy11soft')
-		url1=url1.replace('?','rgy22soft')        
-		url1=url1.replace('&','rgy33soft') 
-		url1=url1.replace('=','rgy44soft') 
-		url1=urllib.unquote(url1)
-		url1=urllib.quote(url1)
-		url1=url1.replace('rgy11soft','://')
-		url1=url1.replace('rgy22soft','?')        
-		url1=url1.replace('rgy33soft','&') 	
-		url1=url1.replace('rgy44soft','=') 		
-		printDBG('url1='+url1)
-		return url1
+
     def uniform_titre(self,titre,year_op=0):
 		titre=titre.replace('مشاهدة وتحميل مباشر','').replace('مشاهدة','').replace('اون لاين','')
-		tag_type   = ['مدبلج للعربية','مترجمة للعربية','مترجم للعربية', 'مدبلجة', 'مترجمة' , 'مترجم' , 'مدبلج', 'مسلسل', 'عرض', 'انمي', 'فيلم']
+		tag_type   = ['مدبلج للعربية', 'مدبلجة', 'مترجمة' , 'مترجم' , 'مدبلج', 'مسلسل', 'عرض', 'انمي', 'فيلم']
 		tag_qual   = ['1080p','720p','WEB-DL','BluRay','DVDRip','HDCAM','HDTC','HDRip', 'HD', '1080P','720P','DVBRip','TVRip','DVD','SD']
 		tag_saison = [('الموسم الثاني','02'),('الموسم الاول','01'),('الموسم الثالث','03'),('الموسم الرابع','04'),('الموسم الخامس','05'),('الموسم السادس','06'),('الموسم السابع','07'),('الموسم الثامن','08'),('الموسم التاسع','09'),('الموسم العاشر','10')]
 		type_ = tscolor('\c00????00')+ 'Type: '+tscolor('\c00??????')

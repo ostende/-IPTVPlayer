@@ -1,6 +1,6 @@
-import abc
-import logging
 import sys
+import logging
+import abc
 
 if sys.version_info >= (3, 4):
     ABC = abc.ABC  # noqa
@@ -37,10 +37,10 @@ class reCaptcha(ABC):
     # ------------------------------------------------------------------------------- #
 
     @abc.abstractmethod
-    def getCaptchaAnswer(self, captchaType, url, siteKey, reCaptchaParams):
+    def getCaptchaAnswer(self, site_url, site_key, reCaptchaParams):
         pass
 
     # ------------------------------------------------------------------------------- #
 
-    def solveCaptcha(self, captchaType, url, siteKey, reCaptchaParams):
-        return self.getCaptchaAnswer(captchaType, url, siteKey, reCaptchaParams)
+    def solveCaptcha(self, site_url, site_key, reCaptchaParams):
+        return self.getCaptchaAnswer(site_url, site_key, reCaptchaParams)

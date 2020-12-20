@@ -4,7 +4,7 @@ from Plugins.Extensions.IPTVPlayer.libs import ph
 from Plugins.Extensions.IPTVPlayer.components.iptvplayerinit import GetIPTVSleep
 from Plugins.Extensions.IPTVPlayer.tools.iptvtypes import strwithmeta
 from Plugins.Extensions.IPTVPlayer.libs.e2ijson import loads as json_loads
-from Plugins.Extensions.IPTVPlayer.tsiplayer.libs.tstools import TSCBaseHostClass,gethostname,tscolor,tshost
+from Plugins.Extensions.IPTVPlayer.tsiplayer.libs.tstools import TSCBaseHostClass,gethostname,tscolor
 from Plugins.Extensions.IPTVPlayer.tsiplayer.libs.urlparser    import urlparser as ts_urlparser
 
 try:
@@ -24,12 +24,8 @@ import time
 ###################################################	
 def getinfo():
 	info_={}
-	name = 'Akoam'
-	hst = tshost(name)	
-	if hst=='': hst = 'https://old.akwam.co'
-	info_['host']= hst
-	info_['name']=name
-	info_['version']='1.9.2 20/10/2020'
+	info_['name']='Akoam'
+	info_['version']='1.8 20/02/2020'
 	info_['dev']='RGYSoft'
 	info_['cat_id']='201'
 	info_['desc']='أفلام, مسلسلات و انمي عربية و اجنبية'
@@ -43,7 +39,7 @@ class TSIPHost(TSCBaseHostClass):
 	def __init__(self):
 		TSCBaseHostClass.__init__(self,{'cookie':'rmdan.cookie'})
 		self.USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:40.0) Gecko/20100101 Firefox/40.0'
-		self.MAIN_URL = getinfo()['host']
+		self.MAIN_URL = 'https://web.akoam.net'
 		#self.COOKIE_FILE1 = '/media/hdd/IPTVCache/cookies/rmdan2.cookie'
 		self.HEADER = {'User-Agent': self.USER_AGENT, 'DNT':'1', 'Accept': 'text/html', 'Accept-Encoding':'gzip, deflate','Referer':self.getMainUrl(), 'Origin':self.getMainUrl()}
 		self.AJAX_HEADER = MergeDicts(self.HEADER, {'X-Requested-With': 'XMLHttpRequest', 'Accept-Encoding':'gzip, deflate', 'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8', 'Accept':'application/json, text/javascript, */*; q=0.01'})
@@ -52,6 +48,50 @@ class TSIPHost(TSCBaseHostClass):
 
 		self.ts_urlpars = ts_urlparser()
  
+
+	def getPage1(self,baseUrl, addParams = {}, post_data = None, type_ = 0):
+		if addParams == {}: addParams = dict(self.defaultParams) 
+		sts, data = self.cm.getPage(baseUrl,addParams,post_data)
+		aa=0
+		if not data: data=''
+		if '!![]+!![]' in data:
+			aa=1
+			try:
+				printDBG('Start CLoudflare  Vstream methode')
+				oRequestHandler = cRequestHandler(baseUrl)
+				if post_data:
+					post_data_vstream = ''
+					for key in post_data:
+						if post_data_vstream=='':
+							post_data_vstream=key+'='+post_data[key]
+						else:
+							post_data_vstream=post_data_vstream+'&'+key+'='+post_data[key]					
+					oRequestHandler.setRequestType(cRequestHandler.REQUEST_TYPE_POST)
+					oRequestHandler.addParametersLine(post_data_vstream)					
+				data = oRequestHandler.request()
+				sts = True
+				printDBG('cook_vstream_file='+self.up.getDomain(baseUrl).replace('.','_'))
+				cook = GestionCookie().Readcookie(self.up.getDomain(baseUrl).replace('.','_'))
+				printDBG('cook_vstream='+cook)
+				if ';' in cook: cook_tab = cook.split(';')
+				else: cook_tab = cook
+				cj = self.cm.getCookie(addParams['cookiefile'])
+				for item in cook_tab:
+					if '=' in item:	
+						printDBG('item='+item)		
+						cookieKey, cookieValue = item.split('=')
+						cookieItem = cookielib.Cookie(version=0, name=cookieKey, value=cookieValue, port=None, port_specified=False, domain='.'+self.cm.getBaseUrl(baseUrl, True), domain_specified=True, domain_initial_dot=True, path='/', path_specified=True, secure=False, expires=time.time()+3600*48, discard=True, comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+						cj.set_cookie(cookieItem)
+				cj.save(addParams['cookiefile'], ignore_discard = True)
+			except Exception, e:
+				printDBG('ERREUR:'+str(e))
+				printDBG('Start CLoudflare  E2iplayer methode')
+				addParams['cloudflare_params'] = {'domain':self.up.getDomain(baseUrl), 'cookie_file':addParams['cookiefile'], 'User-Agent':self.USER_AGENT}
+				sts, data = self.cm.getPageCFProtection(baseUrl, addParams, post_data)
+		if (aa==1 and type_==1):	
+			sts, data = self.cm.getPage(baseUrl,addParams,post_data)
+		return sts, data
+
 
 	def getPage(self,baseUrl, addParams = {}, post_data = None):
 		i=0
@@ -123,15 +163,15 @@ class TSIPHost(TSCBaseHostClass):
 			lst_data=re.findall('class="subject_box shape".*?href="(.*?)".*?src="(.*?)".*?<h3>(.*?)<.*?desc">(.*?)<', data, re.S)
 			count=0			
 			for (url1,image,name_eng,desc) in lst_data:
-				if 'توضيح هام لمتابعي' not in name_eng:
-					name_eng=ph.clean_html(name_eng.strip())
-					desc0,name_eng = self.uniform_titre(name_eng)
-					if desc.strip()!='':
-						desc = tscolor('\c00????00')+'Info: '+tscolor('\c00??????')+desc
-					desc=desc0+desc
-					self.addDir({'import':cItem['import'],'category' : 'host2','title':name_eng,'url':url1.strip(),'desc':desc,'icon':image,'mode':'31','good_for_fav':True,'EPG':True,'hst':'tshost'})
-					printDBG('name='+ph.clean_html(name_eng.strip())+' url=#'+url1+'#')
-					count=count+1
+				name_eng=ph.clean_html(name_eng.strip())
+				desc0,name_eng = self.uniform_titre(name_eng)
+				if desc.strip()!='':
+					desc = tscolor('\c00????00')+'Info: '+tscolor('\c00??????')+desc
+				desc=desc0+desc
+				
+				self.addDir({'import':cItem['import'],'category' : 'host2','title':name_eng,'url':url1.strip(),'desc':desc,'icon':image,'mode':'31','good_for_fav':True,'EPG':True,'hst':'tshost'})
+				printDBG('name='+ph.clean_html(name_eng.strip())+' url=#'+url1+'#')
+				count=count+1
 			if count>38:	
 				self.addDir({'import':cItem['import'],'category' : 'host2','title':'Page Suivante','url':cItem['url'],'page':page+1,'mode':'30'})
 
@@ -160,9 +200,8 @@ class TSIPHost(TSCBaseHostClass):
 				trailer_data=re.findall('class="sub_trailer">.*?class="youtube-player.*?id="(.*?)"', data, re.S)
 				if trailer_data:
 					self.addVideo({'category' : 'host2','title':'TRAILER','url':'https://www.youtube.com/watch?v='+trailer_data[0],'desc':'','icon':cItem['icon'],'hst':'none'})	
-				if ('الانتقال إلي التصميم الجديد' in data) or ('على التصميم الجديد' in data):
-					lst_data=re.findall('sub_extra_desc">.*?href="(.*?)"', data, re.S)
-					if not lst_data: lst_data=re.findall('class="sub_desc">.*?href="(.*?)"', data, re.S)
+				if 'الانتقال إلي التصميم الجديد' in data:
+					lst_data=re.findall('class="sub_desc">.*?href="(.*?)"', data, re.S)
 					if lst_data:
 						Url=lst_data[0]
 						import_ = 'from Plugins.Extensions.IPTVPlayer.tsiplayer.host_akwam import '
@@ -244,44 +283,30 @@ class TSIPHost(TSCBaseHostClass):
 
 
 
-	def get_links(self,cItem): 	
+	def get_links2(self,cItem): 	
 		urlTab = []
 		URL=cItem['url']
 		URL = URL.replace('download','watching')
 		printDBG('url='+URL)
 		sts, data = self.getPage(URL)
 		if sts:
-			printDBG('start')
+			printDBG('data='+data)
 			url_dat=re.findall('<iframe[^>]+?src=[\'"]([^"^\']+?)[\'"]', data, re.S | re.IGNORECASE)
 			if not url_dat:
-				lst_dat=re.findall('file:.{,3}?"(.*?)"', data, re.S)	
+				lst_dat=re.findall('file:.*?"(.*?)"', data, re.S)	
 				if lst_dat:
 					urlTab.append({'name':'direct_link', 'url':lst_dat[0]})
 			else:
 				urL_=url_dat[0]
-				if 'mellowads' not in urL_:
-					if urL_.startswith('//'):
-						urL_='http:'+urL_
-					if not urL_.startswith('http'):
-						urL_='http://'+urL_	
-					urlTab.append({'name':'link', 'url':urL_, 'need_resolve':1})						
-					
-			if len(urlTab) == 0:
-				paramsUrl = dict(self.defaultParams)
-				URL = URL.replace('watching','download')
-				paramsUrl['header']['Referer'] = URL
-				paramsUrl['header']['X-Requested-With'] = 'XMLHttpRequest'
-				sts, data = self.getPage(URL,paramsUrl,post_data={})
-				if sts:
-					url_dat0=re.findall('direct_link":"(.*?)"', data, re.S | re.IGNORECASE)
-					if url_dat0:
-						urlTab.append({'name':'direct_link', 'url':url_dat0[0].replace('\\','')})
-						printDBG('datafdfdfd='+url_dat0[0])
-			
+				if urL_.startswith('//'):
+					urL_='http:'+urL_
+				if not urL_.startswith('http'):
+					urL_='http://'+urL_	
+				urlTab.append({'name':'link', 'url':urL_, 'need_resolve':1})				
 		return urlTab
 
 
-	def get_links3(self,cItem): 	
+	def get_links(self,cItem): 	
 		urlTab = []
 		try:
 			URL=cItem['url']
