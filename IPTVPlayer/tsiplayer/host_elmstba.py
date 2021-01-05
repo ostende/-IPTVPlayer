@@ -12,9 +12,9 @@ def getinfo():
 	info_['name']='Elmstba'
 	info_['version']='1.0 08/10/2019'
 	info_['dev']='RGYSoft'
-	info_['cat_id']='201'
+	info_['cat_id']='104'
 	info_['desc']='افلام و مسلسلات'
-	info_['icon']='https://www.elmstba.tv/uploads/custom-logo.png'
+	info_['icon']='https://i.ibb.co/qxM5pCV/Sans-titre.png'
 	info_['recherche_all']='0'
 	return info_
 
@@ -108,7 +108,7 @@ class TSIPHost(TSCBaseHostClass):
 		sts, data = self.getPage(videoUrl)
 		if sts:
 			printDBG('data'+data)
-			Liste_els = re.findall('sources.*?"(.*?)"', data, re.S)
+			Liste_els = re.findall('sources.{,9}?"(.*?)"', data, re.S)
 			if not Liste_els:
 				L_els = re.findall('(eval.*?)</script>', data, re.S)
 				if 	L_els:

@@ -61,7 +61,7 @@ class TSIPHost(TSCBaseHostClass):
 					desc = desc + tscolor('\c00????00') + 'Story: ' + tscolor('\c00??????') + story + '\n'
 					if 'm3u8' in url: hst = 'tshost'
 					else: hst = 'direct'
-					self.addVideo({'category':'host2', 'title': titre,'url':url, 'desc':desc,'import':extra,'icon':image,'hst':hst})	
+					self.addVideo({'category' : 'video', 'title': titre,'url':url, 'desc':desc,'import':extra,'icon':image,'hst':hst})	
 
 	def get_links(self,cItem): 		
 		urlTab = []

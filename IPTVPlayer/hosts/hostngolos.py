@@ -1,17 +1,4 @@
 # -*- coding: utf-8 -*-
-
-#
-#
-# @Codermik release, based on @Samsamsam's E2iPlayer public.
-# Released with kind permission of Samsamsam.
-# All code developed by Samsamsam is the property of the Samsamsam and the E2iPlayer project,  
-# all other work is Â© E2iStream Team, aka Codermik.  TSiPlayer is Â© Rgysoft, his group can be
-# found here:  https://www.facebook.com/E2TSIPlayer/
-#
-# https://www.facebook.com/e2iStream/
-#
-#
-
 ###################################################
 # LOCAL import
 ###################################################
@@ -81,6 +68,11 @@ class NGolosCOM(CBaseHostClass):
     def listMainMenu(self, cItem, nextCategory):
         printDBG("NGolosCOM.listMainMenu")
         self.cacheCategories = []
+        
+        params = dict(cItem)
+        params.update({'category':'list_items', 'title':_('Home page'), 'url':cItem['url']})
+        self.addDir(params)
+        self.addMarker({})
         
         sts, data = self.getPage(cItem['url'])
         if not sts: return
@@ -231,9 +223,10 @@ class NGolosCOM(CBaseHostClass):
         for section in tmp:
             sId = self.cm.ph.getSearchGroups(section, '''id=['"]([^'^"]+?)['"]''')[0]
             subItems = []
-            section = section.split('</iframe>')
+            section = section.split('<br />')
             for item in section:
                 url = self.getFullUrl(self.cm.ph.getSearchGroups(item, '''<iframe[^>]+?src=['"]([^"^']+?)['"]''', 1, True)[0])
+                if url == '': url = self.getFullUrl(self.cm.ph.getSearchGroups(item, '''href=['"]([^"^']+?)['"]''', 1, True)[0])
                 if url == '': continue
                 title = '%s : %s' % (cItem['title'], self.cleanHtmlStr(item))
                 params = dict(cItem)
@@ -348,6 +341,11 @@ class NGolosCOM(CBaseHostClass):
                             urlTab.append({'name':name, 'url':url})
             except Exception:
                 printExc()
+        elif '.me/player' in videoUrl:
+            sts, data = self.cm.getPage(videoUrl)
+            if not sts: return []
+            url = self.cm.ph.getSearchGroups(data, '''file:[^"^']*?["'](http[^'^"]+?)["']''')[0]
+            urlTab.append({'name':self.up.getDomain(videoUrl), 'url':url})
         elif videoUrl.startswith('http'):
             urlTab.extend(self.up.getVideoLinkExt(videoUrl))
         return urlTab

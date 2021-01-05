@@ -2,7 +2,7 @@
 from Plugins.Extensions.IPTVPlayer.tools.iptvtools import printDBG,GetCookieDir
 from Plugins.Extensions.IPTVPlayer.libs import ph
 from Plugins.Extensions.IPTVPlayer.tools.iptvtypes import strwithmeta
-from Plugins.Extensions.IPTVPlayer.tsiplayer.libs.tstools import TSCBaseHostClass,tscolor
+from Plugins.Extensions.IPTVPlayer.tsiplayer.libs.tstools import TSCBaseHostClass,tscolor,tshost,VidStream
 from Components.config import config
 from Plugins.Extensions.IPTVPlayer.tools.e2ijs import js_execute
 import base64
@@ -14,23 +14,27 @@ from Plugins.Extensions.IPTVPlayer.libs.urlparser import urlparser
 
 def getinfo():
 	info_={}
-	info_['name']='Egy.Best'
-	info_['version']='1.4 23/02/2020'
+	name = 'Egy.Best'
+	hst = tshost(name)	
+	if hst=='': hst = 'https://open.egybest.asia'
+	info_['host']= hst
+	info_['name']=name
+	info_['version']='1.3.00 27/11/2020'
 	info_['dev']='RGYSoft | Thx to >> @maxbambi & @zadmario <<'
 	info_['cat_id']='201'
 	info_['desc']='أفلام عربية و اجنبية + مسلسلات اجنبية'
 	info_['icon']='https://i.ibb.co/z2SXTd8/souayah-Egy-Best-film.png'
 	info_['recherche_all']='1'
-	info_['update']='Fix Vidstream Server'
+	#info_['update']='Fix Vidstream Server'
 		
 	return info_
 	
 	
 class TSIPHost(TSCBaseHostClass):
 	def __init__(self):
-		TSCBaseHostClass.__init__(self,{'cookie':'egybest.cookie'})
+		TSCBaseHostClass.__init__(self,{'cookie':'egybest01.cookie'})
 		self.USER_AGENT = 'Mozilla/5.0 (Linux; Android 7.0; PLUS Build/NRD90M) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.98 Mobile Safari/537.36'
-		self.MAIN_URL = 'https://tool.egybest.ltd'
+		self.MAIN_URL =  getinfo()['host']
 		self.VID_URL  = 'https://vidstream.kim'
 		self.varconst = 'a0'
 		self.HTTP_HEADER = {'User-Agent': self.USER_AGENT, 'DNT':'1', 'Accept': 'text/html', 'Accept-Encoding':'gzip, deflate', 'Referer':self.getMainUrl(), 'Origin':self.getMainUrl()}
@@ -150,8 +154,11 @@ class TSIPHost(TSCBaseHostClass):
 		if sts:
 			data=data.replace('\\"','"')	
 			data=data.replace('\\/','/')				
-			lst_data=re.findall('<a href="(.*?)".*?rating">(.*?)</i>.*?src="(.*?)".*?title">(.*?)<.*?ribbon.*?<span>(.*?)<', data, re.S)			
+			lst_data=re.findall('<a href="(.*?)"(.*?)src="(.*?)".*?title">(.*?)<.*?ribbon.*?<span>(.*?)<', data, re.S)			
 			for (url1,rate,image,name_eng,qual) in lst_data:
+				lst_data0=re.findall('rating">(.*?)</i>', rate, re.S)
+				if lst_data0: rate=lst_data0[0]
+				else: rate = ''
 				desc=tscolor('\c00????00')+'Rating: '+tscolor('\c00??????')+self.cleanHtmlStr(rate)+'/10 | '+tscolor('\c00????00')+'Qual: '+tscolor('\c00??????')+qual
 				x1,titre=self.uniform_titre(str(name_eng.decode('unicode_escape')))
 				titre=titre.replace('()','')
@@ -204,9 +211,9 @@ class TSIPHost(TSCBaseHostClass):
 			if (('/series/' in url0) or ('/season/' in url0)):			
 				cat_data=re.findall('movies_small">(.*?)</div>', data, re.S)	
 				if cat_data:
-					el_data=re.findall('<a href="(.*?)".*?src="(.*?)".*?">(.*?)<', cat_data[0], re.S)
+					el_data=re.findall('<a href="(.*?)".*?src="(.*?)".*?title">(.*?)<', cat_data[0], re.S)
 					for (url1,image,name_eng) in el_data:					
-						self.addDir({'import':cItem['import'],'good_for_fav':True, 'name':'categories', 'category':'host2', 'url':url1, 'title':name_eng, 'desc':desc, 'icon':img, 'mode':'31'} )							
+						self.addDir({'import':cItem['import'],'good_for_fav':True, 'name':'categories', 'category':'host2', 'url':url1, 'title':self.cleanHtmlStr(name_eng.strip()), 'desc':desc, 'icon':img, 'mode':'31'} )							
 			else: 
 				self.addVideo({'import':cItem['import'],'good_for_fav':True,'name':'categories','category' : 'video','url': url0,'title':titre,'desc':desc,'icon':img,'hst':'tshost'})			
 		
@@ -215,6 +222,7 @@ class TSIPHost(TSCBaseHostClass):
 	def SearchResult(self,str_ch,page,extra):
 		printDBG('extra='+extra)
 		url_=self.MAIN_URL+'/explore/?page='+str(page)+'&output_format=json&q='+str_ch+'&output_mode=movies_list'
+		url_=self.std_url(url_)
 		sts, data = self.getPage(url_)	
 		if sts:
 			data=data.replace('\\"','"')	
@@ -276,11 +284,11 @@ class TSIPHost(TSCBaseHostClass):
 				urlTab.append({'name':'|HLS| Vidstream', 'url':'hst#tshost#'+Liste_els0[0], 'need_resolve':1,'type':'local'})
 			
 			Liste_els0 = re.findall('<table(.*?)</table>', data, re.S)
-			if Liste_els0:
+			if False:#Liste_els0:
 				printDBG('data='+Liste_els0[-1])
 				Liste_els1 = re.findall('<tr>.*?<td>(.*?)<td class.*?url="(.*?)"', Liste_els0[-1], re.S)
 				for (titre,url) in Liste_els1:
-					urlTab.append({'name':'|'+ph.clean_html(titre)+'| Vidstream', 'url':'hst#tshost#'+url+'&v=1', 'need_resolve':1,'type':'local'})
+					urlTab.append({'name':'|'+ph.clean_html(titre)+'| Vidstream', 'url':'hst#tshost#'+url+'&v=1'+'%%%'+cItem['url'], 'need_resolve':1,'type':'local'})
 				
 		return urlTab
 
@@ -288,14 +296,19 @@ class TSIPHost(TSCBaseHostClass):
 	def getVideos(self,videoUrl):
 		printDBG(' -----------> URL = '+videoUrl)
 		urlTab = []	
+		referer = self.MAIN_URL
+		if '%%%' in videoUrl: videoUrl,referer = videoUrl.split('%%%',1)
 		if not videoUrl.startswith('http'): videoUrl=self.MAIN_URL+videoUrl
 		if 'watch/?v' in videoUrl:
 			try:
+				printDBG('try resolve url0: '+videoUrl)
 				urlTab = self.parserVIDSTREAM(videoUrl,'egy')
 			except Exception, e:
 				printDBG('ERREUR:'+str(e))
 		else:
-			sts, data = self.getPage(videoUrl)
+			addParams0 = dict(self.defaultParams)
+			addParams0['header']['Referer']=referer
+			sts, data = self.getPage(videoUrl,addParams0)
 			if sts:
 				URL = data.meta['location']
 				VID_URL = urlparser.getDomain(URL, onlyDomain=False)
@@ -303,6 +316,7 @@ class TSIPHost(TSCBaseHostClass):
 				self.VID_URL = VID_URL
 				printDBG('HOST vstream = '+self.VID_URL)
 				try:				
+					printDBG('try resolve url1: '+URL)
 					urlTab = self.parserVIDSTREAM(URL)
 				except Exception, e:
 					printDBG('ERREUR:'+str(e))				
@@ -370,7 +384,7 @@ class TSIPHost(TSCBaseHostClass):
 
 	def parserVIDSTREAM(self, url,hst='vidstream'):
 		if hst=='vidstream':
-			COOKIE_FILE = GetCookieDir('vidstream5.cookie')
+			COOKIE_FILE = GetCookieDir('vidstream55.cookie')
 			main_url=self.VID_URL
 		else:
 			COOKIE_FILE = self.COOKIE_FILE
@@ -397,97 +411,38 @@ class TSIPHost(TSCBaseHostClass):
 				if s.startswith('function'):
 					script = s
 					break
-
 			if script:
 				printDBG(script)
 				printDBG("------------")
-
-				#  model for step }(a, 0x1b4));
-				# search for big list of words
-				tmpStep = re.findall("}\("+self.varconst+"a ?,(0x[0-9a-f]{1,3})\)\);", script)
-				if tmpStep:
-					step = eval(tmpStep[0])
+				OUT = VidStream(script)		
+				if 'ERR' in str(OUT): printDBG('Error: %s' % OUT.replace('ERR:',''))
 				else:
-					step = 128
-
-				printDBG("----> step: %s -> %s" % (tmpStep[0], step))
-				post_key = re.findall("'data':{'(_[0-9a-zA-Z]{10,20})':'ok'", script)
-				if post_key:
-					post_key = post_key[0]
-					printDBG("post_key : '%s'" % post_key)
-				else:
-					printDBG("Not found post_key ... check code")
-					return
-
-				tmpVar = re.findall("(var "+self.varconst+"a=\[.*?\];)", script)
-				if tmpVar:
-					wordList=[]
-					var_list = tmpVar[0].replace('var '+self.varconst+'a=','wordList=').replace("];","]").replace(";","|")
-					printDBG("-----var_list-------")
-					printDBG(var_list)
-					exec(var_list)
-					printDBG(script)
-					# search for second list of vars
-					tmpVar2 = re.findall(";"+self.varconst+"c\(\);(var .*?)\$\('\*'\)", script, re.S)
-					if tmpVar2:
-						printDBG("------------")
-						printDBG(tmpVar2[0])
-						threeListNames = re.findall("var (_[a-zA-z0-9]{4,8})=\[\];" , tmpVar2[0])
-						printDBG(str(threeListNames))
-						for n in range(0, len(threeListNames)):
-							tmpVar2[0] = tmpVar2[0].replace(threeListNames[n],"charList%s" % n)
-						printDBG("-------tmpVar2-----")
-						printDBG(tmpVar2[0])
-
-						# substitutions of terms from first list
-						printDBG("------------ len(wordList) %s" % len(wordList))
-						for i in range(0,len(wordList)):
-							r = self.varconst+"b('0x{0:x}')".format(i)
-							printDBG ('rrrrrrrrrrrrrr='+r)
-							j = i + step
-							while j >= len(wordList):
-								j = j - len(wordList)
-							tmpVar2[0] = tmpVar2[0].replace(r, "'%s'" % wordList[j])
-
-						var2_list=tmpVar2[0].split(';')
-						printDBG("------------ var2_list %s" % str(var2_list))
-						charList0={}
-						charList1={}
-						charList2={}
-						for v in var2_list:
-							if v.startswith('charList'):
-								exec(v)
-						bigString=''
-						for i in range(0,len(charList2)):
-							if charList2[i] in charList1:
-								bigString = bigString + charList1[charList2[i]]
-						printDBG("------------ bigString %s" % bigString)
-						sts, data = self.cm.getPage(main_url+"/cv.php", http_params)
-						zone = self.cm.ph.getSearchGroups(data, '''name=['"]zone['"] value=['"]([^'^"]+?)['"]''')[0]
-						rb = self.cm.ph.getSearchGroups(data, '''name=['"]rb['"] value=['"]([^'^"]+?)['"]''')[0]
-						printDBG("------------ zone[%s] rb[%s]" % (zone, rb))
-						cv_url = main_url+"/cv.php?verify=" + bigString
-						postData={ post_key : 'ok'}
-						AJAX_HEADER = {
-							'Accept': '*/*',
-							'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-							'Origin': self.cm.getBaseUrl(url),
-							'Referer': url,
-							'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36',
-							'X-Requested-With': 'XMLHttpRequest'
-						}
-						sts, ret = self.cm.getPage(cv_url, {'header':AJAX_HEADER, 'cookiefile':COOKIE_FILE, 'use_cookie': True, 'load_cookie': True, 'save_cookie': True}, postData)
-						if sts:
-							printDBG("------------ ret[%s]" % ret)
-							if 'ok' in ret:
-								if '?' in url:
-									url2 = url + "&r"
-								else:
-									url2 = url + "?r"
-								# retry to load the page
-								GetIPTVSleep().Sleep(1)
-								http_params['header']['Referer'] = url
-								sts, data = self.cm.getPage(url2, http_params)
+					printDBG('OUT = %s' % str(OUT))
+					sts, data = self.cm.getPage(main_url+OUT[0], http_params)
+					zone = self.cm.ph.getSearchGroups(data, '''name=['"]zone['"] value=['"]([^'^"]+?)['"]''')[0]
+					rb = self.cm.ph.getSearchGroups(data, '''name=['"]rb['"] value=['"]([^'^"]+?)['"]''')[0]
+					printDBG("------------ zone[%s] rb[%s]" % (zone, rb))
+					cv_url = main_url+ OUT[1]
+					AJAX_HEADER = {
+						'Accept': '*/*',
+						'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+						'Origin': self.cm.getBaseUrl(url),
+						'Referer': url,
+						'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36',
+						'X-Requested-With': 'XMLHttpRequest'
+					}
+					sts, ret = self.cm.getPage(cv_url, {'header':AJAX_HEADER, 'cookiefile':COOKIE_FILE, 'use_cookie': True, 'load_cookie': True, 'save_cookie': True}, OUT[2])
+					if sts:
+						printDBG("------------ ret[%s]" % ret)
+						if 'ok' in ret:
+							if '?' in url:
+								url2 = url + "&r="
+							else:
+								url2 = url + "?r="
+							# retry to load the page
+							GetIPTVSleep().Sleep(1)
+							http_params['header']['Referer'] = url
+							sts, data = self.cm.getPage(url2, http_params)
 		#printDBG('Data1='+data)
 		urlTab=[]
 		url3 = re.findall("<source src=[\"'](.*?)[\"']", data)
