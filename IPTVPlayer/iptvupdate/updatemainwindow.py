@@ -416,7 +416,7 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
         if not sts:
             self.stepFinished(-1, msg)
             return
-        serverUrl = "https://gitlab.com/{0}/e2iplayer/raw/master/IPTVPlayer/version.py".format(nick)
+        serverUrl = "https://gitlab.com/{0}/tsiplayervod/raw/master/IPTVPlayer/version.py".format(nick)
         self.downloader = UpdateDownloaderCreator(serverUrl)
         self.downloader.subscribersFor_Finish.append( boundFunction(self.downloadFinished, self.__serversListGitlabFinished, None))
         self.downloader.start(serverUrl, os_path.join(self.tmpDir, 'lastversion.py'))
@@ -729,8 +729,8 @@ class UpdateMainAppImpl(IUpdateObjectInterface):
                 except Exception:
                     printExc()
                 if 13 == len(newVerNum):
-                    sourceUrl = "https://gitlab.com/{0}/e2iplayer/-/archive/master/e2iplayer-master.tar.gz".format(nick)
-                    self.gitlabList = {'name':'gitlab.com', 'version':newVerNum, 'url':sourceUrl, 'subdir':'e2iplayer-master/', 'pyver':'X.X', 'packagetype':'sourcecode'}
+                    sourceUrl = "https://gitlab.com/{0}/tsiplayervod/-/archive/master/tsiplayervod-master.tar.gz".format(nick)
+                    self.gitlabList = {'name':'gitlab.com', 'version':newVerNum, 'url':sourceUrl, 'subdir':'tsiplayervod-master/', 'pyver':'X.X', 'packagetype':'sourcecode'}
                     printDBG("__serversListGitlabFinished: [%s]" % str(self.gitlabList))
                 else:
                     msg = _("Wrong version: [%s].") % str(self.gitlabList)

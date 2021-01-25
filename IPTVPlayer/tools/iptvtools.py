@@ -367,7 +367,7 @@ def GetCookieDir(file = '', forceFromConfig=False):
 gE2iPlayerTempJSCache = None
 def SetTmpJSCacheDir():
     global gE2iPlayerTempJSCache
-    gE2iPlayerTempJSCache = '/tmp/gitlabe2iplayer_js_cache/'
+    gE2iPlayerTempJSCache = '/tmp/e2iplayer_js_cache/'
     mkdirs(gE2iPlayerTempJSCache)
 
 def ClearTmpJSCacheDir():
@@ -452,8 +452,6 @@ def GetExtensionsDir(file = ''):
     return resolveFilename(SCOPE_PLUGINS, 'Extensions/') + file
 def GetSkinsDir(path = ''):
     return resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/skins/') + path
-def GetPlayerSkinDir(path = ''):
-    return resolveFilename(SCOPE_PLUGINS, 'Extensions/IPTVPlayer/playerskins/') + path
 def GetConfigDir(path = ''):
     return resolveFilename(SCOPE_CONFIG, path)
 def IsExecutable(fpath):

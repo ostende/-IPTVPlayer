@@ -1,4 +1,17 @@
 # -*- coding: utf-8 -*-
+
+#
+#
+# @Codermik release, based on @Samsamsam's E2iPlayer public.
+# Released with kind permission of Samsamsam.
+# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
+# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
+# found here:  https://www.facebook.com/E2TSIPlayer/
+#
+# https://www.facebook.com/e2iStream/
+#
+#
+
 #
 #  Konfigurator dla iptv 2013
 #  autorzy: j00zek, samsamsam
@@ -75,8 +88,6 @@ config.plugins.iptvplayer.extplayer_subtitle_box_valign = ConfigSelection(defaul
 config.plugins.iptvplayer.extplayer_subtitle_box_height  = ConfigInteger(240, (50, 400))
 
 config.plugins.iptvplayer.extplayer_infobanner_clockformat = ConfigSelection(default = "", choices = [ ("", _("None")), ("24", _("24 hour format ")), ("12", _("12 hour format "))])
-
-config.plugins.iptvplayer.extplayer_skin = ConfigSelection(default = "default", choices = [ ("default", _("default")), ("black", _("black")), ("red", _("red")), ("blue", _("blue")), ("green", _("green")), ("black-white", _("black&white")), ("cobalt", _("cobalt")), ("jersey", _("jersey")), ("navy", _("navy")), ("line", _("line"))])
 
 class ConfigExtMoviePlayerBase():
     
@@ -230,15 +241,6 @@ class ConfigExtMoviePlayerBase():
             return ''
         return config.plugins.iptvplayer.extplayer_infobanner_clockformat.value
     
-    def getPlayerSkinFolder(self):
-        printDBG("configextmovieplayer.getPlayerSkinFolder")
-        skin = config.plugins.iptvplayer.extplayer_skin.value
-        if not skin:
-            return "default"
-        else:
-            return skin
-  
-    
 class ConfigExtMoviePlayer(ConfigBaseWidget, ConfigExtMoviePlayerBase):
    
     def __init__(self, session, operatingPlayer=False):
@@ -307,8 +309,6 @@ class ConfigExtMoviePlayer(ConfigBaseWidget, ConfigExtMoviePlayerBase):
         list.append(getConfigListEntry(_("Remember last watched position"), config.plugins.iptvplayer.remember_last_position))
         if getDesktop(0).size().width() >= 800:
             list.append(getConfigListEntry(_("Info bar clock format"), config.plugins.iptvplayer.extplayer_infobanner_clockformat))
-            list.append(getConfigListEntry(_("Player Skin"), config.plugins.iptvplayer.extplayer_skin))
-            
         list.append(getConfigListEntry(_("Create LCD/VFD summary screen"), config.plugins.iptvplayer.extplayer_summary))
         if 1:#IsExecutable(config.plugins.iptvplayer.exteplayer3path.value):
             list.append(getConfigListEntry(_("----------------- External exteplayer3 options -----------------"), config.plugins.iptvplayer.fakeExtePlayer3))
