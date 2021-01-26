@@ -1,17 +1,4 @@
-# -*- coding: utf-8 -*-
-
-#
-#
-# @Codermik release, based on @Samsamsam's E2iPlayer public.
-# Released with kind permission of Samsamsam.
-# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
-# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
-# found here:  https://www.facebook.com/E2TSIPlayer/
-#
-# https://www.facebook.com/e2iStream/
-#
-#
-
+﻿# -*- coding: utf-8 -*-
 
 import re
 from Plugins.Extensions.IPTVPlayer.libs.youtube_dl.utils import clean_html as yt_clean_html
@@ -285,24 +272,3 @@ def clean_html(str):
     str = yt_clean_html(str)
     str = str.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
     return strip_doubles(str, ' ').strip()
-
-def findblock(data, start, end, flags=START_E | END_E, beg=0):
-    if flags != START_E | END_E:
-        raise Exception('flags not supported in current implementation')
-    retData = ''
-    if beg < 0:
-        beg = data.find(start)
-    idx = data.find(start, beg) + 1
-    num = 1
-    while idx < len(data):
-        if data.startswith(start, idx):
-            num += 1
-        else:
-            if data.startswith(end, idx):
-                num -= 1
-        if num == 0:
-            retData = data[beg:idx + 1]
-            break
-        idx += 1
-
-    return retData

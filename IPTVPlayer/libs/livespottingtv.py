@@ -1,17 +1,4 @@
-# -*- coding: utf-8 -*-
-
-#
-#
-# @Codermik release, based on @Samsamsam's E2iPlayer public.
-# Released with kind permission of Samsamsam.
-# All code developed by Samsamsam is the property of Samsamsam and the E2iPlayer project,  
-# all other work is © E2iStream Team, aka Codermik.  TSiPlayer is © Rgysoft, his group can be
-# found here:  https://www.facebook.com/E2TSIPlayer/
-#
-# https://www.facebook.com/e2iStream/
-#
-#
-
+﻿# -*- coding: utf-8 -*-
 
 ###################################################
 # LOCAL import
@@ -49,9 +36,10 @@ class LivespottingTvApi:
     def getChannelsList(self, cItem):
         printDBG("WkylinewebcamsCom.getChannelsList")
         list = []
-        sts, data = self.cm.getPage('http://livespotting.com/api/api.json')
+        sts, data = self.cm.getPage('https://livespotting.com/showroom.json')
         if not sts: return list
         printDBG("data: %s" % data)
+        data = data.replace('Showroom.Load(','').replace(');','')
         try:
             data = json_loads(data)
             for item in data:
